@@ -1,5 +1,6 @@
 const cds = require('@sap/cds');
 const nodemailer = require('nodemailer');
+const cron = require('node-cron');
 
 // ANS Webhook - registered before CDS middleware (no auth required)
 cds.on('bootstrap', (app) => {
@@ -82,8 +83,6 @@ DHI Contract Management System`;
 
 // ─── Scheduled Contract Expiry Check ───
 const DAYS_THRESHOLD = 30;
-const SCHEDULE_INTERVAL = 24 * 60 * 60 * 1000; // every 24 hours
-const INITIAL_DELAY = 30 * 1000; // 30 seconds after startup
 
 function getDaysUntilExpiry(expiryDate) {
   const today = new Date();
@@ -197,11 +196,13 @@ async function runScheduledExpiryCheck() {
 }
 
 cds.on('served', () => {
-  console.log(`Contract expiry scheduler started. Initial check in ${INITIAL_DELAY / 1000}s, then every 24h`);
-  setTimeout(() => {
+  // Schedule contract expiry check at 10:00 AM IST every day
+  cron.schedule('0 10 * * *', () => {
+    console.log(`[${new Date().toISOString()}] Cron triggered: 10:00 AM IST contract expiry check`);
     runScheduledExpiryCheck();
-    setInterval(runScheduledExpiryCheck, SCHEDULE_INTERVAL);
-  }, INITIAL_DELAY);
+  }, { timezone: 'Asia/Kolkata' });
+
+  console.log('Contract expiry scheduler started. Runs daily at 10:00 AM IST.');
 });
 
 module.exports = cds.server;
