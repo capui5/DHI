@@ -25,7 +25,12 @@ sap.ui.define([
                 } else {
                     this._fnReadAttributeGroup();
                     // Initialize new arrays for CRUD
-                    this.getModel("appModel").setProperty("/Template", []);
+                    this.getModel("appModel").setProperty("/Template", {
+                        name: "",
+                        desc: "",
+                        AssignedTo: "",
+                        AdminName: ""
+                    });
                     this.getModel("appModel").setProperty("/AttributeGroups", []);
                 }
                 var isEditMode = !!templateId;
@@ -372,6 +377,9 @@ sap.ui.define([
                     "AdminName":oModel.AdminName,
                     "attribute_groups": []
                 };
+                console.log("=== Template Save Payload ===");
+                console.log("Full appModel Template data:", JSON.stringify(oModel, null, 2));
+                console.log("Payload being sent:", JSON.stringify(payload, null, 2));
 
                 // Prepare payload with attribute groups' current ID and rank
                 for (var i = 0; i < aAssociatedAttributeGroups.length; i++) {

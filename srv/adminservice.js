@@ -16,8 +16,24 @@ module.exports = async function () {
       role: role,
       allowed: req.user.is(role)
     }));
+    // Get email from JWT token - try multiple sources
+    let userEmail = req.user.id;
+    try {
+      // Try to get email from token info (XSUAA JWT payload)
+      const tokenInfo = req.user.tokenInfo;
+      if (tokenInfo) {
+        const payload = tokenInfo.getPayload();
+        userEmail = payload.email || payload.mail || payload.user_name || req.user.id;
+        console.log("getUserInfo - JWT payload keys:", Object.keys(payload).join(', '));
+      } else if (req.user.attr && req.user.attr.email) {
+        userEmail = req.user.attr.email;
+      }
+    } catch (e) {
+      console.log("getUserInfo - error reading token:", e.message);
+    }
+    console.log("getUserInfo - user.id:", req.user.id, "resolved email:", userEmail);
     return {
-      user: req.user.id,
+      user: userEmail,
       roles: roles
     };
   });

@@ -54,7 +54,7 @@
         </f:header>
         <f:content>
             <table:Table id="tblContracts" alternateRowColors="true" selectionMode="None" rows="{ path: '/Contracts',
-            parameters: { operationMode: 'Server', $select: 'ID,alias,contract_id,description,start_date,end_date,templates_ID' },
+            parameters: { operationMode: 'Server', $select: 'ID,alias,contract_id,description,start_date,end_date,templates_ID,company_CompanyCode' },
             sorter: { path: 'modifiedAt', descending: true } }"  enableColumnFreeze="true" enableCellFilter="true" filter="onAttributeFilter" rowsUpdated="onRowsUpdated" enableBusyIndicator="true">
 
                 <table:extension>
@@ -105,6 +105,14 @@
                         <Label text="Contract Type"/>
                         <table:template>
                             <Text text="{templates/name}" wrapping="true"/>
+                        </table:template>
+                    </table:Column>
+
+                    <!-- Company -->
+                    <table:Column id="col_company" sortProperty="company/CompanyName" filterProperty="company/CompanyName" defaultFilterOperator="Contains" resizable="true" autoResizable="true">
+                        <Label text="Company"/>
+                        <table:template>
+                            <Text text="{company/CompanyName}" wrapping="true"/>
                         </table:template>
                     </table:Column>
 

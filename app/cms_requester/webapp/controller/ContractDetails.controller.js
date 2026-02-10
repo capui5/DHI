@@ -51,16 +51,24 @@ sap.ui.define([
             var oRolesModel = this.getOwnerComponent().getModel("roles");
 
             var fnApply = function () {
-                var sUserEmail = oRolesModel.getProperty("/userEmail");
-                if (!sUserEmail) {
+                var sCompanyName = oRolesModel.getProperty("/companyName");
+                console.log("=== Filter Contract Type ===");
+                console.log("Company Name for filter:", sCompanyName);
+                if (!sCompanyName) {
+                    console.log("No company name found, skipping filter");
                     return;
                 }
                 var oComboBox = that.byId("contractTypeSelect");
                 if (oComboBox) {
                     var oBinding = oComboBox.getBinding("items");
+                    console.log("ComboBox binding:", oBinding ? "found" : "NOT found");
                     if (oBinding) {
-                        oBinding.filter(new sap.ui.model.Filter("AdminName", sap.ui.model.FilterOperator.EQ, sUserEmail));
+                        var oFilter = new sap.ui.model.Filter("AdminName", sap.ui.model.FilterOperator.EQ, sCompanyName);
+                        oBinding.filter(oFilter);
+                        console.log("Filter applied: AdminName =", sCompanyName);
                     }
+                } else {
+                    console.log("ComboBox contractTypeSelect NOT found");
                 }
             };
 
@@ -88,6 +96,7 @@ sap.ui.define([
                 "name": null,
                 "start_date": null,
                 "templates_ID": null,
+                "company_CompanyCode": null,
                 "attribute_values": [],
                 "attachments": [],
                 "status": "New"
@@ -483,6 +492,13 @@ sap.ui.define([
                 return;
             }
             contractMasterData.status = "Draft";
+
+            // Set company from logged-in user's company
+            var oRolesModel = this.getOwnerComponent().getModel("roles");
+            var sCompanyCode = oRolesModel.getProperty("/companyCode");
+            if (sCompanyCode) {
+                contractMasterData.company_CompanyCode = sCompanyCode;
+            }
 
             if (sSaveType === "submit") {
                 if (!this.validateControls(this.getModel("Details").getProperty("/dynamicControlIds"))) {

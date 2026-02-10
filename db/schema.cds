@@ -88,6 +88,8 @@ entity Companies {
     key CompanyCode : String(20);
     CompanyName     : String(200);
     AdminName       : String(200);
+    contracts       : Association to many Contracts
+                          on contracts.company = $self;
 }
 
 entity ContractsAttributes : cuid, managed {
@@ -108,6 +110,7 @@ entity Contracts : cuid, managed {
     is_visible       : Boolean;
 
     templates        : Association to Templates @assert.target;
+    company          : Association to Companies;
     attachments      : Composition of many Attachments
                            on attachments.contracts = $self;
     attribute_values : Composition of many ContractsAttributes

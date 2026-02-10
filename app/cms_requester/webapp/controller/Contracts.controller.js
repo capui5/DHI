@@ -37,26 +37,27 @@ sap.ui.define([
 
             // Wait for company data to be loaded
             var fnApply = function () {
-                var sUserEmail = oRolesModel.getProperty("/userEmail");
-                if (!sUserEmail) {
+                var sCompanyCode = oRolesModel.getProperty("/companyCode");
+                var sCompanyName = oRolesModel.getProperty("/companyName");
+                if (!sCompanyCode) {
                     return;
                 }
 
-                // Filter Contracts table: only show contracts whose template AdminName matches user email
+                // Filter Contracts table: only show contracts belonging to the user's company
                 var oTable = that.byId("tblContracts");
                 var oBinding = oTable.getBinding("rows");
                 if (oBinding) {
-                    var oCompanyFilter = new Filter("templates/AdminName", FilterOperator.EQ, sUserEmail);
+                    var oCompanyFilter = new Filter("company_CompanyCode", FilterOperator.EQ, sCompanyCode);
                     that._companyFilter = oCompanyFilter;
                     oBinding.filter(oCompanyFilter);
                 }
 
-                // Filter Templates MultiComboBox in filter bar
+                // Filter Templates MultiComboBox in filter bar by company name
                 var oTemplateCombo = that.byId("contractTypeFilter");
                 if (oTemplateCombo) {
                     var oTemplateBinding = oTemplateCombo.getBinding("items");
                     if (oTemplateBinding) {
-                        oTemplateBinding.filter(new Filter("AdminName", FilterOperator.EQ, sUserEmail));
+                        oTemplateBinding.filter(new Filter("AdminName", FilterOperator.EQ, sCompanyName));
                     }
                 }
             };
@@ -202,6 +203,13 @@ sap.ui.define([
                 property: 'templates/name',
                 type: EdmType.String,
                 width: 35
+            });
+
+            columns.push({
+                label: 'Company',
+                property: 'company/CompanyName',
+                type: EdmType.String,
+                width: 30
             });
 
             columns.push({

@@ -65,15 +65,21 @@ sap.ui.define([
         _loadUserCompany: function (sUserEmail) {
             var oModel = this.getModel();
             var oRolesModel = this.getModel("roles");
+            console.log("=== Loading User Company ===");
+            console.log("Filtering Companies by AdminName:", sUserEmail);
             var oListBinding = oModel.bindList("/Companies", undefined, undefined, [
                 new sap.ui.model.Filter("AdminName", sap.ui.model.FilterOperator.EQ, sUserEmail)
             ]);
             oListBinding.requestContexts().then(function (aContexts) {
+                console.log("Companies found:", aContexts.length);
                 if (aContexts.length > 0) {
                     var oCompany = aContexts[0].getObject();
+                    console.log("Company data:", JSON.stringify(oCompany));
                     oRolesModel.setProperty("/companyCode", oCompany.CompanyCode);
                     oRolesModel.setProperty("/companyName", oCompany.CompanyName);
                     oRolesModel.setProperty("/adminName", oCompany.AdminName);
+                } else {
+                    console.log("No company found for this user email!");
                 }
                 oRolesModel.setProperty("/companyLoaded", true);
             }).catch(function (oErr) {
