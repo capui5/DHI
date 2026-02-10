@@ -40,7 +40,7 @@
                         </table:template>
                     </table:Column>
                                         <table:Column id="templateAdminName" filterProperty="AdminName" sortProperty="AdminName" resizable="true" autoResizable="true" headerMenu="menu">
-                        <Label text="Name of the Admin" wrapping="true"/>
+                        <Label text="Name of the Company " wrapping="true"/>
                         <table:template>
                             <Text text="{AdminName}" wrapping="false"/>
                         </table:template>

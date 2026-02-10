@@ -39,7 +39,7 @@
                             </ComboBox>
                         </VBox>
                         <VBox class="sapUiLargeMarginBeginEnd" width="100%">
-                            <Label class="sapUiTinyMarginBottom" text="Name of the Admin" labelFor="templateAdminList"/>
+                            <Label class="sapUiTinyMarginBottom" text="Name of the Company" labelFor="templateAdminList"/>
                             <ComboBox id="templateAdminList" width="100%" items="{ path: '/Companies'}" selectedKey="{appModel>/Template/AdminName}" showSecondaryValues="true">
                                 <core:ListItem key="{AdminName}" text="{CompanyName}" additionalText="{CompanyCode}" />
                             </ComboBox>
