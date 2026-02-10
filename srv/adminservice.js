@@ -1,6 +1,4 @@
 const cds = require('@sap/cds')
-const axios = require('axios')
-const nodemailer = require('nodemailer')
 
 module.exports = async function () {
   const { Templates, Contracts } = this.entities;
@@ -236,39 +234,6 @@ module.exports = async function () {
   // ─── Contract Expiry Notification (ANS + Email) ───
   // ═══════════════════════════════════════════════════════════════
 
-  // Helper: Get ANS credentials from VCAP_SERVICES
-  function getANSCredentials() {
-    try {
-      const vcapServices = JSON.parse(process.env.VCAP_SERVICES || '{}');
-      const ansService = vcapServices['alert-notification']?.[0];
-      if (ansService?.credentials) {
-        return ansService.credentials;
-      }
-    } catch (e) {
-      console.error('Error parsing VCAP_SERVICES:', e.message);
-    }
-    return null;
-  }
-
-  // Helper: Get OAuth token for ANS
-  async function getANSToken(credentials) {
-    try {
-      const tokenUrl = credentials.oauth_url;
-      const response = await axios.post(tokenUrl, null, {
-        auth: {
-          username: credentials.client_id,
-          password: credentials.client_secret
-        },
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        timeout: 30000
-      });
-      return response.data.access_token;
-    } catch (err) {
-      console.error('Failed to get ANS token:', err.message);
-      return null;
-    }
-  }
-
   // Helper: Calculate days until expiry
   function getDaysUntilExpiry(expiryDate) {
     const today = new Date();
@@ -291,18 +256,6 @@ module.exports = async function () {
 
     if (!recipientEmail) {
       console.warn(`No createdBy found for contract ${contract.contract_id || contract.ID} - skipping notification`);
-      return false;
-    }
-
-    const ansCredentials = getANSCredentials();
-    if (!ansCredentials) {
-      console.error('Alert Notification Service credentials not found in VCAP_SERVICES');
-      return false;
-    }
-
-    const token = await getANSToken(ansCredentials);
-    if (!token) {
-      console.error('Failed to obtain ANS token');
       return false;
     }
 
@@ -348,16 +301,17 @@ DHI Contract Management System`,
     };
 
     try {
-      const response = await axios.post(
-        `${ansCredentials.url}/cf/producer/v1/resource-events`,
-        alertPayload,
+      const response = await executeHttpRequest(
+        { destinationName: 'ALERT_NOTIFICATION' },
         {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          timeout: 30000
-        }
+          method: 'post',
+          url: '/cf/producer/v1/resource-events',
+          data: alertPayload,
+          headers: { 'Content-Type': 'application/json' }
+        },
+         {
+    fetchCsrfToken: false   // 👈 THIS LINE FIXES 403
+  }
       );
       console.log(`Alert sent for contract ${contract.contract_id || contract.ID} to ${recipientEmail}:`, response.status);
       return true;
@@ -466,67 +420,4 @@ DHI Contract Management System`,
     return await sendContractAlertNotification(contract, daysUntilExpiry);
   });
 
-  // ANS Webhook - receives alert from ANS and sends email to dynamic recipient
-  this.on('ansWebhook', async (req) => {
-    const { recipientEmail, subject, body, contractId, contractName, daysRemaining, startDate, expiryDate } = req.data;
-
-    console.log(`ANS Webhook triggered - sending email to: ${recipientEmail}`);
-
-    if (!recipientEmail) {
-      req.error(400, 'Recipient email is required');
-      return false;
-    }
-
-    try {
-      const smtpHost = process.env.SMTP_HOST;
-      const smtpPort = process.env.SMTP_PORT || '587';
-      const smtpUser = process.env.SMTP_USER;
-      const smtpPassword = process.env.SMTP_PASSWORD;
-      const smtpFrom = process.env.SMTP_FROM || smtpUser;
-
-      if (!smtpHost || !smtpUser || !smtpPassword) {
-        console.error('SMTP configuration missing. Set SMTP_HOST, SMTP_USER, SMTP_PASSWORD environment variables.');
-        req.error(500, 'SMTP configuration not found');
-        return false;
-      }
-
-      const transporter = nodemailer.createTransport({
-        host: smtpHost,
-        port: parseInt(smtpPort),
-        secure: smtpPort === '465',
-        auth: { user: smtpUser, pass: smtpPassword }
-      });
-
-      const emailSubject = subject || `Contract "${contractName}" expires in ${daysRemaining} days`;
-      const emailBody = body || `Dear Team,
-
-This is an automated notification to inform you that the following contract is expiring soon:
-
-Contract ID: ${contractId || 'N/A'}
-Contract Name: ${contractName || 'N/A'}
-Start Date: ${startDate || 'N/A'}
-Expiry Date: ${expiryDate || 'N/A'}
-Days Remaining: ${daysRemaining || 'N/A'}
-
-Please take necessary action before the expiry date.
-
-Best regards,
-DHI Contract Management System`;
-
-      const mailOptions = {
-        from: smtpFrom,
-        to: recipientEmail,
-        subject: emailSubject,
-        text: emailBody
-      };
-
-      const result = await transporter.sendMail(mailOptions);
-      console.log(`Email sent to ${recipientEmail}: ${result.messageId}`);
-      return true;
-    } catch (err) {
-      console.error('Failed to send email:', err.message);
-      req.error(500, 'Failed to send email: ' + err.message);
-      return false;
-    }
-  });
 }

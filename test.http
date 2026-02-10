@@ -1,0 +1,3 @@
+### Check all contracts for expiry and send notifications
+POST https://druk-holding-and-investments-dhi-alm-cloud-mwwpt8sk-cms48400493.cfapps.ap11.hana.ondemand.com/contracts/checkExpiryNotifications
+Content-Type: application/json
