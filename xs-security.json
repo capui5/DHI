@@ -1,0 +1,92 @@
+{
+  "xsappname": "dhi_cms",
+  "tenant-mode": "dedicated",
+  "description": "Security profile of called application",
+  "scopes": [
+    {
+      "name": "uaa.user",
+      "description": "UAA"
+    },
+    {
+      "name": "$XSAPPNAME.DHI_Admin",
+      "description": "DHI Admin - Full administrative control"
+    },
+    {
+      "name": "$XSAPPNAME.DHI_PowerUser",
+      "description": "DHI Power User - Template management"
+    },
+    {
+      "name": "$XSAPPNAME.Company_Admin",
+      "description": "Company Admin - Full contract management"
+    },
+    {
+      "name": "$XSAPPNAME.Company_Editor",
+      "description": "Company Editor - Create and edit contracts"
+    },
+    {
+      "name": "$XSAPPNAME.Company_Viewer",
+      "description": "Company Viewer - Read-only access"
+    },
+    {
+      "name": "$XSAPPNAME.Auditor",
+      "description": "Auditor / Compliance Officer - Global read-only access"
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "Token_Exchange",
+      "description": "UAA",
+      "scope-references": [
+        "uaa.user"
+      ]
+    },
+    {
+      "name": "DHI_Admin",
+      "description": "Full administrative control over metadata and template assignments used system-wide",
+      "scope-references": [
+        "uaa.user",
+        "$XSAPPNAME.DHI_Admin"
+      ]
+    },
+    {
+      "name": "DHI_PowerUser",
+      "description": "Can create and manage templates but cannot change attribute definitions",
+      "scope-references": [
+        "uaa.user",
+        "$XSAPPNAME.DHI_PowerUser"
+      ]
+    },
+    {
+      "name": "Company_Admin",
+      "description": "Manages all contract operations within their company based on assigned templates",
+      "scope-references": [
+        "uaa.user",
+        "$XSAPPNAME.Company_Admin"
+      ]
+    },
+    {
+      "name": "Company_Editor",
+      "description": "Can prepare and update contracts but cannot delete them",
+      "scope-references": [
+        "uaa.user",
+        "$XSAPPNAME.Company_Editor"
+      ]
+    },
+    {
+      "name": "Company_Viewer",
+      "description": "Read-only access to attributes, attribute groups, templates, and contracts",
+      "scope-references": [
+        "uaa.user",
+        "$XSAPPNAME.Company_Viewer"
+      ]
+    },
+    {
+      "name": "Auditor",
+      "description": "Auditor / Compliance Officer - Read-only global access for audit and compliance purposes",
+      "scope-references": [
+        "uaa.user",
+        "$XSAPPNAME.Auditor"
+      ]
+    }
+  ]
+}

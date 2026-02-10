@@ -1,0 +1,134 @@
+<mvc:View xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:table="sap.ui.table"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.f"
+    xmlns:grid="sap.ui.layout.cssgrid"
+    xmlns:dnd="sap.ui.core.dnd" controllerName="com.dhi.cms.cmsadmin.controller.CreateTemplate">
+    <Page id="createTemplate" showHeader="false">
+        <content>
+            <OverflowToolbar class="customToolbar" height="3rem" design="Transparent">
+                <Title class="sapUiSmallMarginBegin" titleStyle="H4" text="{i18n>Create_Template_Title}" id="createTemplateTitle"/>
+                <ToolbarSpacer/>
+                <!-- <Button class="sapUiTinyMarginEnd" type="Neutral" text="{i18n>Create_Template_DoneButton}" icon="sap-icon://complete" press="onNavigation('Templates')"/> -->
+                <Button type="Emphasized" text="{i18n>Create_Template_SaveButton}" icon="sap-icon://save" press=".onSave"/>
+                <Button class="sapUiSmallMarginEnd" text="{i18n>Create_Template_CancelButton}" icon="sap-icon://decline" press=".onNavigation('Templates')"/>
+            </OverflowToolbar>
+            <f:GridList class="sapUiMediumMarginTop sapUiMediumMarginBegin" width="96%">
+                <f:GridListItem>
+                    <f:layoutData>
+                        <grid:ResponsiveColumnItemLayoutData columns="auto" />
+                    </f:layoutData>
+                    <HBox id="templateData" class="sapUiLargeMarginTop sapUiSmallMarginBottom sapUiLargeMarginBegin" alignItems="Start" justifyContent="SpaceBetween">
+                        <VBox class="sapUiLargeMarginEnd" visible="{appModel>/isEditMode}" width="100%">
+                            <Label class="sapUiTinyMarginBottom" visible="{appModel>/isEditMode}" text="{i18n>Create_Template_TemplateID}" labelFor="templateIdInput"/>
+                            <Input visible="{appModel>/isEditMode}" placeholder="{i18n>Create_Template_TemplateIDPlaceholder}" width="100%" editable="false" value="{appModel>/Template/ID}" />
+                        </VBox>
+                        <VBox class="sapUiLargeMarginBeginEnd" width="100%">
+                            <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Template_TemplateName}" labelFor="templateNameInput" required="true"/>
+                            <Input id="templateNameInput" maxLength="50" placeholder="{i18n>Create_Template_TemplateNamePlaceholder}" width="100%" value="{appModel>/Template/name}"/>
+                        </VBox>
+                        <VBox class="sapUiLargeMarginBeginEnd" width="100%">
+                            <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Template_Description}" labelFor="templateDescInput"/>
+                            <TextArea growing="true" growingMaxLines="10" id="templateDescInput" maxLength="100" placeholder="{i18n>Create_Template_DescriptionPlaceholder}" width="100%" value="{appModel>/Template/desc}"/>
+                        </VBox>
+                        <VBox class="sapUiLargeMarginBeginEnd" width="100%">
+                            <Label class="sapUiTinyMarginBottom" text="Approver" required="true" labelFor="templateApproverList"/>
+                            <ComboBox id="templateApproverList" width="100%" items="{ path: '/LISTAPPROVER'}" selectedKey="{appModel>/Template/AssignedTo}" showSecondaryValues="true">
+                                <core:ListItem key="{MAILID}" text="{NAME}" />
+                            </ComboBox>
+                        </VBox>
+                        <VBox class="sapUiLargeMarginBeginEnd" width="100%">
+                            <Label class="sapUiTinyMarginBottom" text="Name of the Admin" labelFor="templateAdminList"/>
+                            <ComboBox id="templateAdminList" width="100%" items="{ path: '/Companies'}" selectedKey="{appModel>/Template/AdminName}" showSecondaryValues="true">
+                                <core:ListItem key="{AdminName}" text="{CompanyName}" additionalText="{CompanyCode}" />
+                            </ComboBox>
+                        </VBox>
+                    </HBox>
+                    <OverflowToolbar/>
+                    <!-- <HBox renderType="Bare" class="sapUiLargeMargin">
+                        <Table id="tblAttrGrpTemplate" mode="SingleSelectMaster" growing="true" growingThreshold="10" items="{
+                                path: 'appModel>/AttributeGroups',
+                                filters: [{
+                                    path: 'Rank',
+                                    operator: 'GT',
+                                    value1: 0
+                                }]
+                            }">
+                            <headerToolbar>
+                                <OverflowToolbar>
+                                    <Title text="{i18n>Create_Template_AttributeGroups}" id="attributeGroupsTitle"/>
+                                    <ToolbarSpacer />
+                                    <Button text="{i18n>Create_Template_AddAttributeGroupButton}" icon="sap-icon://add-document" press="onAddAttributeGroup"/>
+                                </OverflowToolbar>
+                            </headerToolbar>
+                            <columns>
+                                <Column headerMenu="columnHeaderMenu">
+                                    <Text text="{i18n>Create_Template_AttributeGroupName}" />
+                                </Column>
+                                <Column headerMenu="columnHeaderMenu">
+                                    <Text text="{i18n>Create_Template_AttributeGroupDescription}" />
+                                </Column>
+                                <Column hAlign="End"/>
+                            </columns>
+                            <dragDropConfig>
+                                <dnd:DragDropInfo sourceAggregation="items" targetAggregation="items" dropPosition="Between" drop="onDropSelected"/>
+                            </dragDropConfig>
+                            <items>
+                                <ColumnListItem>
+                                    <cells>
+                                        <Text text="{appModel>name}" wrapping="false" />
+                                        <Text text="{appModel>desc}" wrapping="false" />
+                                        <Button icon="sap-icon://delete" type="Reject" tooltip="{i18n>Create_Template_DeleteAttributeGroupTooltip}" press="onDeleteAttributeGroup" />
+                                    </cells>
+                                </ColumnListItem>
+                            </items>
+                        </Table>
+                    </HBox> -->
+                    <HBox renderType="Bare" class="sapUiLargeMargin">
+                        <OverflowToolbar width="100%">
+                            <Title text="{i18n>Create_Template_AttributeGroups}" id="attributeGroupsTitle2"/>
+                            <ToolbarSpacer />
+                            <Button text="{i18n>Create_Template_AddAttributeGroupButton}" icon="sap-icon://add-document" press=".onAddAttributeGroup"/>
+                        </OverflowToolbar>
+                    </HBox>
+                    <HBox renderType="Bare" class="sapUiLargeMargin">
+                        <table:TreeTable id="tblAttrGrpTemplate2" selectionMode="None" enableSelectAll="false" ariaLabelledBy="attributeGroupsTitle2" rowHeight="40">
+                            <table:columns>
+                                <table:Column width="30rem">
+                                    <Label text="{i18n>Create_Template_AttributeGroupName}"/>
+                                    <table:template>
+                                        <Text text="{appModel>name}" wrapping="false"/>
+                                    </table:template>
+                                </table:Column>
+
+                                <table:Column width="30rem">
+                                    <Label text="{i18n>Create_Template_AttributeGroupDescription}"/>
+                                    <table:template>
+                                        <Text text="{appModel>desc}" wrapping="false"/>
+                                    </table:template>
+                                </table:Column>
+
+                                <!-- Portal Enabled Column -->
+                                <!-- <table:Column width="8rem" hAlign="Center">
+                                    <Label text="Portal Enabled" />
+                                    <table:template>
+                                        <Switch state="{appModel>isPortalEnabled}" change="onAttributeSwitchChange" visible="{= !${appModel>Rank} }" />
+                                    </table:template>
+                                </table:Column> -->
+
+                                <!-- Delete Column -->
+                                <table:Column width="15rem" hAlign="Center">
+                                    <Label text="Remove Attribute Group" />
+                                    <table:template>
+                                        <Button icon="sap-icon://delete" type="Reject" tooltip="{i18n>Create_Template_DeleteAttributeGroupTooltip}" press=".onDeleteAttributeGroup" visible="{= ${appModel>Rank} > 0 }" />
+                                    </table:template>
+                                </table:Column>
+                            </table:columns>
+                        </table:TreeTable>
+                    </HBox>
+                </f:GridListItem>
+            </f:GridList>
+        </content>
+    </Page>
+</mvc:View>

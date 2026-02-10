@@ -1,0 +1,87 @@
+<core:FragmentDefinition xmlns:f="sap.ui.layout.form" xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:grid="sap.ui.layout.cssgrid">
+    
+          <f:SimpleForm
+      id="contractSimpleForm"
+            editable="true"
+        title="{i18n>contractInfoTitle}"
+            
+            maxContainerCols="1"
+            layout="ResponsiveGridLayout"
+            labelSpanL="4" labelSpanM="4" labelSpanS="12"
+            adjustLabelSpan="true"
+            columnsL="1"
+            columnsM="1"
+            columnsXL="1"
+            class="contractForm"
+       
+    >
+        <f:content>
+            <Label text="{i18n>lblContractTitle}" required="true"/>
+            <Input 
+                id="contractTitleInput" 
+                placeholder="{i18n>phContractTitle}"
+                value="{contractModel>/name}"
+                width="500px" 
+                required="true"
+                change="onControlValueChange"
+                editable="{appModel>/isFieldEditable}"
+            />
+
+            <Label text="{i18n>lblContractNumber}" visible="{= !!${contractModel>/ID} }"/>
+            <Input 
+                id="contractNumberInput" 
+                placeholder="{i18n>phContractNumber}"
+                value="{contractModel>/ID}" 
+                editable="false"
+                width="500px"
+                visible="{= !!${contractModel>/ID} }"
+                change="onControlValueChange"
+            />
+
+            <Label text="{i18n>lblContractType}" required="true"/>
+            <ComboBox 
+                id="contractTypeSelect" 
+                placeholder="{i18n>phSelect}"
+                selectedKey="{contractModel>/templates_ID}" 
+                items="{path: '/Templates'}"
+                width="500px"
+                editable="{= !${contractModel>/ID} }"
+                required="true"
+                change="onControlValueChange"
+            >
+                <core:Item key="{ID}" text="{name}" />
+            </ComboBox>
+            <Label text="{i18n>lblAlias}" required="true"/>
+            <Input 
+                id="contractaliasInput" 
+                placeholder="{i18n>phAlias}"
+                value="{contractModel>/alias}"
+                width="500px" 
+                required="true"
+                change="onControlValueChange"
+                                editable="{appModel>/isFieldEditable}"
+
+            />
+            <Label text="{i18n>lblDescription}" required="true"/>
+            <Input 
+                id="contractdescriptionInput" 
+                placeholder="{i18n>phDescription}" 
+                value="{contractModel>/description}"
+                width="500px" 
+                required="true"
+                change="onControlValueChange"
+                                editable="{appModel>/isFieldEditable}"
+
+            />
+            <Label text="{i18n>lblStartDate}"></Label>
+            <DatePicker id="dpStartDate" value="{contractModel>/start_date}" displayFormat="yyyy-MM-dd" valueFormat="yyyy-MM-dd" width="500px" editable="{appModel>/isFieldEditable}" change=".onDateChange"
+ ></DatePicker>
+ <!-- initialFocusedDateValue="{appmodel>/focussedDate}" -->
+            <Label text="{i18n>lblExpiryDate}"></Label>
+            <DatePicker id="dpEndDate" value="{contractModel>/end_date}" displayFormat="yyyy-MM-dd" valueFormat="yyyy-MM-dd" width="500px" editable="{appModel>/isFieldEditable}" change=".onDateChange"
+></DatePicker>
+        </f:content>
+    </f:SimpleForm>
+</core:FragmentDefinition>

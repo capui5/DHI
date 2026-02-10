@@ -1,0 +1,160 @@
+{
+  "_version": "1.76.0",
+  "sap.app": {
+    "id": "com.dhi.cms.cmsrequester",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.19.6",
+      "toolsId": "b103316d-3bcc-4d5b-be45-3cf43f2ed175"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/contracts/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "CMS-Display": {
+          "semanticObject": "CMS",
+          "action": "Display",
+          "title": "{{CMS-Display.flpTitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": false,
+    "dependencies": {
+      "minUI5Version": "1.143.0",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "com.dhi.cms.cmsrequester.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "contractModel": {
+        "type": "sap.ui.model.json.JSONModel",
+        "uri": "model/contract.json"
+      },
+      "Details": {
+        "type": "sap.ui.model.json.JSONModel",
+        "uri": "model/details.json"
+      },
+      
+      "appModel": {
+                "type": "sap.ui.model.json.JSONModel"
+            },
+            "ComboBoxModel": {
+                "type": "sap.ui.model.json.JSONModel"
+            }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "transition": "slide",
+        "type": "View",
+        "viewType": "XML",
+        "path": "com.dhi.cms.cmsrequester.view",
+        "async": true,
+        "viewPath": "com.dhi.cms.cmsrequester.view"
+      },
+      "routes": [
+        {
+          "name": "Contracts",
+          "pattern": ":?query:",
+          "target": [
+            "TargetContracts"
+          ]
+        },
+        {
+          "name": "ContractDetails",
+          "pattern": "ContractDetails/:contractId:",
+          "target": [
+            "TargetContractDetails"
+          ]
+        }
+      ],
+      "targets": {
+        "TargetContracts": {
+          "id": "Contracts",
+          "name": "Contracts"
+        },
+        "TargetContractDetails": {
+          "id": "ContractDetails",
+          "name": "ContractDetails"
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "com.dhi.cms.cmsrequester.view.App",
+      "type": "XML",
+      "id": "App",
+      "async": true
+    }
+  },
+  "sap.cloud": {
+    "public": true,
+    "service": "cms"
+  }
+}

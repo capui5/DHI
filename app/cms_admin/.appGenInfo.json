@@ -1,0 +1,24 @@
+{
+  "generationParameters": {
+    "generationDate": "Thu Dec 04 2025 14:48:11 GMT+0000 (Coordinated Universal Time)",
+    "generatorPlatform": "SAP Business Application Studio",
+    "serviceType": "Local CAP",
+    "metadataFilename": "",
+    "serviceUrl": "http://localhost:4004/contracts/",
+    "appName": "cms_admin",
+    "appTitle": "CMS Admin",
+    "appDescription": "An SAP Fiori application.",
+    "appNamespace": "com.dhi.cms",
+    "ui5Theme": "sap_horizon",
+    "ui5Version": "1.143.0",
+    "enableCodeAssist": false,
+    "enableEslint": false,
+    "enableTypeScript": false,
+    "showMockDataInfo": false,
+    "generatorVersion": "1.19.6",
+    "template": "Basic V4",
+    "generatorName": "SAP Fiori Application Generator",
+    "entityRelatedConfig": [],
+    "launchText": "To launch the generated app, start your CAP project:  and navigate to the following location in your browser:\n\nhttp://localhost:4004/cms_admin/webapp/index.html"
+  }
+}

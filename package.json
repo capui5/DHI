@@ -1,0 +1,83 @@
+{
+ "name": "dhi_cms",
+ "version": "1.0.0",
+ "description": "A simple CAP project.",
+ "dependencies": {
+  "@cap-js-community/odata-v2-adapter": "^1.15.7",
+  "@cap-js/hana": "^2",
+  "@sap-cloud-sdk/http-client": "^4.4.0",
+  "@sap/cds": "^9",
+  "axios": "^1.13.5",
+  "express": "^4",
+  "nodemailer": "^6.10.1"
+ },
+ "devDependencies": {
+  "@cap-js/sqlite": "^2",
+  "@sap/cds-dk": "^9",
+  "@ui5/linter": "^1.20.6",
+  "cds-plugin-ui5": "^0.13.0",
+  "mbt": "^1.2.29",
+  "rimraf": "^5.0.5"
+ },
+ "scripts": {
+  "start": "cds-serve",
+  "watch-cms_admin": "cds watch --open com.dhi.cms.cmsadmin/index.html?sap-ui-xx-viewCache=false --livereload false",
+  "undeploy": "cf undeploy dhi_cms --delete-services --delete-service-keys --delete-service-brokers",
+  "build": "rimraf resources mta_archives && mbt build --mtar archive",
+  "deploy": "cf deploy mta_archives/archive.mtar --retries 1",
+  "watch-cms_requester": "cds watch --open com.dhi.cms.cmsrequester/index.html?sap-ui-xx-viewCache=false --livereload false"
+ },
+ "private": true,
+ "cds": {
+  "requires": {
+   "SBPA_API": {
+    "kind": "odata",
+    "credentials": {
+     "destination": "SBPA_API",
+     "requestTimeout": "300000"
+    }
+   },
+   "auth": {
+    "[production]": {
+     "strategy": "xsuaa"
+    },
+    "[development]": {
+     "strategy": "dummy"
+    }
+   },
+   "db": {
+    "[production]": {
+     "kind": "hana",
+     "vcap": {
+      "label": "hana",
+      "name": "dhi_cms-db"
+     },
+     "pool": {
+      "max": 1400,
+      "min": 100
+     }
+    },
+    "[development]": {
+     "kind": "hana-cloud",
+     "vcap": {
+      "label": "hana",
+      "name": "dhi_cms-db"
+     },
+     "pool": {
+      "max": 1400,
+      "min": 100
+     }
+    }
+   },
+   "destinations": true
+  },
+  "server": {
+   "body_parser": {
+    "limit": "50mb"
+   }
+  }
+ },
+ "workspaces": [
+  "app/*"
+ ]
+}

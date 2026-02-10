@@ -1,0 +1,67 @@
+<mvc:View xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:tnt="sap.tnt"
+    xmlns:table="sap.ui.table"
+    xmlns:f="sap.f"
+    xmlns:grid="sap.ui.layout.cssgrid"
+    xmlns:rowmodes="sap.ui.table.rowmodes" controllerName="com.dhi.cms.cmsadmin.controller.Templates">
+    <Page id="TemplatesPage" showHeader="false">
+        <content>
+            <table:Table id="tblTemplates" filter=".onTemplateFilter" enableBusyIndicator="true" class="sapUiSmallMargin"   selectionMode="None" visibleRowCountMode="Auto" rows="{path: '/Templates', sorter: { path: 'ID', descending: true }}" enableColumnFreeze="true" enableCellFilter="true" core:require='{ handler : "com/dhi/cms/cmsadmin/util/TemplatesTableHelper" }' rowsUpdated=".onRowsUpdated">
+                <table:extension>
+                    <OverflowToolbar design="Transparent" class="sapUiSmallMargin overflowToolbarBorder">
+                        <Title text="{= ${i18n>Templates_Title} + ' (' + ${appModel>/TemplateCount} + ')' }" titleStyle="H3"/>
+                        <ToolbarSpacer/>
+                        <Button id="createTemplates" text="{i18n>Templates_CreateButton}" icon="sap-icon://add-document" press=".onNavigation('Create Template')" type="Emphasized" visible="{roles>/canCreateTemplate}"/>
+                        <Button id="clearFilters" enabled="true" visible="true" text="{i18n>Templates_ClearFilters}" icon="sap-icon://clear-filter" press=".clearAllFilters" tooltip="{i18n>Templates_ClearFiltersTooltip}"/>
+                        <Button icon="sap-icon://action-settings" press=".onPersonalization" tooltip="{i18n>Templates_TablePersonalizationTooltip}" />
+                        <Button id="exportTemplates" press="handler.onExportData" icon="sap-icon://excel-attachment" enabled="{= ${appModel>/TemplateCount} > 0 }"
+ tooltip="{i18n>Templates_ExportTableTooltip}" />
+                    </OverflowToolbar>
+                </table:extension>
+                <table:columns>
+                    <table:Column id="templateId"  defaultFilterOperator="EQ"  filterProperty="ID" sortProperty="ID" resizable="true" autoResizable="true" headerMenu="menu">
+                        <Label text="{i18n>Templates_ColumnID}" wrapping="true"/>
+                        <table:template>
+                            <Text text="{ID}" wrapping="false" textAlign="Left" width="100%"/>
+                        </table:template>
+                    </table:Column>
+                    <table:Column id="templateName"   filterProperty="name" sortProperty="name" resizable="true" autoResizable="true" headerMenu="menu">
+                        <Label text="{i18n>Templates_ColumnName}" wrapping="true"/>
+                        <table:template>
+                            <Text text="{name}" wrapping="false"/>
+                        </table:template>
+                    </table:Column>
+                    <table:Column id="templateDesc" filterProperty="desc" sortProperty="desc" resizable="true" autoResizable="true" headerMenu="menu">
+                        <Label text="{i18n>Templates_ColumnDescription}" wrapping="true"/>
+                        <table:template>
+                            <Text text="{desc}" wrapping="false"/>
+                        </table:template>
+                    </table:Column>
+                                        <table:Column id="templateAdminName" filterProperty="AdminName" sortProperty="AdminName" resizable="true" autoResizable="true" headerMenu="menu">
+                        <Label text="Name of the Admin" wrapping="true"/>
+                        <table:template>
+                            <Text text="{AdminName}" wrapping="false"/>
+                        </table:template>
+                    </table:Column>
+                    <table:Column id="templateStatus" filterProperty="Status" sortProperty="Status" resizable="true" autoResizable="true" headerMenu="menu">
+                        <Label text="{i18n>Templates_ColumnStatus}" wrapping="true"/>
+                        <table:template>
+                            <Text text="{Status}" wrapping="false"/>
+                        </table:template>
+                    </table:Column>
+                    <table:Column width="90px" >
+                        <Label text="{i18n>Templates_ColumnActions}" visible="false"/>
+                        <table:template>
+                            <HBox>
+                                <Button icon="sap-icon://edit" type="Emphasized" class="sapUiTinyMarginEnd" press=".onTemplateEdit" tooltip="{i18n>Templates_EditButton}" visible="{= ${Status} !== 'SUBMITTED' &amp;&amp; ${roles>/canEditTemplate} }" />
+                                <Button icon="sap-icon://delete" type="Reject" class="sapUiTinyMarginEnd" press=".onTemplateDelete" tooltip="{i18n>Templates_DeleteButton}" visible="{= ${Status} !== 'SUBMITTED' &amp;&amp; ${roles>/canDeleteTemplate} }"/>
+                            </HBox>
+                        </table:template>
+                    </table:Column>
+                </table:columns>
+            </table:Table>
+        </content>
+    </Page>
+</mvc:View>

@@ -1,0 +1,749 @@
+@server=http://localhost:4004
+
+### Get ReasonCodeView
+GET {{server}}/contracts//Set
+Accept: application/json
+Authorization: Basic adminUser:
+
+### Attributes
+# @name Attributes_GET
+GET {{server}}/contracts/Attributes
+
+
+
+### Attributes
+# @name Attributes_POST
+POST {{server}}/contracts/Attributes
+Content-Type: application/json
+
+{
+  "ID": "97226391-2e0e-4b2e-908b-ad6880730f8b",
+  "attribute_id": "attribute_id-9722639",
+  "name": "name-9722639",
+  "desc": "desc-9722639",
+  "alias": "alias-9722639",
+  "type": "type-9722639",
+  "value": "value-9722639",
+  "regex": "regex-9722639",
+  "status": "status-9722639",
+  "title": "title-9722639",
+  "maxlength": 80,
+  "minlength": 15,
+  "is_mandatory": false,
+  "createdAt": "2018-02-16T00:00:00.000Z",
+  "createdBy": "createdBy.5se1b@example.org",
+  "modifiedAt": "2000-01-21T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.5se1b@example.org"
+}
+
+
+### Attributes
+# @name Attributes_PATCH
+PATCH {{server}}/contracts/Attributes/97226391-2e0e-4b2e-908b-ad6880730f8b
+Content-Type: application/json
+
+{
+  "ID": "97226391-2e0e-4b2e-908b-ad6880730f8b",
+  "attribute_id": "attribute_id-9722639",
+  "name": "name-9722639",
+  "desc": "desc-9722639",
+  "alias": "alias-9722639",
+  "type": "type-9722639",
+  "value": "value-9722639",
+  "regex": "regex-9722639",
+  "status": "status-9722639",
+  "title": "title-9722639",
+  "maxlength": 80,
+  "minlength": 15,
+  "is_mandatory": false,
+  "createdAt": "2018-02-16T00:00:00.000Z",
+  "createdBy": "createdBy.5se1b@example.org",
+  "modifiedAt": "2000-01-21T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.5se1b@example.org"
+}
+
+
+### Attributes
+# @name Attributes_DELETE
+DELETE {{server}}/contracts/Attributes/97226391-2e0e-4b2e-908b-ad6880730f8b
+Content-Type: application/json
+
+
+### ContractsAttributes
+# @name ContractsAttributes_GET
+GET {{server}}/contracts/ContractsAttributes
+
+
+
+### ContractsAttributes
+# @name ContractsAttributes_POST
+POST {{server}}/contracts/ContractsAttributes
+Content-Type: application/json
+
+{
+  "contracts": {
+    "ID": "21199699-d013-4c85-b067-d103c89e84e0"
+  },
+  "attribute_groups": {
+    "ID": "29093777-4c73-4519-931d-bb6b544527ee"
+  },
+  "attributes": {
+    "ID": "97226391-2e0e-4b2e-908b-ad6880730f8b"
+  },
+  "ID": "22718351-deae-4574-b6a6-a2cd8e47e99a",
+  "valueJson": "valueJson-22718351",
+  "createdAt": "2019-06-12T00:00:00.000Z",
+  "createdBy": "createdBy.dixlb@example.org",
+  "modifiedAt": "2008-04-15T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.dixlb@example.com"
+}
+
+
+### ContractsAttributes
+# @name ContractsAttributes_PATCH
+PATCH {{server}}/contracts/ContractsAttributes(ID=22718351-deae-4574-b6a6-a2cd8e47e99a,contracts=[object Object],attribute_groups=[object Object],attributes=[object Object])
+Content-Type: application/json
+
+{
+  "contracts": {
+    "ID": "21199699-d013-4c85-b067-d103c89e84e0"
+  },
+  "attribute_groups": {
+    "ID": "29093777-4c73-4519-931d-bb6b544527ee"
+  },
+  "attributes": {
+    "ID": "97226391-2e0e-4b2e-908b-ad6880730f8b"
+  },
+  "ID": "22718351-deae-4574-b6a6-a2cd8e47e99a",
+  "valueJson": "valueJson-22718351",
+  "createdAt": "2019-06-12T00:00:00.000Z",
+  "createdBy": "createdBy.dixlb@example.org",
+  "modifiedAt": "2008-04-15T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.dixlb@example.com"
+}
+
+
+### ContractsAttributes
+# @name ContractsAttributes_DELETE
+DELETE {{server}}/contracts/ContractsAttributes(ID=22718351-deae-4574-b6a6-a2cd8e47e99a,contracts=[object Object],attribute_groups=[object Object],attributes=[object Object])
+Content-Type: application/json
+
+
+### Contracts
+# @name Contracts_GET
+GET {{server}}/contracts/Contracts
+
+
+
+### Contracts
+# @name Contracts_POST
+POST {{server}}/contracts/Contracts
+Content-Type: application/json
+
+{
+  "ID": "21199699-d013-4c85-b067-d103c89e84e0",
+  "contract_id": "contract_id-21199699",
+  "name": "name-21199699",
+  "description": "description-21199699",
+  "alias": "alias-21199699",
+  "start_date": "2006-07-25",
+  "end_date": "2012-04-02",
+  "is_visible": false,
+  "templates": {
+    "ID": "90932826-c482-43ca-9ea3-da76086add26"
+  },
+  "attachments": [
+    {
+      "ID": "25453011-c4ec-4489-a63b-ba68c0e984bb",
+      "file_url": "file_url-25453011",
+      "media_type": "media_type-25453011",
+      "file_name": "file_name-25453011",
+      "file_name_dms": "file_name_dms-25453011",
+      "previewable": "previewable-25453011",
+      "trustedSource": "trustedSource-25453011",
+      "desc": "desc-25453011",
+      "dimension": "dimension-25453011",
+      "tags": "tags-25453011",
+      "embedded_link": "embedded_link-25453011",
+      "createdAt": "2017-11-28T00:00:00.000Z",
+      "createdBy": "createdBy.f5jo3@example.com",
+      "modifiedAt": "2018-04-21T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.f5jo3@example.net"
+    },
+    {
+      "ID": "25453012-fb64-4a01-b2d3-02e640f6ec3d",
+      "file_url": "file_url-25453012",
+      "media_type": "media_type-25453012",
+      "file_name": "file_name-25453012",
+      "file_name_dms": "file_name_dms-25453012",
+      "previewable": "previewable-25453012",
+      "trustedSource": "trustedSource-25453012",
+      "desc": "desc-25453012",
+      "dimension": "dimension-25453012",
+      "tags": "tags-25453012",
+      "embedded_link": "embedded_link-25453012",
+      "createdAt": "2014-06-29T00:00:00.000Z",
+      "createdBy": "createdBy.f5jo4@example.net",
+      "modifiedAt": "2000-12-31T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.f5jo4@example.org"
+    }
+  ],
+  "attribute_values": [
+    {
+      "attribute_groups": {
+        "ID": "29093777-4c73-4519-931d-bb6b544527ee"
+      },
+      "attributes": {
+        "ID": "97226391-2e0e-4b2e-908b-ad6880730f8b"
+      },
+      "ID": "22534799-4a09-4d7e-9526-2d18259f89bd",
+      "valueJson": "valueJson-22534799",
+      "texts": [
+        {
+          "ID": "86709642-55cb-4676-a7a6-f7ea9cb9e928",
+          "contracts": {
+            "ID": "54045136-e5d2-4695-838a-62e201f00f0b"
+          },
+          "attribute_groups": {
+            "ID": "29093777-4c73-4519-931d-bb6b544527ee"
+          },
+          "attributes": {
+            "ID": "97226391-2e0e-4b2e-908b-ad6880730f8b"
+          },
+          "locale": "it",
+          "valueJson": "valueJson-8670964"
+        },
+        {
+          "ID": "86709659-4bf3-45be-bddf-35dfa3a49986",
+          "contracts": {
+            "ID": "54045136-e5d2-4695-838a-62e201f00f0b"
+          },
+          "attribute_groups": {
+            "ID": "29093777-4c73-4519-931d-bb6b544527ee"
+          },
+          "attributes": {
+            "ID": "97226391-2e0e-4b2e-908b-ad6880730f8b"
+          },
+          "locale": "pt",
+          "valueJson": "valueJson-8670965"
+        }
+      ],
+      "createdAt": "2005-05-20T00:00:00.000Z",
+      "createdBy": "createdBy.dezyn@example.com",
+      "modifiedAt": "2005-06-05T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.dezyn@example.com"
+    },
+    {
+      "attribute_groups": {
+        "ID": "29093777-4c73-4519-931d-bb6b544527ee"
+      },
+      "attributes": {
+        "ID": "97226391-2e0e-4b2e-908b-ad6880730f8b"
+      },
+      "ID": "22534800-dd94-4f3c-94a0-7157d57aefdc",
+      "valueJson": "valueJson-22534800",
+      "texts": [
+        {
+          "ID": "19509917-5f0a-477b-b51d-adf80463dfc9",
+          "contracts": {
+            "ID": "54045136-e5d2-4695-838a-62e201f00f0b"
+          },
+          "attribute_groups": {
+            "ID": "29093777-4c73-4519-931d-bb6b544527ee"
+          },
+          "attributes": {
+            "ID": "97226391-2e0e-4b2e-908b-ad6880730f8b"
+          },
+          "locale": "hu",
+          "valueJson": "valueJson-195099"
+        },
+        {
+          "ID": "19510085-d55c-45e7-82ce-33e4a7afbcd1",
+          "contracts": {
+            "ID": "54045136-e5d2-4695-838a-62e201f00f0b"
+          },
+          "attribute_groups": {
+            "ID": "29093777-4c73-4519-931d-bb6b544527ee"
+          },
+          "attributes": {
+            "ID": "97226391-2e0e-4b2e-908b-ad6880730f8b"
+          },
+          "locale": "ja",
+          "valueJson": "valueJson-195100"
+        }
+      ],
+      "createdAt": "2014-12-13T00:00:00.000Z",
+      "createdBy": "createdBy.dezyo@example.org",
+      "modifiedAt": "2022-06-10T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.dezyo@example.com"
+    }
+  ],
+  "createdAt": "2009-09-05T00:00:00.000Z",
+  "createdBy": "createdBy.cmdsj@example.net",
+  "modifiedAt": "2002-07-01T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.cmdsj@example.org"
+}
+
+
+### Contracts
+# @name Contracts_PATCH
+PATCH {{server}}/contracts/Contracts/21199699-d013-4c85-b067-d103c89e84e0
+Content-Type: application/json
+
+{
+  "ID": "21199699-d013-4c85-b067-d103c89e84e0",
+  "contract_id": "contract_id-21199699",
+  "name": "name-21199699",
+  "description": "description-21199699",
+  "alias": "alias-21199699",
+  "start_date": "2006-07-25",
+  "end_date": "2012-04-02",
+  "is_visible": false,
+  "templates": {
+    "ID": "90932826-c482-43ca-9ea3-da76086add26"
+  },
+  "attachments": [
+    {
+      "ID": "25453011-c4ec-4489-a63b-ba68c0e984bb",
+      "file_url": "file_url-25453011",
+      "media_type": "media_type-25453011",
+      "file_name": "file_name-25453011",
+      "file_name_dms": "file_name_dms-25453011",
+      "previewable": "previewable-25453011",
+      "trustedSource": "trustedSource-25453011",
+      "desc": "desc-25453011",
+      "dimension": "dimension-25453011",
+      "tags": "tags-25453011",
+      "embedded_link": "embedded_link-25453011",
+      "createdAt": "2017-11-28T00:00:00.000Z",
+      "createdBy": "createdBy.f5jo3@example.com",
+      "modifiedAt": "2018-04-21T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.f5jo3@example.net"
+    },
+    {
+      "ID": "25453012-fb64-4a01-b2d3-02e640f6ec3d",
+      "file_url": "file_url-25453012",
+      "media_type": "media_type-25453012",
+      "file_name": "file_name-25453012",
+      "file_name_dms": "file_name_dms-25453012",
+      "previewable": "previewable-25453012",
+      "trustedSource": "trustedSource-25453012",
+      "desc": "desc-25453012",
+      "dimension": "dimension-25453012",
+      "tags": "tags-25453012",
+      "embedded_link": "embedded_link-25453012",
+      "createdAt": "2014-06-29T00:00:00.000Z",
+      "createdBy": "createdBy.f5jo4@example.net",
+      "modifiedAt": "2000-12-31T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.f5jo4@example.org"
+    }
+  ],
+  "attribute_values": [
+    {
+      "attribute_groups": {
+        "ID": "29093777-4c73-4519-931d-bb6b544527ee"
+      },
+      "attributes": {
+        "ID": "97226391-2e0e-4b2e-908b-ad6880730f8b"
+      },
+      "ID": "22534799-4a09-4d7e-9526-2d18259f89bd",
+      "valueJson": "valueJson-22534799",
+      "texts": [
+        {
+          "ID": "86709642-55cb-4676-a7a6-f7ea9cb9e928",
+          "contracts": {
+            "ID": "54045136-e5d2-4695-838a-62e201f00f0b"
+          },
+          "attribute_groups": {
+            "ID": "29093777-4c73-4519-931d-bb6b544527ee"
+          },
+          "attributes": {
+            "ID": "97226391-2e0e-4b2e-908b-ad6880730f8b"
+          },
+          "locale": "it",
+          "valueJson": "valueJson-8670964"
+        },
+        {
+          "ID": "86709659-4bf3-45be-bddf-35dfa3a49986",
+          "contracts": {
+            "ID": "54045136-e5d2-4695-838a-62e201f00f0b"
+          },
+          "attribute_groups": {
+            "ID": "29093777-4c73-4519-931d-bb6b544527ee"
+          },
+          "attributes": {
+            "ID": "97226391-2e0e-4b2e-908b-ad6880730f8b"
+          },
+          "locale": "pt",
+          "valueJson": "valueJson-8670965"
+        }
+      ],
+      "createdAt": "2005-05-20T00:00:00.000Z",
+      "createdBy": "createdBy.dezyn@example.com",
+      "modifiedAt": "2005-06-05T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.dezyn@example.com"
+    },
+    {
+      "attribute_groups": {
+        "ID": "29093777-4c73-4519-931d-bb6b544527ee"
+      },
+      "attributes": {
+        "ID": "97226391-2e0e-4b2e-908b-ad6880730f8b"
+      },
+      "ID": "22534800-dd94-4f3c-94a0-7157d57aefdc",
+      "valueJson": "valueJson-22534800",
+      "texts": [
+        {
+          "ID": "19509917-5f0a-477b-b51d-adf80463dfc9",
+          "contracts": {
+            "ID": "54045136-e5d2-4695-838a-62e201f00f0b"
+          },
+          "attribute_groups": {
+            "ID": "29093777-4c73-4519-931d-bb6b544527ee"
+          },
+          "attributes": {
+            "ID": "97226391-2e0e-4b2e-908b-ad6880730f8b"
+          },
+          "locale": "hu",
+          "valueJson": "valueJson-195099"
+        },
+        {
+          "ID": "19510085-d55c-45e7-82ce-33e4a7afbcd1",
+          "contracts": {
+            "ID": "54045136-e5d2-4695-838a-62e201f00f0b"
+          },
+          "attribute_groups": {
+            "ID": "29093777-4c73-4519-931d-bb6b544527ee"
+          },
+          "attributes": {
+            "ID": "97226391-2e0e-4b2e-908b-ad6880730f8b"
+          },
+          "locale": "ja",
+          "valueJson": "valueJson-195100"
+        }
+      ],
+      "createdAt": "2014-12-13T00:00:00.000Z",
+      "createdBy": "createdBy.dezyo@example.org",
+      "modifiedAt": "2022-06-10T00:00:00.000Z",
+      "modifiedBy": "modifiedBy.dezyo@example.com"
+    }
+  ],
+  "createdAt": "2009-09-05T00:00:00.000Z",
+  "createdBy": "createdBy.cmdsj@example.net",
+  "modifiedAt": "2002-07-01T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.cmdsj@example.org"
+}
+
+
+### Contracts
+# @name Contracts_DELETE
+DELETE {{server}}/contracts/Contracts/21199699-d013-4c85-b067-d103c89e84e0
+Content-Type: application/json
+
+
+### Templates
+# @name Templates_GET
+GET {{server}}/contracts/Templates
+
+
+
+### Templates
+# @name Templates_POST
+POST {{server}}/contracts/Templates
+Content-Type: application/json
+
+{
+  "ID": "12982727-9692-4673-9ec9-49310db9eeb6",
+  "template_id": "template_id-12982727",
+  "name": "name-12982727",
+  "desc": "desc-12982727",
+  "createdAt": "2017-09-29T00:00:00.000Z",
+  "createdBy": "createdBy.7q9jb@example.org",
+  "modifiedAt": "2014-12-23T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.7q9jb@example.com"
+}
+
+
+### Templates
+# @name Templates_PATCH
+PATCH {{server}}/contracts/Templates/12982727-9692-4673-9ec9-49310db9eeb6
+Content-Type: application/json
+
+{
+  "ID": "12982727-9692-4673-9ec9-49310db9eeb6",
+  "template_id": "template_id-12982727",
+  "name": "name-12982727",
+  "desc": "desc-12982727",
+  "createdAt": "2017-09-29T00:00:00.000Z",
+  "createdBy": "createdBy.7q9jb@example.org",
+  "modifiedAt": "2014-12-23T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.7q9jb@example.com"
+}
+
+
+### Templates
+# @name Templates_DELETE
+DELETE {{server}}/contracts/Templates/12982727-9692-4673-9ec9-49310db9eeb6
+Content-Type: application/json
+
+
+### TemplatesAttributeGroups
+# @name TemplatesAttributeGroups_GET
+GET {{server}}/contracts/TemplatesAttributeGroups
+
+
+
+### TemplatesAttributeGroups
+# @name TemplatesAttributeGroups_POST
+POST {{server}}/contracts/TemplatesAttributeGroups
+Content-Type: application/json
+
+{
+  "attribute_groups": {
+    "ID": "29093777-4c73-4519-931d-bb6b544527ee"
+  },
+  "ID": "20472186-35a8-4a2d-9bc8-17f5d17b36c6",
+  "sortID": 48,
+  "createdAt": "2003-08-18T00:00:00.000Z",
+  "createdBy": "createdBy.c6sfu@example.org",
+  "modifiedAt": "2022-01-20T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.c6sfu@example.org"
+}
+
+
+### TemplatesAttributeGroups
+# @name TemplatesAttributeGroups_PATCH
+PATCH {{server}}/contracts/TemplatesAttributeGroups(ID=20472186-35a8-4a2d-9bc8-17f5d17b36c6,templates=[object Object],attribute_groups=[object Object])
+Content-Type: application/json
+
+{
+  "attribute_groups": {
+    "ID": "29093777-4c73-4519-931d-bb6b544527ee"
+  },
+  "ID": "20472186-35a8-4a2d-9bc8-17f5d17b36c6",
+  "sortID": 48,
+  "createdAt": "2003-08-18T00:00:00.000Z",
+  "createdBy": "createdBy.c6sfu@example.org",
+  "modifiedAt": "2022-01-20T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.c6sfu@example.org"
+}
+
+
+### TemplatesAttributeGroups
+# @name TemplatesAttributeGroups_DELETE
+DELETE {{server}}/contracts/TemplatesAttributeGroups(ID=20472186-35a8-4a2d-9bc8-17f5d17b36c6,templates=[object Object],attribute_groups=[object Object])
+Content-Type: application/json
+
+
+### Attribute_Groups
+# @name Attribute_Groups_GET
+GET {{server}}/contracts/Attribute_Groups
+
+
+
+### Attribute_Groups
+# @name Attribute_Groups_POST
+POST {{server}}/contracts/Attribute_Groups
+Content-Type: application/json
+
+{
+  "ID": "29093777-4c73-4519-931d-bb6b544527ee",
+  "attribute_group_id": "attribute_group_id-29093777",
+  "name": "name-29093777",
+  "desc": "desc-29093777",
+  "alias": "alias-29093777",
+  "createdAt": "2004-08-07T00:00:00.000Z",
+  "createdBy": "createdBy.hbkwh@example.net",
+  "modifiedAt": "2004-04-12T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.hbkwh@example.org"
+}
+
+
+### Attribute_Groups
+# @name Attribute_Groups_PATCH
+PATCH {{server}}/contracts/Attribute_Groups/29093777-4c73-4519-931d-bb6b544527ee
+Content-Type: application/json
+
+{
+  "ID": "29093777-4c73-4519-931d-bb6b544527ee",
+  "attribute_group_id": "attribute_group_id-29093777",
+  "name": "name-29093777",
+  "desc": "desc-29093777",
+  "alias": "alias-29093777",
+  "createdAt": "2004-08-07T00:00:00.000Z",
+  "createdBy": "createdBy.hbkwh@example.net",
+  "modifiedAt": "2004-04-12T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.hbkwh@example.org"
+}
+
+
+### Attribute_Groups
+# @name Attribute_Groups_DELETE
+DELETE {{server}}/contracts/Attribute_Groups/29093777-4c73-4519-931d-bb6b544527ee
+Content-Type: application/json
+
+
+### AttributeGroupAttribute
+# @name AttributeGroupAttribute_GET
+GET {{server}}/contracts/AttributeGroupAttribute
+
+
+
+### AttributeGroupAttribute
+# @name AttributeGroupAttribute_POST
+POST {{server}}/contracts/AttributeGroupAttribute
+Content-Type: application/json
+
+{
+  "ID": "20116088-635d-420d-9208-b5065dd3f6ac",
+  "attributeGroup": {
+    "ID": "29093777-4c73-4519-931d-bb6b544527ee"
+  },
+  "attribute": {
+    "ID": "97226391-2e0e-4b2e-908b-ad6880730f8b"
+  },
+  "sortID": 32,
+  "createdAt": "2007-05-27T00:00:00.000Z",
+  "createdBy": "createdBy.bz5o8@example.net",
+  "modifiedAt": "2022-07-10T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.bz5o8@example.net"
+}
+
+
+### AttributeGroupAttribute
+# @name AttributeGroupAttribute_PATCH
+PATCH {{server}}/contracts/AttributeGroupAttribute/20116088-635d-420d-9208-b5065dd3f6ac
+Content-Type: application/json
+
+{
+  "ID": "20116088-635d-420d-9208-b5065dd3f6ac",
+  "attributeGroup": {
+    "ID": "29093777-4c73-4519-931d-bb6b544527ee"
+  },
+  "attribute": {
+    "ID": "97226391-2e0e-4b2e-908b-ad6880730f8b"
+  },
+  "sortID": 32,
+  "createdAt": "2007-05-27T00:00:00.000Z",
+  "createdBy": "createdBy.bz5o8@example.net",
+  "modifiedAt": "2022-07-10T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.bz5o8@example.net"
+}
+
+
+### AttributeGroupAttribute
+# @name AttributeGroupAttribute_DELETE
+DELETE {{server}}/contracts/AttributeGroupAttribute/20116088-635d-420d-9208-b5065dd3f6ac
+Content-Type: application/json
+
+
+### Attachments
+# @name Attachments_GET
+GET {{server}}/contracts/Attachments
+
+
+
+### Attachments
+# @name Attachments_POST
+POST {{server}}/contracts/Attachments
+Content-Type: application/json
+
+{
+  "ID": "16044983-6dbf-4b25-b68b-ff9ea9c628ca",
+  "file_url": "file_url-16044983",
+  "media_type": "media_type-16044983",
+  "file_name": "file_name-16044983",
+  "file_name_dms": "file_name_dms-16044983",
+  "previewable": "previewable-16044983",
+  "trustedSource": "trustedSource-16044983",
+  "desc": "desc-16044983",
+  "dimension": "dimension-16044983",
+  "tags": "tags-16044983",
+  "embedded_link": "embedded_link-16044983",
+  "createdAt": "2000-07-19T00:00:00.000Z",
+  "createdBy": "createdBy.9jwdz@example.com",
+  "modifiedAt": "2013-12-28T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.9jwdz@example.com"
+}
+
+
+### Attachments
+# @name Attachments_PATCH
+PATCH {{server}}/contracts/Attachments/16044983-6dbf-4b25-b68b-ff9ea9c628ca
+Content-Type: application/json
+
+{
+  "ID": "16044983-6dbf-4b25-b68b-ff9ea9c628ca",
+  "file_url": "file_url-16044983",
+  "media_type": "media_type-16044983",
+  "file_name": "file_name-16044983",
+  "file_name_dms": "file_name_dms-16044983",
+  "previewable": "previewable-16044983",
+  "trustedSource": "trustedSource-16044983",
+  "desc": "desc-16044983",
+  "dimension": "dimension-16044983",
+  "tags": "tags-16044983",
+  "embedded_link": "embedded_link-16044983",
+  "createdAt": "2000-07-19T00:00:00.000Z",
+  "createdBy": "createdBy.9jwdz@example.com",
+  "modifiedAt": "2013-12-28T00:00:00.000Z",
+  "modifiedBy": "modifiedBy.9jwdz@example.com"
+}
+
+
+### Attachments
+# @name Attachments_DELETE
+DELETE {{server}}/contracts/Attachments/16044983-6dbf-4b25-b68b-ff9ea9c628ca
+Content-Type: application/json
+
+
+### TemplatePortalCatalogue
+# @name TemplatePortalCatalogue_GET
+GET {{server}}/contracts/TemplatePortalCatalogue
+
+
+
+### TemplatePortalCatalogue
+# @name TemplatePortalCatalogue_POST
+POST {{server}}/contracts/TemplatePortalCatalogue
+Content-Type: application/json
+
+{
+  "Template_ID": "24426999-a7ef-414b-acf9-ff380fc9b425",
+  "Attribute_Groups_ID": "24426999-3ba1-415c-b0ce-7f4eabef3d5b",
+  "Attribute_ID": "24426999-73d8-4afc-83dd-2fcce06506db",
+  "Template_No": "Template_No-24426999",
+  "Template_Name": "Template_Name-24426999",
+  "Template_Description": "Template_Description-24426999",
+  "Attribute_Group_Name": "Attribute_Group_Name-24426999",
+  "AttributeGroupOrder": 85,
+  "Attribute_Name": "Attribute_Name-24426999",
+  "AttributeOrder": 54,
+  "Is_Required": false
+}
+
+
+### TemplatePortalCatalogue
+# @name TemplatePortalCatalogue_PATCH
+PATCH {{server}}/contracts/TemplatePortalCatalogue(Template_ID=24426999-a7ef-414b-acf9-ff380fc9b425,Attribute_Groups_ID=24426999-3ba1-415c-b0ce-7f4eabef3d5b,Attribute_ID=24426999-73d8-4afc-83dd-2fcce06506db)
+Content-Type: application/json
+
+{
+  "Template_ID": "24426999-a7ef-414b-acf9-ff380fc9b425",
+  "Attribute_Groups_ID": "24426999-3ba1-415c-b0ce-7f4eabef3d5b",
+  "Attribute_ID": "24426999-73d8-4afc-83dd-2fcce06506db",
+  "Template_No": "Template_No-24426999",
+  "Template_Name": "Template_Name-24426999",
+  "Template_Description": "Template_Description-24426999",
+  "Attribute_Group_Name": "Attribute_Group_Name-24426999",
+  "AttributeGroupOrder": 85,
+  "Attribute_Name": "Attribute_Name-24426999",
+  "AttributeOrder": 54,
+  "Is_Required": false
+}
+
+
+### TemplatePortalCatalogue
+# @name TemplatePortalCatalogue_DELETE
+DELETE {{server}}/contracts/TemplatePortalCatalogue(Template_ID=24426999-a7ef-414b-acf9-ff380fc9b425,Attribute_Groups_ID=24426999-3ba1-415c-b0ce-7f4eabef3d5b,Attribute_ID=24426999-73d8-4afc-83dd-2fcce06506db)
+Content-Type: application/json

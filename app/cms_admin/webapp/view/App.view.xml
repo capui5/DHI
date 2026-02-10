@@ -1,0 +1,20 @@
+<mvc:View controllerName="com.dhi.cms.cmsadmin.controller.App"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+  xmlns:core="sap.ui.core"
+  xmlns:tnt="sap.tnt"
+  xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+  xmlns="sap.m">a
+   <tnt:ToolPage id="mainPage" contentBackgroundDesign="Solid"   sideExpanded="false">
+    <tnt:header>
+      <tnt:ToolHeader id="_IDGenToolHeader">
+        <Title text="{i18n>App_ToolHeader_Title}" level="H1"/>
+      </tnt:ToolHeader>
+    </tnt:header>
+    <tnt:sideContent>
+      <core:Fragment fragmentName="com.dhi.cms.cmsadmin.fragments.SideNavigation" type="XML" />
+    </tnt:sideContent>
+    <tnt:mainContents>
+      <App id="app"/>
+    </tnt:mainContents>
+  </tnt:ToolPage>
+</mvc:View>

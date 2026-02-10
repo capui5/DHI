@@ -1,0 +1,230 @@
+{
+  "_version": "1.76.0",
+  "sap.app": {
+    "id": "com.dhi.cms.cmsadmin",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.19.6",
+      "toolsId": "ef83bb8b-00ee-492f-a172-087653ae627f"
+    },
+    "dataSources": {
+      "adminV2": {
+        "uri": "/odata/v2/contracts/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/admin/metadata.xml",
+          "odataVersion": "2.0"
+        }
+      },
+      "mainService": {
+        "uri": "/contracts/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "CMS_Admin-Display": {
+          "semanticObject": "CMS_Admin",
+          "action": "Display",
+          "title": "{{CMS_Admin-Display.flpTitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": false,
+    "dependencies": {
+      "minUI5Version": "1.143.0",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "com.dhi.cms.cmsadmin.i18n.i18n"
+        }
+      },
+      "appModel": {
+        "type": "sap.ui.model.json.JSONModel"
+      },
+      "attributeTypes": {
+        "uri": "model/data/attributeTypes.json",
+        "type": "sap.ui.model.json.JSONModel"
+      },
+      "oDataV2": {
+        "dataSource": "adminV2",
+        "preload": true,
+        "settings": {
+          "synchronizationMode": "None",
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "transition": "slide",
+        "type": "View",
+        "viewType": "XML",
+        "path": "com.dhi.cms.cmsadmin.view",
+        "async": true,
+        "viewPath": "com.dhi.cms.cmsadmin.view"
+      },
+      "routes": [
+        {
+          "name": "Attributes",
+          "pattern": ":?query:",
+          "target": [
+            "Attributes"
+          ]
+        },
+        {
+          "name": "Attribute Groups",
+          "pattern": "attributegroups",
+          "target": [
+            "AttributeGroups"
+          ]
+        },
+        {
+          "name": "Create Attribute Group",
+          "pattern": "createattributegroup/:attributeGroupId:",
+          "target": [
+            "CreateAttributeGroup"
+          ]
+        },
+        {
+          "name": "Templates",
+          "pattern": "templates/:templateId:",
+          "target": [
+            "Templates"
+          ]
+        },
+        {
+          "name": "Create Attributes",
+          "pattern": "createattributes/:attributeId:",
+          "target": [
+            "CreateAttributes"
+          ]
+        },
+        {
+          "name": "Create Template",
+          "pattern": "createtemplate/:templateId:",
+          "target": [
+            "CreateTemplate"
+          ]
+        }
+      ],
+      "targets": {
+        "Attributes": {
+          "id": "Attributes",
+          "name": "Attributes"
+        },
+        "AttributeGroups": {
+          "viewType": "XML",
+          "transition": "slide",
+          "clearControlAggregation": false,
+          "viewId": "attributegroups",
+          "viewName": "AttributeGroups"
+        },
+        "Templates": {
+          "viewType": "XML",
+          "transition": "slide",
+          "clearControlAggregation": false,
+          "viewId": "templates",
+          "viewName": "Templates"
+        },
+        "CreateAttributes": {
+          "viewType": "XML",
+          "transition": "slide",
+          "clearControlAggregation": false,
+          "viewId": "createattributes",
+          "viewName": "CreateAttributes"
+        },
+        "CreateAttributeGroup": {
+          "viewType": "XML",
+          "transition": "slide",
+          "clearControlAggregation": false,
+          "viewId": "createattributegroup",
+          "viewName": "CreateAttributeGroup"
+        },
+        "CreateTemplate": {
+          "viewType": "XML",
+          "transition": "slide",
+          "clearControlAggregation": false,
+          "viewId": "createtemplate",
+          "viewName": "CreateTemplate"
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "com.dhi.cms.cmsadmin.view.App",
+      "type": "XML",
+      "id": "App",
+      "async": true
+    }
+  },
+  "sap.cloud": {
+    "public": true,
+    "service": "cms"
+  }
+}

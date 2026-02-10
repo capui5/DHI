@@ -1,0 +1,233 @@
+<mvc:View xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.f"
+    xmlns:grid="sap.ui.layout.cssgrid"
+    xmlns:table="sap.ui.table"
+    xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
+    xmlns:l="sap.ui.layout" controllerName="com.dhi.cms.cmsadmin.controller.CreateAttributes">
+    <l:ResponsiveSplitter defaultPane="default">
+        <l:PaneContainer orientation="Vertical">
+            <l:SplitPane requiredParentWidth="800">
+                <l:layoutData>
+                    <l:SplitterLayoutData size="auto" />
+                </l:layoutData>
+                <Page id="createAttributesPage" showHeader="false">
+                    <content>
+                        <OverflowToolbar class="customToolbar" height="3rem" design="Transparent">
+                            <Title class="sapUiSmallMarginBegin" titleStyle="H4" text="{i18n>Create_Attribute_Title}" id="createAttributeTitle" />
+                            <ToolbarSpacer/>
+                            <!-- <Button class="sapUiTinyMarginEnd" type="Neutral" app:footer="ShowPane" icon="sap-icon://history" press="onVersionHistory" tooltip="{i18n>Create_Attribute_Version_History}"/> -->
+                            <ToolbarSeparator class="sapUiSmallMarginEnd"/>
+                            <!-- <Button id="btnDoneAttribute" class="sapUiTinyMarginEnd" type="Neutral" text="{i18n>Create_Attribute_Done}" icon="sap-icon://complete" press="onNavigation('Attributes')"/> -->
+                            <Button id="btnSaveAttribute" text="{i18n>Create_Attribute_Save}" type="Emphasized" icon="sap-icon://save" press=".onSave"/>
+                            <Button id="btnCancelAttribute" class="sapUiSmallMarginEnd" text="{i18n>Create_Attribute_Cancel}" icon="sap-icon://decline" press=".onCancel"/>
+                        </OverflowToolbar>
+                        <f:GridList class="sapUiMediumMarginTop sapUiMediumMarginBegin" width="96%">
+                            <!-- <f:customLayout>
+                    <grid:ResponsiveColumnLayout />
+                </f:customLayout> -->
+                            <f:GridListItem>
+                                <f:layoutData>
+                                    <grid:ResponsiveColumnItemLayoutData columns="auto" />
+                                </f:layoutData>
+                                <VBox class="sapUiLargeMargin">
+
+                                    <VBox class="sapUiMediumMarginBottom">
+                                        <Label class="sapUiTinyMarginBottom" visible="{appModel>/isEditMode}" text="{i18n>Create_Attribute_Attribute_ID}" labelFor="attributeIdInput"/>
+                                        <Input id="attributeIdInput" editable="false" visible="{appModel>/isEditMode}" placeholder="{i18n>Create_Attribute_Attribute_ID_Placeholder}" value="{appModel>/Attributes/ID}"/>
+                                    </VBox>
+
+                                    <VBox class="sapUiMediumMarginBottom">
+                                        <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Attribute_Name}" labelFor="attributeNameInput" required="true"/>
+                                        <Input id="attributeNameInput" placeholder="{i18n>Create_Attribute_Attribute_Name_Placeholder}" maxLength="50" value="{appModel>/Attributes/name}"/>
+                                    </VBox>
+
+                                    <!-- <VBox class="sapUiMediumMarginBottom">
+                                        <Label text="{i18n>Create_Attribute_Regex}" class="sapUiTinyMarginBottom" labelFor="regexInput"/>
+                                        <Input id="regexInput" placeholder="{i18n>Create_Attribute_Regex_Placeholder}" value="{appModel>/Attributes/regex}"/>
+                                    </VBox> -->
+                                    <VBox class="sapUiMediumMarginBottom">
+                                        <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Attribute_Type}" labelFor="AttributeTypeSelect" required="true"/>
+                                        <Select id="AttributeTypeSelect" width="100%" items="{attributeTypes>/types}" selectedKey="{appModel>/Attributes/type}" change=".attributeTypeChange">
+                                            <core:Item key="{attributeTypes>type}" text="{attributeTypes>value}" />
+                                        </Select>
+                                    </VBox>
+
+
+                                    <HBox alignItems="Start" justifyContent="End">
+                                        <!-- <VBox visible="false">
+                                            <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Status}" labelFor="attributeStatusSelect"/>
+                                            <Select id="attributeStatusSelect" width="225px" items="{path: '/Product_Status', sorter: { path: 'status', descending: true}}" selectedKey="{appModel>/Attributes/status}">
+                                                <items>
+                                                    <core:Item key="{status}" text="{status}"/>
+                                                </items>
+                                            </Select>
+                                        </VBox> -->
+
+                                        <VBox alignItems="End" class="sapUiMediumMarginEnd">
+                                            <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Is_Mandatory}" labelFor="isMandatorySwitch"/>
+                                            <Switch id="isMandatorySwitch" customTextOn="Yes" customTextOff="No" state="{appModel>/Attributes/is_mandatory}"/>
+                                        </VBox>
+                                        <!-- <VBox alignItems="End">
+                                            <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Integration}" labelFor="integrationSwitch"/>
+                                            <Switch id="integrationSwitch" customTextOn="Yes" customTextOff="No" state="{appModel>/isIntegrationVisible}" change="onIntegrationChange"/>
+                                        </VBox> -->
+                                    </HBox>
+                                </VBox>
+                            </f:GridListItem>
+                            <f:GridListItem class="sapUiSmallMarginBegin">
+                                <f:layoutData>
+                                    <grid:ResponsiveColumnItemLayoutData columns="auto" />
+                                </f:layoutData>
+                                <VBox class="sapUiLargeMargin">
+                                    <!-- <VBox class="sapUiMediumMarginBottom" visible="{= ${appModel>/Attributes/type} !== 'Association' &amp;&amp; ${appModel>/Attributes/type} !== 'Boolean'}">
+                            <Label class="sapUiTinyMarginBottom" text="Value" labelFor="attributeTypeInput"/>
+                            <Input id="attributeTypeInput" placeholder="Enter a value" value="{appModel>/Attributes/value}" editable="{= ${appModel>/Attributes/type} === 'Array'}"/>
+                        </VBox> -->
+
+                                    <VBox class="sapUiMediumMarginBottom" visible="{= ['boolean','select','date'].indexOf(${appModel>/Attributes/type}) === -1 }">
+                                        <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Value}" labelFor="attributeTypeInput"/>
+                                        <Input id="attributeTypeInput" placeholder="{i18n>Create_Attribute_Value_Placeholder}" value="{appModel>/Attributes/value}" />
+                                    </VBox>
+                                    <VBox class="sapUiMediumMarginBottom" visible="{= ${appModel>/Attributes/type} === 'date'}">
+
+                                        <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Value}" labelFor="attributeTypeDate"/>
+
+                                        <DatePicker id="attributeTypeDate" displayFormat="yyyy-MM-dd" valueFormat="yyyy-MM-dd" placeholder="{i18n>Create_Attribute_Value_Placeholder_Date}" value="{
+                    path: 'appModel>/Attributes/value'
+                    
+                }" />
+                                    </VBox>
+
+
+                                    <VBox class="sapUiMediumMarginBottom" visible="{= ${appModel>/Attributes/type} === 'select'}">
+                                        <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Value}" labelFor="associationsSelect"/>
+                                        <Select id="associationsSelect" width="100%" items="{appModel>/Attributes/combovalues/results}" selectedKey="{appModel>/Attributes/value}">
+                                            <core:Item key="{appModel>value}" text="{appModel>value}" />
+                                        </Select>
+                                    </VBox>
+                                    <VBox class="sapUiMediumMarginBottom" visible="{= ${appModel>/Attributes/type} === 'boolean'}">
+                                        <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Value}" labelFor="booleanSelect"/>
+                                        <Select id="booleanSelect" selectedKey="{appModel>/Attributes/value}" width="100%">
+                                            <core:Item key="true" text="true" />
+                                            <core:Item key="false" text="false" />
+                                        </Select>
+                                    </VBox>
+
+                                    <!-- <VBox class="sapUiMediumMarginBottom">
+                                        <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Tags}" labelFor="multiInputTags"/>
+                                        <MultiInput id="multiInputTags" showSuggestion="false" showValueHelp="false" change="onTagsChange"/>
+                                    </VBox> -->
+
+                                    <HBox alignItems="Start" justifyContent="SpaceBetween">
+                                        <VBox>
+                                            <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Minimum_Length}" labelFor="attributeMinLength"/>
+                                            <Input maxLength="3" id="attributeMinLength" placeholder="{i18n>Create_Attribute_Minimum_Length_Placeholder}" type="Number" value="{appModel>/Attributes/minlength}" editable="{= ['boolean','select','date'].indexOf(${appModel>/Attributes/type}) === -1 }"/>
+                                        </VBox>
+                                        <VBox>
+                                            <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Maximum_Length}" labelFor="attributeMaxLength"/>
+                                            <Input maxLength="3"  id="attributeMaxLength" placeholder="{i18n>Create_Attribute_Maximum_Length_Placeholder}" type="Number" value="{appModel>/Attributes/maxlength}" editable="{= ['boolean','select','date'].indexOf(${appModel>/Attributes/type}) === -1 }"/>
+                                        </VBox>
+                                    </HBox>
+                                </VBox>
+                            </f:GridListItem>
+                            <f:GridListItem class="sapUiSmallMarginBegin">
+                                <f:layoutData>
+                                    <grid:ResponsiveColumnItemLayoutData columns="auto"/>
+                                </f:layoutData>
+                                <VBox class="sapUiLargeMargin">
+                                    <VBox class="sapUiMediumMarginBottom">
+                                        <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Alias_Name}" labelFor="aliasNameAttrInput" required="true"/>
+                                        <Input maxLength="50" id="aliasNameAttrInput" placeholder="{i18n>Create_Attribute_Alias_Name_Placeholder}" value="{appModel>/Attributes/alias}"/>
+                                    </VBox>
+
+                                    <VBox class="sapUiMediumMarginBottom">
+                                        <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Description}" labelFor="descriptionTextArea"/>
+                                        <TextArea maxLength="100" growing="true" growingMaxLines="10" id="descriptionTextArea" class="customMultiInputHeight" placeholder="{i18n>Create_Attribute_Description_Placeholder}" width="100%" value="{appModel>/Attributes/desc}"/>
+                                    </VBox>
+                                </VBox>
+                            </f:GridListItem>
+                        </f:GridList>
+
+                        <HBox width="100%" renderType="Bare" justifyContent="Center" alignItems="Center" alignContent="Center" visible="{= ${appModel>/Attributes/type} === 'select'}">
+                            <table:Table class="sapUiSmallMargin" id="valuesGridTable" rows="{appModel>/Attributes/combovalues/results}" selectionMode="None" visibleRowCount="5" visibleRowCountMode="Auto" width="70%" showNoData="true" columnHeaderHeight="40">
+
+                                <table:extension>
+                                    <OverflowToolbar design="Transparent" class="sapUiSmallMargin overflowToolbarBorder">
+                                        <Title text="{i18n>Combo_Title}" titleStyle="H5"/>
+                                        <ToolbarSpacer/>
+                                        <Button id="createComboValue" icon="sap-icon://add" press=".onAddRow" type="Emphasized"/>
+                                        <!-- <Button id="clearFilters" enabled="false" visible="true" text="{i18n>Attributes_ClearFilters}" icon="sap-icon://clear-filter" press="onClearFilters" tooltip="{i18n>Attributes_ClearFiltersTooltip}"/> -->
+                                        <!-- <Button icon="sap-icon://action-settings" press="onPersonalization" tooltip="{i18n>Attributes_PersonalizationTooltip}" /> -->
+                                        <!-- <Button id="exportProducts" press="handler.onExportData" icon="sap-icon://excel-attachment" enabled="{= ${appModel>/AttributeCount} > 0 }" tooltip="{i18n>Attributes_ExportTooltip}" /> -->
+                                    </OverflowToolbar>
+                                </table:extension>
+
+                                <table:columns>
+                                    <!-- VALUE COLUMN -->
+
+                                    <table:Column width="50%">
+                                        <Label text="{i18n>Combo_Values}" wrapping="true"/>
+                                        <table:template>
+                                            <Input width="100%" maxLength="20" value="{appModel>value}" />
+                                        </table:template>
+                                    </table:Column>
+
+                                    <!-- DELETE COLUMN -->
+
+                                    <table:Column width="50%" hAlign="Center">
+                                        <Label text="{i18n>Combo_Actions}" wrapping="true"/>
+                                        <table:template>
+                                            <Button icon="sap-icon://delete" type="Reject" press=".onDeleteRow" />
+                                        </table:template>
+                                    </table:Column>
+                                </table:columns>
+                            </table:Table>
+                        </HBox>
+
+
+
+
+
+
+
+                        <!-- <f:GridList class="sapUiMediumMarginBegin sapUiSmallMarginTop" width="96%" visible="{appModel>/isIntegrationVisible}">
+                            <f:GridListItem>
+                                <f:layoutData>
+                                    <grid:ResponsiveColumnItemLayoutData columns="auto" />
+                                </f:layoutData>
+                                <VBox class="sapUiMediumMargin">
+                                    <OverflowToolbar design="Transparent" height="3rem">
+                                        <Title text="{i18n>Create_Attribute_Integration_Yes}" titleStyle="H4"/>
+                                    </OverflowToolbar>
+                                    <HBox class="sapUiMediumMarginTop">
+                                        <VBox class="sapUiLargeMarginEnd">
+                                            <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Client}" labelFor="clientSelect"/>
+                                            <MultiComboBox id="clientSelect" selectedKeys="{appModel>/Client}">
+                                                <items>
+                                                    <core:Item key="GS1" text="GS1" />
+                                                    <core:Item key="S4HANA" text="S4HANA" />
+                                                </items>
+                                            </MultiComboBox>
+                                        </VBox>
+                                        <VBox>
+                                            <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Path}" labelFor="pathInput"/>
+                                            <Input id="pathInput" placeholder="{i18n>Create_Attribute_Path_Placeholder}" value="{appModel>/Integration/path}"/>
+                                        </VBox>
+                                    </HBox>
+                                </VBox>
+                            </f:GridListItem>
+                        </f:GridList> -->
+                    </content>
+                </Page>
+            </l:SplitPane>
+            <!-- <l:SplitPane requiredParentWidth="600">
+                <l:layoutData>
+                    <l:SplitterLayoutData size="{appModel>/showVersionHistory}" />
+                </l:layoutData>
+                <core:Fragment fragmentName="com.dhi.cms.cmsadmin.fragments.VersionHistory" type="XML" />
+            </l:SplitPane> -->
+        </l:PaneContainer>
+    </l:ResponsiveSplitter>
+</mvc:View>

@@ -1,0 +1,64 @@
+<mvc:View xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:tnt="sap.tnt"
+    xmlns:table="sap.ui.table"
+    xmlns:f="sap.f"
+    xmlns:grid="sap.ui.layout.cssgrid"
+    xmlns:rowmodes="sap.ui.table.rowmodes" controllerName="com.dhi.cms.cmsadmin.controller.AttributeGroups">
+    <Page id="AttributeGroupsPage" showHeader="false">
+        <content>
+            <table:Table id="tblAttributeGroups" enableBusyIndicator="true" class="sapUiSmallMargin" selectionMode="None" visibleRowCountMode="Auto" rows="{path: 'appModel>/attributeAssociatedTemplates'}" enableColumnFreeze="true" enableCellFilter="true" filter=".onAttributeGroupFilter" core:require='{ handler : "com/dhi/cms/cmsadmin/util/AttributeGroupTableHelper" }' rowsUpdated=".onRowsUpdated">
+                <table:extension>
+                    <OverflowToolbar design="Transparent" class="sapUiSmallMargin overflowToolbarBorder">
+                        <Title text="{i18n>Attribute_Group_Title} ({appModel>/AttributeGroupCount})" titleStyle="H3"/>
+                        <ToolbarSpacer/>
+                        <Button id="createAttributesBtn" text="{i18n>Attribute_Group_Create}" icon="sap-icon://add-document" press=".onNavigation('Create Attribute Group')" type="Emphasized" visible="{roles>/canCreateAttributeGroup}"/>
+                        <Button id="clearFiltersBtn" enabled="true" visible="true" text="{i18n>Attribute_Group_ClearFilters}" icon="sap-icon://clear-filter" press=".clearAllFilters" tooltip="{i18n>Attribute_Group_ClearFiltersTooltip}"/>
+                        <Button icon="sap-icon://action-settings" press=".onPersonalization" tooltip="{i18n>Attribute_Group_PersonalizationTooltip}" />
+                        <Button id="exportProductsBtn" press="handler.onExportData" enabled="{= ${appModel>/AttributeGroupCount} > 0 }" icon="sap-icon://excel-attachment" tooltip="{i18n>Attribute_Group_ExportTooltip}" />
+                    </OverflowToolbar>
+                </table:extension>
+                <table:columns>
+                    <table:Column width="125px" defaultFilterOperator="EQ" filterProperty="ID" sortProperty="ID" resizable="true" autoResizable="true" headerMenu="menu">
+                        <Label text="{i18n>Attribute_Group_ID}" wrapping="true"/>
+                        <table:template>
+                            <Text text="{appModel>ID}" wrapping="false" textAlign="Left" width="100%"/>
+                        </table:template>
+                    </table:Column>
+                    <table:Column width="300px" filterProperty="NAME" sortProperty="NAME" resizable="true" autoResizable="true" headerMenu="menu">
+                        <Label text="{i18n>Attribute_Group_Name}" wrapping="true"/>
+                        <table:template>
+                            <Text text="{appModel>NAME}" wrapping="false"/>
+                        </table:template>
+                    </table:Column>
+                    <table:Column width="300px" filterProperty="ALIAS" sortProperty="ALIAS" resizable="true" autoResizable="true" headerMenu="menu">
+                        <Label text="{i18n>Attribute_Group_AliasName}" wrapping="true"/>
+                        <table:template>
+                            <Text text="{appModel>ALIAS}" wrapping="false"/>
+                        </table:template>
+                    </table:Column>
+                    <table:Column filterProperty="TEMPLATE_NAME" sortProperty="TEMPLATE_NAME" resizable="true" autoResizable="true" headerMenu="menu">
+                        <Label text="{i18n>Attribute_Group_AssociatedTemplates}" wrapping="true"/>
+                        <table:template>
+                            <MultiInput id="attrGrpMultiInput" class="customField" editable="false" showSuggestion="false" showValueHelp="false">
+                                <tokens>
+                                    <Token key="{appModel>TEMPLATE_NAME}" text="{appModel>TEMPLATE_NAME}"/>
+                                </tokens>
+                            </MultiInput>
+                        </table:template>
+                    </table:Column>
+                    <table:Column width="90px">
+                        <Label text="{i18n>Attribute_Group_Actions}" visible="false"/>
+                        <table:template>
+                            <HBox>
+                                <Button icon="sap-icon://edit" type="Emphasized" class="sapUiTinyMarginEnd" press=".onAttributeGroupEdit" visible="{roles>/canEditAttributeGroup}"/>
+                                <Button icon="sap-icon://delete" type="Reject" class="sapUiTinyMarginEnd" press=".onAttributeGroupDelete" visible="{roles>/canDeleteAttributeGroup}"/>
+                            </HBox>
+                        </table:template>
+                    </table:Column>
+                </table:columns>
+            </table:Table>
+        </content>
+    </Page>
+</mvc:View>

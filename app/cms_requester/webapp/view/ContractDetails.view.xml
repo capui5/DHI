@@ -1,0 +1,63 @@
+<mvc:View xmlns:unified="sap.ui.unified" xmlns:f="sap.f" controllerName="com.dhi.cms.cmsrequester.controller.ContractDetails"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
+    xmlns:l="sap.ui.layout">
+                
+                <Page id="createContractsPage"  showHeader="true">
+                <headerContent>
+                <Title text="{i18n>contractDetailsTitle}"></Title>
+                <ToolbarSpacer ></ToolbarSpacer>
+                </headerContent>
+                    <content>
+
+                        <IconTabBar id="iconTabBar" class="noBottomLine"  expandable="false" backgroundDesign="Transparent" headerMode="Inline" selectedKey="BasicInfo" select="onTabSelect">
+                            <items>
+                                <IconTabFilter key="BasicInfo" text="{i18n>tabBasicInfo}">
+                                    <OverflowToolbar class="customToolbar" design="Transparent" height="3rem">
+                                        <ToolbarSpacer/>
+                                        <!-- <Button text="Save" type="Emphasized" icon="sap-icon://save" press=".handleSaveContractBasicInfo"/> -->
+                                        <Button text="{i18n>btnNext}" type="Emphasized" icon="sap-icon://open-command-field" press=".handleNextTabpress('Details')"/>
+
+                                        <Button class="sapUiTinyMarginBegin" text="{i18n>btnCancel}" icon="sap-icon://decline" press="onNavigation('Contracts')" type="Attention"/>
+                                      
+                                    </OverflowToolbar>
+                                    <core:Fragment class="sapUiSmallMargin" fragmentName="com.dhi.cms.cmsrequester.fragments.BasicInformation" type="XML" />
+                                </IconTabFilter>
+                                <IconTabFilter key="Details" text="{i18n>tabDetails}">
+                                    <OverflowToolbar class="customToolbar" design="Transparent" height="3rem">
+                                        <ToolbarSpacer/>
+                                        <Button text="{i18n>btnNext}" type="Emphasized" icon="sap-icon://open-command-field" press=".handleNextTabpress('Attachments')"/>
+
+                                        <!-- <Button text="Save" type="Emphasized" icon="sap-icon://save" press="handleSaveContractDetails" /> -->
+                                        <Button class="sapUiTinyMarginBegin" text="{i18n>btnCancel}" icon="sap-icon://decline" press="onNavigation('Contracts')" type="Attention"/>
+                                    </OverflowToolbar>
+                                    <core:Fragment class="sapUiSmallMarginEnd" fragmentName="com.dhi.cms.cmsrequester.fragments.Details" type="XML" />
+                                </IconTabFilter>
+
+                                <IconTabFilter key="Attachments" text="{i18n>tabAttachments}">
+                                    <OverflowToolbar class="customToolbar" design="Transparent" height="3rem">
+                                        <ToolbarSpacer/>
+                                        <Button text="{i18n>btnNext}" type="Emphasized" icon="sap-icon://open-command-field" press=".handleNextTabpress('ContractPrev')"/>
+
+                                        <!-- <Button text="Save" type="Emphasized" icon="sap-icon://save" press="handleSaveContractDetails" /> -->
+                                        <Button class="sapUiTinyMarginBegin" text="{i18n>btnCancel}" icon="sap-icon://decline" press="onNavigation('Contracts')" type="Attention"/>
+                                    </OverflowToolbar>
+                                    <core:Fragment fragmentName="com.dhi.cms.cmsrequester.fragments.Attachments" type="XML" />
+                                </IconTabFilter>
+                                <IconTabFilter key="ContractPrev" text="{i18n>tabContractPreview}" >
+                                    <OverflowToolbar class="customToolbar" design="Transparent" height="3rem">
+                                        <ToolbarSpacer/>
+                                        <Button text="{i18n>btnSubmit}" type="Emphasized" visible="{appModel>/isFieldEditable}" icon="sap-icon://save" press="handleSaveandSubmitContractDetails('submit')" />
+                                        <Button text="{i18n>btnSaveDraft}" type="Accept" visible="{appModel>/isFieldEditable}" icon="sap-icon://notes" press="handleSaveandSubmitContractDetails('save')" />
+                                        <Button class="sapUiTinyMarginBegin" text="{i18n>btnCancel}" icon="sap-icon://decline" type="Attention" press="onNavigation('Contracts')"/>
+
+                                    </OverflowToolbar>
+                                    <core:Fragment fragmentName="com.dhi.cms.cmsrequester.fragments.Preview" type="XML" />
+                                </IconTabFilter>
+                            </items>
+                        </IconTabBar>
+                    </content>
+                </Page>
+</mvc:View>

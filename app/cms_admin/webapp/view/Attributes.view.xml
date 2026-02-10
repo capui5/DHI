@@ -1,0 +1,96 @@
+<mvc:View controllerName="com.dhi.cms.cmsadmin.controller.Attributes"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:tnt="sap.tnt"
+    xmlns:table="sap.ui.table"
+    xmlns:f="sap.f"
+    xmlns:grid="sap.ui.layout.cssgrid"
+    xmlns:rowmodes="sap.ui.table.rowmodes">
+    <Page id="AttributesPage" showHeader="false">
+        <content>
+            <table:Table id="tblAttributes" class="sapUiSmallMargin" filter=".onAttributeFilter" selectionMode="None" visibleRowCountMode="Auto" rows="{path: '/Attributes', sorter: { path: 'name', descending: false },  parameters: {
+    $select: '*'
+  }}" enableColumnFreeze="true" enableBusyIndicator="true" enableCellFilter="true"  core:require='{ handler : "com/dhi/cms/cmsadmin/util/AttributesTableHelper" }' rowsUpdated=".onRowsUpdated">
+                <table:extension>
+                    <OverflowToolbar design="Transparent" class="sapUiSmallMargin overflowToolbarBorder">
+                        <Title text="{= ${i18n>Attributes_Title} + ' (' + ${appModel>/AttributeCount} + ')' }" titleStyle="H3"/>
+                        <ToolbarSpacer/>
+                        <Button id="createAttributes" text="{i18n>Attributes_Create}" icon="sap-icon://add-document" press=".onNavigation('Create Attributes')" type="Emphasized" visible="{roles>/canCreateAttribute}"/>
+                        <Button id="clearFiltersBt" enabled="true" visible="true" text="{i18n>Attributes_ClearFilters}" icon="sap-icon://clear-filter" press=".onClearFilters" tooltip="{i18n>Attributes_ClearFiltersTooltip}"/>
+                        <Button icon="sap-icon://action-settings" press=".onPersonalization" tooltip="{i18n>Attributes_PersonalizationTooltip}" />
+                        <Button id="exportProducts" press="handler.onExportData" icon="sap-icon://excel-attachment" enabled="{= ${appModel>/AttributeCount} > 0 }" tooltip="{i18n>Attributes_ExportTooltip}" />
+                    </OverflowToolbar>
+                </table:extension>
+                <table:columns>
+                    <table:Column id="attibuteId" defaultFilterOperator="EQ" filterProperty="ID" sortProperty="ID" resizable="true" autoResizable="true" headerMenu="menu">
+                        <Label text="{i18n>Attributes_ID}" wrapping="true"/>
+                        <table:template>
+                            <Text text="{ID}" wrapping="false" textAlign="Left" width="100%"/>
+
+                        </table:template>
+                    </table:Column>
+                    <table:Column id="attributeName" filterProperty="name" defaultFilterOperator="Contains" sortProperty="name" resizable="true" autoResizable="true" headerMenu="menu">
+                        <Label text="{i18n>Attributes_Name}" wrapping="true"/>
+                        <table:template>
+                            <Text text="{name}" wrapping="false"/>
+                        </table:template>
+                    </table:Column>
+                    <table:Column id="attributeValue" filterProperty="value" defaultFilterOperator="Contains" sortProperty="value" resizable="true" autoResizable="true" headerMenu="menu">
+                        <Label text="{i18n>Attributes_Value}" wrapping="true"/>
+                        <table:template>
+                            <Text text="{value}" wrapping="false"/>
+                        </table:template>
+                    </table:Column>
+                    <table:Column id="attributeDesc" filterProperty="desc" defaultFilterOperator="Contains" sortProperty="desc" resizable="true" autoResizable="true" headerMenu="menu">
+                        <Label text="{i18n>Attributes_Description}" wrapping="true"/>
+                        <table:template>
+                            <Text text="{desc}" wrapping="false"/>
+                        </table:template>
+                    </table:Column>
+                    <table:Column id="attributeAlias" filterProperty="alias" visible="false" sortProperty="alias" resizable="true" autoResizable="true" headerMenu="menu">
+                        <Label text="{i18n>Attributes_Alias}" wrapping="true"/>
+                        <table:template>
+                            <Text text="{alias}" wrapping="false"/>
+                        </table:template>
+                    </table:Column>
+                    <table:Column id="attributeType" filterProperty="type" sortProperty="type" resizable="true" autoResizable="true" headerMenu="menu">
+                        <Label text="{i18n>Attributes_Type}" wrapping="true"/>
+                        <table:template>
+                            <Text text="{type}" wrapping="false"/>
+                        </table:template>
+                    </table:Column>
+                    <table:Column id="attributeMin" defaultFilterOperator="EQ" visible="false" filterProperty="minlength" sortProperty="minlength" resizable="true" autoResizable="true" headerMenu="menu">
+                        <Label text="{i18n>Attributes_MinLength}" wrapping="true"/>
+                        <table:template>
+                            <Text text="{minlength}" wrapping="false"/>
+                        </table:template>
+                    </table:Column>
+                     <table:Column id="attributeMax" defaultFilterOperator="EQ" visible="false" filterProperty="maxlength" sortProperty="maxlength" resizable="true" autoResizable="true" headerMenu="menu">
+                        <Label text="{i18n>Attributes_MaxLength}" wrapping="true"/>
+                        <table:template>
+                            <Text text="{maxlength}" wrapping="false"/>
+                        </table:template>
+                    </table:Column>
+
+                    <table:Column id="attributeMandatory" visible="false" defaultFilterOperator="EQ" filterProperty="is_mandatory" sortProperty="is_mandatory" resizable="true" autoResizable="true" headerMenu="menu">
+                                <Label text="{i18n>Attributes_Mandatory}" wrapping="true"/>
+                                <table:template>
+                                    <Text text="{path: 'is_mandatory', formatter: '.formatter.booleanToString'}"/>
+                                </table:template>
+                    </table:Column>
+
+                    <table:Column width="90px">
+                        <Label text="{i18n>Attributes_Actions}" visible="false"/>
+                        <table:template>
+                            <HBox>
+                                <Button icon="sap-icon://edit" type="Emphasized" class="sapUiTinyMarginEnd" press=".onAttributeEdit" visible="{roles>/canEditAttribute}"/>
+                                <Button icon="sap-icon://delete" type="Reject" class="sapUiTinyMarginEnd" press=".onAttributeDelete" visible="{roles>/canDeleteAttribute}"/>
+                            </HBox>
+                        </table:template>
+                    </table:Column>
+                </table:columns>
+            </table:Table>
+        </content>
+    </Page>
+</mvc:View>

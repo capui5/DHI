@@ -1,0 +1,84 @@
+<core:FragmentDefinition   xmlns="sap.m"
+  xmlns:core="sap.ui.core"
+  xmlns:f="sap.ui.layout.form"
+  xmlns:layout="sap.ui.layout">
+    
+  <ScrollContainer height="80vh" width="100%"  vertical="true" horizontal="false">
+ 
+  <Panel headerText="Basic Information" width="98%" expandable="false" >
+            <f:SimpleForm
+               editable= "true"
+            layout= "ColumnLayout"
+            
+            >
+              <Label text="{i18n>lblContractTitle}"/>
+              <Text text="{contractModel>/name}" />
+
+              <Label text="{i18n>lblContractNumber}"/>
+<Text text="{= ${contractModel>/ID} ? ${contractModel>/ID} : 'New' }" />
+
+               <Label text="{i18n>lblAlias}"/>
+              <Text text="{contractModel>/alias}" />
+
+               <Label text="{i18n>lblDescription}"/>
+              <Text text="{contractModel>/description}" />
+
+              <Label text="{i18n>lblStartDate}"/>
+              <Text text="{parts: [{path: 'contractModel>/start_date'}], formatter: '.formatDate'}" />
+
+              <Label text="{i18n>lblExpiryDate}"/>
+              <Text text="{parts: [{path: 'contractModel>/end_date'}], formatter: '.formatDate'}" />
+
+              <Label text="Status"/>
+              <Text text="{contractModel>/status}" />
+
+              <Label text="{i18n>lblContractType}"/>
+              <Text id="prevTemplate" text="" />
+
+            </f:SimpleForm>
+          </Panel>
+        <VBox id="previewDialogVBox" alignContent="Center" justifyContent="Center" >
+
+          <!-- <List
+            items="{Details>/AttributeGroups}"
+            showSeparators="None"
+            width="100%"
+            class="attributeGroupList"
+            noDataText="No attribute groups found">
+
+            <items>
+              <CustomListItem type="Inactive">
+                <Panel headerText="{Details>Attribute_Group_Name}" expandable="false" width="100%" class="attributeGroupPanel">
+                  <VBox width="100%">
+
+
+                      <List items="{Details>Attributes}" width="100%" showSeparators="None">
+                        <items>
+                          <CustomListItem type="Inactive">
+                            <HBox fitContainer="true" width="100%" justifyContent="SpaceAround">
+                              <VBox width="45%" alignItems="Start">
+                                <Label text="{Details>Attribute_Name}" showColon="true" wrapping="false" class="attributeLabel"/>
+                              </VBox>
+
+                              <VBox width="55%" justifyContent="Start">
+                                <Text
+                                  text="{parts: [{ path: 'Details>Value' }, { path: 'Details>AttributeType' }], formatter: '.formatAttribute'}"
+                                  wrapping="true"
+                                  class="attributeValue"/>
+                              </VBox>
+                            </HBox>
+                          </CustomListItem>
+                        </items>
+                      </List>
+
+                  </VBox>
+                </Panel>
+              </CustomListItem>
+            </items>
+          </List> -->
+
+        </VBox>
+    
+      </ScrollContainer>
+      
+</core:FragmentDefinition>

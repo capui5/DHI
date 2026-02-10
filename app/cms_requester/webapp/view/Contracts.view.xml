@@ -1,0 +1,151 @@
+<mvc:View xmlns:filterbar="sap.ui.comp.filterbar"
+    xmlns:f="sap.f" 
+    controllerName="com.dhi.cms.cmsrequester.controller.Contracts"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:table="sap.ui.table"
+    xmlns:columnmenu="sap.m.table.columnmenu">
+    <f:DynamicPage id="Page" headerExpanded="true">
+        <f:title>
+            <f:DynamicPageTitle>
+                <f:heading>
+                    <Title text="Contracts Management"></Title>
+                </f:heading>
+            </f:DynamicPageTitle>
+        </f:title>
+        <f:header>
+            <f:DynamicPageHeader>
+                <filterbar:FilterBar id="idFilterBar" useToolbar="false" search=".onGoBtnPress">
+                    <filterbar:filterGroupItems>
+                        <!-- <filterbar:FilterGroupItem label="Contract ID" name="ID" groupName="group1" visibleInFilterBar="true">
+                            <filterbar:control>
+                                <Input placeholder="Please Enter contract ID"></Input>
+                            </filterbar:control>
+                        </filterbar:FilterGroupItem> -->
+                        <filterbar:FilterGroupItem label="Contract Type" name="templates/name" groupName="group1" visibleInFilterBar="true">
+                            <filterbar:control>
+                                <MultiComboBox id="contractTypeFilter" items="{/Templates}">
+                                    <core:Item key="{name}" text="{name}" />
+                                </MultiComboBox>
+                            </filterbar:control>
+                        </filterbar:FilterGroupItem>
+                        <filterbar:FilterGroupItem label="Status" name="status" groupName="group1" visibleInFilterBar="true">
+                            <filterbar:control>
+                                <MultiComboBox >
+                                    <core:Item key="Draft" text="Draft" />
+                                    <core:Item key="Submitted" text="Submitted" />
+                                </MultiComboBox>
+                            </filterbar:control>
+                        </filterbar:FilterGroupItem>
+                          <filterbar:FilterGroupItem label="Start Date Range" name="start_date" groupName="group1" visibleInFilterBar="false">
+                            <filterbar:control>
+                               <DateRangeSelection ></DateRangeSelection>
+                            </filterbar:control>
+                        </filterbar:FilterGroupItem>
+                           <filterbar:FilterGroupItem label="End Date Range" name="end_date" groupName="group1" visibleInFilterBar="false">
+                            <filterbar:control>
+                               <DateRangeSelection ></DateRangeSelection>
+                            </filterbar:control>
+                        </filterbar:FilterGroupItem>
+                    </filterbar:filterGroupItems>
+                </filterbar:FilterBar>
+            </f:DynamicPageHeader>
+        </f:header>
+        <f:content>
+            <table:Table id="tblContracts" alternateRowColors="true" selectionMode="None" rows="{ path: '/Contracts',
+            parameters: { operationMode: 'Server', $select: 'ID,alias,contract_id,description,start_date,end_date,templates_ID' },
+            sorter: { path: 'modifiedAt', descending: true } }"  enableColumnFreeze="true" enableCellFilter="true" filter="onAttributeFilter" rowsUpdated="onRowsUpdated" enableBusyIndicator="true">
+
+                <table:extension>
+                    <OverflowToolbar class="sapUiTinyMarginTop overflowToolbarBorder">
+                        <Title text="Contracts({appModel>/ContractCount})"/>
+                        <ToolbarSpacer/>
+                        <Button id="createContract" text="Create Document" icon="sap-icon://add-document" press="onCreateContract('ContractDetails')" type="Emphasized" visible="{roles>/canCreateContract}"/>
+                        <Button id="clearFilters" visible="true" text="Clear Filters" icon="sap-icon://clear-filter" press="onClearFilters"/>
+                        <Button icon="sap-icon://action-settings" press="onPersonalization" />
+                        <Button id="exportContracts" press=".onExportData" icon="sap-icon://excel-attachment" />
+                    </OverflowToolbar>
+                </table:extension>
+
+                <table:columns >
+                    <!-- ID -->
+                    <table:Column id="col_id" sortProperty="ID" resizable="true" autoResizable="true">
+                        <Label text="Document ID" wrapping="true"/>
+                        <table:template>
+                            <Text text="{ID}"/>
+                        </table:template>
+                    </table:Column>
+
+                    <!-- alias -->
+                    <table:Column id="col_alias" sortProperty="alias" filterProperty="alias" defaultFilterOperator="Contains" resizable="true" autoResizable="true">
+                        <Label text="Document Name" wrapping="true"/>
+                        <table:template>
+                            <Text text="{alias}" wrapping="true"/>
+                        </table:template>
+                    </table:Column>
+
+                    <!-- contract_id -->
+                    <!-- <table:Column id="col_contract_id" sortProperty="contract_id" filterProperty="contract_id" width="14rem">
+                        <Label text="Contract ID" wrapping="true"/>
+                        <table:template>
+                            <Text text="{contract_id}" wrapping="true"/>
+                        </table:template>
+                    </table:Column> -->
+
+                    <!-- description -->
+                    <table:Column id="col_description" sortProperty="description" filterProperty="description" resizable="true" autoResizable="true">
+                        <Label text="Description"/>
+                        <table:template>
+                            <Text text="{description}" />
+                        </table:template>
+                    </table:Column>
+                    <!-- templates_ID -->
+                    <table:Column id="col_templates_id" sortProperty="templates/name" filterProperty="templates/name" resizable="true" autoResizable="true">
+                        <Label text="Contract Type"/>
+                        <table:template>
+                            <Text text="{templates/name}" wrapping="true"/>
+                        </table:template>
+                    </table:Column>
+
+                    <!-- start_date -->
+                    <table:Column id="col_start_date" sortProperty="start_date" width="8.5rem">
+                        <Label text="Start Date"/>
+                        <table:template>
+                            <Text text="{start_date}" />
+                        </table:template>
+                    </table:Column>
+
+                    <!-- end_date -->
+                    <table:Column id="col_end_date" sortProperty="end_date" width="8.5rem">
+                        <Label text="End Date"/>
+                        <table:template>
+                            <Text text="{end_date}" />
+                        </table:template>
+                    </table:Column>
+
+                    <table:Column id="col_status" sortProperty="status" filterProperty="status" width="7rem">
+                        <Label text="Status"/>
+                        <table:template>
+                            <Text text="{status}" />
+                        </table:template>
+                    </table:Column>
+
+                    <!-- Actions -->
+                    <table:Column id="col_actions" width="7rem">
+                        <Label text="Actions" />
+                        <table:template>
+                            <HBox gap="5px" alignItems="Center" justifyContent="Center">
+                                <Button icon="sap-icon://show" type="Emphasized" press=".onViewContract" tooltip="View" visible="{= %{status}.toLowerCase() === 'draft' ? false : true }" />
+                                <Button icon="sap-icon://edit" type="Success" press=".onEditContract" tooltip="Edit" visible="{= %{status}.toLowerCase()==='draft' &amp;&amp; ${roles>/canEditContract} }" />
+                                <Button icon="sap-icon://delete" type="Reject" press=".onDeleteContract" tooltip="Delete" visible="{roles>/canDeleteContract}"/>
+
+                            </HBox>
+                        </table:template>
+                    </table:Column>
+                </table:columns>
+            </table:Table>
+        </f:content>
+    </f:DynamicPage>
+
+</mvc:View>

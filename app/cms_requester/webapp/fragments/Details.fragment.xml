@@ -1,0 +1,20 @@
+
+<core:FragmentDefinition xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.f">
+
+    <IconTabBar id="idSpecificationBox" items="{Details>/AttributeGroups}" expandable="false"  headerBackgroundDesign="Solid">
+        <items>
+            <IconTabFilter key="{Details>Attribute_Groups_ID}" text="{= ${Details>Attribute_Group_Name}.toUpperCase() }" >
+                <f:GridList class="sapUiMediumMarginTop sapUiMediumMarginBegin" width="96%">
+                    <f:GridListItem>
+                        <HBox class="sapUiLargeMargin" core:require='{ handler : "com/dhi/cms/cmsrequester/util/DetailsFactory" }'>
+                            <HBox items="{ path: 'Details>Attributes', factory: 'handler.renderDetailsControls' }" wrap="Wrap"/>
+                        </HBox>
+                    </f:GridListItem>
+                </f:GridList>
+            </IconTabFilter>
+        </items>
+    </IconTabBar>
+
+</core:FragmentDefinition>

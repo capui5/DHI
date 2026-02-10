@@ -1,0 +1,1 @@
+using ContractService as service from '../../srv/adminservice';

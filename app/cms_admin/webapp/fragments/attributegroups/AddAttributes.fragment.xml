@@ -1,0 +1,29 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+>
+    <SelectDialog
+        id="dlgSelectAttributes"
+        noDataText="No Attributes Found"
+        title="{i18n>Create_Attribute_Group_SelectAttributes}"
+        search=".onSearchAttributes"
+        liveChange=".onSearchAttributes"
+        confirm=".onDialogClose"
+        cancel=".onDialogClose"
+        items="{
+        path: 'appModel>/AvailableAttributes'
+    }"
+        multiSelect="true"
+        contentHeight="70%"
+        contentWidth="10%"
+    >
+        <StandardListItem title="{appModel>name}" />
+    </SelectDialog>
+</core:FragmentDefinition>
+
+
+  <!-- filters: [{
+            path: 'Rank',
+            operator: 'EQ',
+            value1: 0
+        }] -->
