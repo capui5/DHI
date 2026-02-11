@@ -17,7 +17,7 @@ sap.ui.define([
         },
         _onObjectMatched: function (oEvent) {
             BusyIndicator.show(0);
-            this.basicVaditionIds = ["contractTitleInput", "contractTypeSelect", "contractaliasInput", "contractdescriptionInput"];
+            this.basicVaditionIds = ["contractTitleInput", "contractTypeSelect", "contractaliasInput", "contractdescriptionInput", "contractApproverSelect"];
             this.clearValidationStates(this.basicVaditionIds);
             if (this.getModel("Details").getProperty("/dynamicControlIds")) {
                 this.clearValidationStates(this.getModel("Details").getProperty("/dynamicControlIds"));
@@ -97,6 +97,7 @@ sap.ui.define([
                 "start_date": null,
                 "templates_ID": null,
                 "company_CompanyCode": null,
+                "AssignedTo": null,
                 "attribute_values": [],
                 "attachments": [],
                 "status": "New"
@@ -520,6 +521,10 @@ sap.ui.define([
 
                     const sId = await this.ODataPost("/Contracts", contractMasterData);
                     if (sId) {
+                        // Trigger SBPA workflow if submitting
+                        if (sSaveType === "submit") {
+                            that._triggerContractWorkflow(sId);
+                        }
                         MessageBox.success(sMessage, {
                             actions: [MessageBox.Action.OK],
                             onClose: function (oAction) {
@@ -547,6 +552,10 @@ sap.ui.define([
                     data: JSON.stringify(contractMasterData),
                     success: function (data) {
                         console.log(data)
+                        // Trigger SBPA workflow if submitting
+                        if (sSaveType === "submit") {
+                            that._triggerContractWorkflow(that.contractId);
+                        }
                         MessageBox.success(sMessage, {
                             actions: [MessageBox.Action.OK],
                             onClose: function (oAction) {
@@ -561,6 +570,16 @@ sap.ui.define([
                     }
                 });
             }
+        },
+        _triggerContractWorkflow: function (sContractId) {
+            var oModel = this.getModel();
+            var oAction = oModel.bindContext("/submitContract(...)");
+            oAction.setParameter("contractId", sContractId);
+            oAction.execute().then(function () {
+                console.log("Contract workflow submitted successfully");
+            }).catch(function (oError) {
+                console.error("Failed to trigger contract workflow:", oError.message);
+            });
         },
         convertModelDataToAttributeValues: function () {
             const modelData = this.getModel("Details").getData();

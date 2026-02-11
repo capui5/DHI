@@ -296,19 +296,19 @@ service ContractService @(path: '/contracts')@(requires: 'authenticated-user') {
     ])
     entity Companies                                   as projection on cms.Companies;
 
-    // ─── Template Workflow Actions (DHI Admin & Power User) ───
+    // ─── Contract Workflow Actions ───
     @(requires: [
-        'DHI_Admin',
-        'DHI_PowerUser'
+        'Company_Admin',
+        'Company_Editor'
     ])
-    action   submitTemplate(template: Templates)      returns String;
+    action   submitContract(contractId: UUID)          returns String;
 
-    @(requires: ['DHI_Admin'])
-    action   approveTemplate(ID: UUID,
+    @(requires: ['Company_Admin'])
+    action   approveContract(ID: UUID,
                              ApprovedBy: String);
 
-    @(requires: ['DHI_Admin'])
-    action   rejectTemplate(ID: UUID,
+    @(requires: ['Company_Admin'])
+    action   rejectContract(ID: UUID,
                             RejectionReason: String,
                             RejectedBy: String);
 

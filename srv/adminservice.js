@@ -82,15 +82,18 @@ module.exports = async function () {
     if (existing) return req.reject(400, 'Unique constraint violated: Template name must be unique.');
   });
 
-  // ─── Workflow Helpers ───
-  async function getTaskProcessor(templateId) {
+  // ═══════════════════════════════════════════════════════════════
+  // ─── Contract Workflow Helpers ───
+  // ═══════════════════════════════════════════════════════════════
+
+  async function getContractTaskProcessor(contractId) {
     try {
       const instancesRes = await executeHttpRequest(
         { destinationName: 'SBPA_API' },
         {
           method: 'GET',
           url: '/public/workflow/rest/v1/workflow-instances',
-          params: { 'context.id': templateId },
+          params: { 'context.id': contractId },
           headers: { 'Content-Type': 'application/json' }
         }
       );
@@ -112,87 +115,62 @@ module.exports = async function () {
         }
       }
     } catch (err) {
-      console.error('Failed to get task processor:', err.message);
+      console.error('Failed to get contract task processor:', err.message);
     }
     return null;
   }
 
-  function mapTemplateToWorkflowPayload(template) {
-    const firstTG = template.attribute_groups?.[0];
-    const group = firstTG?.attribute_groups || {};
-
+  function mapContractToWorkflowPayload(contract) {
     return {
       definitionId:
-        'ap11.dhi-alm-cloud-mwwpt8sk.dhitemplateapprovalform.template_approval_process',
+        'ap11.dhi-alm-cloud-mwwpt8sk.dhicontractapprovalform.contract_approval_process',
       context: {
-        template_id: template.template_id ?? template.ID,
-        _name: template.name ?? '',
-        Status: template.Status ?? '',
-        AssignedTo: template.AssignedTo ?? '',
-        ID: template.ID ?? '',
-        attribute_groups: {
-          attribute_group_id: group.attribute_group_id || group.ID || '',
-          name: group.name ?? '',
-          desc: group.desc ?? '',
-          attributes: (group.attributes || []).map(ga => {
-            const attr = ga.attribute || {};
-            return {
-              attribute_id: attr.attribute_id ?? '',
-              name: attr.name ?? '',
-              desc: attr.desc ?? '',
-              alias: attr.alias ?? '',
-              type: attr.type ?? '',
-              value: attr.value ?? '',
-              is_mandatory: attr.is_mandatory ?? false,
-              maxlength: attr.maxlength ?? null,
-              minlength: attr.minlength ?? null
-            };
-          })
-        }
+        contract_id: contract.contract_id ?? contract.ID,
+        name: contract.name ?? '',
+        description: contract.description ?? '',
+        alias: contract.alias ?? '',
+        start_date: contract.start_date ?? '',
+        end_date: contract.end_date ?? '',
+        status: contract.status ?? '',
+        AssignedTo: contract.AssignedTo ?? '',
+        ID: contract.ID ?? '',
+        company: {
+          CompanyCode: contract.company?.CompanyCode ?? '',
+          CompanyName: contract.company?.CompanyName ?? ''
+        },
+        template_name: contract.templates?.name ?? ''
       }
     };
   }
 
-  // ─── Template Workflow Actions ───
-  this.on('submitTemplate', async (req) => {
-    const { template } = req.data;
-    const templateDetails = await cds.run(
-      SELECT.one.from('com.dhi.cms.Templates')
-        .where({ ID: template.ID })
-        .columns(t => {
-          t.ID,
-            t.template_id,
-            t.name,
-            t.Status,
-            t.AssignedTo,
-            t.attribute_groups(ag => {
-              ag.sortID,
-                ag.attribute_groups(g => {
-                  g.ID,
-                    g.attribute_group_id,
-                    g.name,
-                    g.desc,
-                    g.attributes(a => {
-                      a.sortID,
-                        a.attribute(attr => {
-                          attr.attribute_id,
-                            attr.name,
-                            attr.desc,
-                            attr.alias,
-                            attr.type,
-                            attr.value,
-                            attr.is_mandatory,
-                            attr.maxlength,
-                            attr.minlength
-                        })
-                    })
-                })
-            })
-        })
-    );
-    console.log("Details", JSON.stringify(templateDetails, null, 2));
-    const workflowPayload = mapTemplateToWorkflowPayload(templateDetails);
-    console.log(workflowPayload);
+  // ─── Contract Workflow Actions ───
+  this.on('submitContract', async (req) => {
+    const { contractId } = req.data;
+    const contractDetails = await SELECT.one.from('com.dhi.cms.Contracts')
+      .where({ ID: contractId })
+      .columns(c => {
+        c.ID,
+        c.contract_id,
+        c.name,
+        c.description,
+        c.alias,
+        c.start_date,
+        c.end_date,
+        c.status,
+        c.AssignedTo,
+        c.templates(t => { t.name }),
+        c.company(co => { co.CompanyCode, co.CompanyName })
+      });
+
+    if (!contractDetails) {
+      req.error(404, 'Contract not found');
+      return;
+    }
+
+    console.log("Contract Details", JSON.stringify(contractDetails, null, 2));
+    const workflowPayload = mapContractToWorkflowPayload(contractDetails);
+    console.log("Workflow Payload", JSON.stringify(workflowPayload, null, 2));
+
     try {
       const response = await executeHttpRequest(
         { destinationName: 'SBPA_API' },
@@ -203,30 +181,30 @@ module.exports = async function () {
           headers: { 'Content-Type': 'application/json' }
         }
       );
-      console.log('SBPA workflow triggered successfully:', JSON.stringify(response.data));
+      console.log('SBPA contract workflow triggered successfully:', JSON.stringify(response.data));
     } catch (err) {
       const details = err.response ? JSON.stringify(err.response.data) : err.message;
-      console.error('Failed to trigger SBPA workflow:', details);
+      console.error('Failed to trigger SBPA contract workflow:', details);
       req.error(500, 'Workflow trigger failed: ' + details);
     }
-    return "Workflow Submitted";
+    return "Contract Workflow Submitted";
   });
 
-  this.on('approveTemplate', async (req) => {
+  this.on('approveContract', async (req) => {
     const { ID } = req.data;
-    const processor = await getTaskProcessor(ID);
+    const processor = await getContractTaskProcessor(ID);
     const approvedBy = processor || req.data.ApprovedBy || 'unknown';
-    await UPDATE(Templates)
-      .set({ Status: 'APPROVED', ApprovedBy: approvedBy, ApprovedAt: new Date() })
+    await UPDATE(Contracts)
+      .set({ status: 'Approved', ApprovedBy: approvedBy, ApprovedAt: new Date() })
       .where({ ID });
   });
 
-  this.on('rejectTemplate', async (req) => {
+  this.on('rejectContract', async (req) => {
     const { ID, RejectionReason } = req.data;
-    const processor = await getTaskProcessor(ID);
+    const processor = await getContractTaskProcessor(ID);
     const rejectedBy = processor || req.data.RejectedBy || 'unknown';
-    await UPDATE(Templates)
-      .set({ Status: 'REJECTED', RejectionReason, RejectedBy: rejectedBy, RejectedAt: new Date() })
+    await UPDATE(Contracts)
+      .set({ status: 'Rejected', RejectionReason, RejectedBy: rejectedBy, RejectedAt: new Date() })
       .where({ ID });
   });
 
@@ -250,12 +228,12 @@ module.exports = async function () {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
-  // Helper: Send alert via SAP ANS to the contract creator
+  // Helper: Send alert via SAP ANS to the company admin
   async function sendContractAlertNotification(contract, daysRemaining) {
-    const recipientEmail = contract.createdBy;
+    const recipientEmail = contract.company?.AdminName;
 
     if (!recipientEmail) {
-      console.warn(`No createdBy found for contract ${contract.contract_id || contract.ID} - skipping notification`);
+      console.warn(`No admin email found for contract ${contract.contract_id || contract.ID} (company: ${contract.company_CompanyCode}) - skipping notification`);
       return false;
     }
 
@@ -330,7 +308,8 @@ DHI Contract Management System`,
 
     const contracts = await SELECT.from(Contracts, c => {
       c('*'),
-      c.templates(t => { t.name, t.AssignedTo })
+      c.templates(t => { t.name, t.AssignedTo }),
+      c.company(co => { co.CompanyCode, co.CompanyName, co.AdminName })
     }).where({ end_date: { '!=': null } });
 
     console.log(`Found ${contracts.length} contracts with expiry dates`);
@@ -396,7 +375,8 @@ DHI Contract Management System`,
 
     const contract = await SELECT.one.from(Contracts, c => {
       c('*'),
-      c.templates(t => { t.name, t.AssignedTo })
+      c.templates(t => { t.name, t.AssignedTo }),
+      c.company(co => { co.CompanyCode, co.CompanyName, co.AdminName })
     }).where({ ID: contractId });
 
     if (!contract) {

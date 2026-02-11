@@ -82,6 +82,19 @@
             <Label text="{i18n>lblExpiryDate}"></Label>
             <DatePicker id="dpEndDate" value="{contractModel>/end_date}" displayFormat="yyyy-MM-dd" valueFormat="yyyy-MM-dd" width="500px" editable="{appModel>/isFieldEditable}" change=".onDateChange"
 ></DatePicker>
+            <Label text="Approver" required="true"/>
+            <ComboBox
+                id="contractApproverSelect"
+                placeholder="Select Approver"
+                selectedKey="{contractModel>/AssignedTo}"
+                items="{path: '/LISTAPPROVER'}"
+                width="500px"
+                editable="{appModel>/isFieldEditable}"
+                required="true"
+                change="onControlValueChange"
+            >
+                <core:Item key="{MAILID}" text="{NAME}" />
+            </ComboBox>
         </f:content>
     </f:SimpleForm>
 </core:FragmentDefinition>

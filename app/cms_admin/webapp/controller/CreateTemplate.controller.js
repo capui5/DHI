@@ -448,27 +448,6 @@ sap.ui.define([
                                     that.getModel("appModel").setProperty("/Template/template_id", oData.template_id);
                                 });
                             }, 1000);
-                            // add by hemanth
-                            const oModel = that.getModel();
-
-                            // Get full template object
-                            const oTemplate = that.oContext.getObject();
-
-                            // Bind action
-                            const oAction = oModel.bindContext("/submitTemplate(...)");
-
-                            // Pass full object
-                            oAction.setParameter("template", oTemplate);
-                            debugger
-
-                            // Execute
-                            oAction.execute().then(() => {
-                                console.log("Template submitted successfully");
-                                // sap.m.MessageToast.show("Template submitted successfully");
-                            }).catch((oError) => {
-                                sap.m.MessageBox.error(oError.message);
-                            });
-                            // hemanth
                             MessageBox.success(oBundle.getText("templateSaved"), {
                                 actions: [MessageBox.Action.OK],
                                 onClose: function (oAction) {

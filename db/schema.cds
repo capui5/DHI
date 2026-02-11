@@ -115,7 +115,13 @@ entity Contracts : cuid, managed {
                            on attachments.contracts = $self;
     attribute_values : Composition of many ContractsAttributes
                            on attribute_values.contracts = $self;
-    status: String default 'Draft';
+    status          : String default 'Draft';
+    ApprovedBy      : String(100);
+    ApprovedAt      : Timestamp;
+    RejectionReason : String(255);
+    RejectedBy      : String(100);
+    RejectedAt      : Timestamp;
+    AssignedTo      : String(200);
 }
 
 entity Attachments : cuid, managed {
