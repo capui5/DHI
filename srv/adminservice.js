@@ -120,7 +120,7 @@ module.exports = async function () {
     return null;
   }
 
-  function mapContractToWorkflowPayload(contract) {
+  function mapContractToWorkflowPayload(contract, submittedBy) {
     return {
       definitionId:
         'ap11.dhi-alm-cloud-mwwpt8sk.dhitemplateapprovalform.template_approval_process',
@@ -138,7 +138,8 @@ module.exports = async function () {
           CompanyCode: contract.company?.CompanyCode ?? '',
           CompanyName: contract.company?.CompanyName ?? ''
         },
-        template_name: contract.templates?.name ?? ''
+        template_name: contract.templates?.name ?? '',
+        submittedby: submittedBy ?? ''
       }
     };
   }
@@ -167,8 +168,23 @@ module.exports = async function () {
       return;
     }
 
+    // Get submitter's email from JWT token
+    let submittedBy = req.user.id;
+    try {
+      const tokenInfo = req.user.tokenInfo;
+      if (tokenInfo) {
+        const payload = tokenInfo.getPayload();
+        submittedBy = payload.email || payload.user_name || req.user.id;
+      } else if (req.user.attr && req.user.attr.email) {
+        submittedBy = req.user.attr.email;
+      }
+    } catch (e) {
+      console.log("submitContract - error reading token for submittedBy:", e.message);
+    }
+
     console.log("Contract Details", JSON.stringify(contractDetails, null, 2));
-    const workflowPayload = mapContractToWorkflowPayload(contractDetails);
+    console.log("Submitted By:", submittedBy);
+    const workflowPayload = mapContractToWorkflowPayload(contractDetails, submittedBy);
     console.log("Workflow Payload", JSON.stringify(workflowPayload, null, 2));
 
     try {
