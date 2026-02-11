@@ -303,11 +303,11 @@ service ContractService @(path: '/contracts')@(requires: 'authenticated-user') {
     ])
     action   submitContract(contractId: UUID)          returns String;
 
-    @(requires: ['Company_Admin'])
+    @(requires: 'authenticated-user')
     action   approveContract(ID: UUID,
                              ApprovedBy: String);
 
-    @(requires: ['Company_Admin'])
+    @(requires: 'authenticated-user')
     action   rejectContract(ID: UUID,
                             RejectionReason: String,
                             RejectedBy: String);
