@@ -49,8 +49,8 @@
                                 <IconTabFilter key="ContractPrev" text="{i18n>tabContractPreview}" >
                                     <OverflowToolbar class="customToolbar" design="Transparent" height="3rem">
                                         <ToolbarSpacer/>
-                                        <Button text="{i18n>btnSubmit}" type="Emphasized" visible="{appModel>/isFieldEditable}" icon="sap-icon://save" press="handleSaveandSubmitContractDetails('submit')" />
-                                        <Button text="{i18n>btnSaveDraft}" type="Accept" visible="{appModel>/isFieldEditable}" icon="sap-icon://notes" press="handleSaveandSubmitContractDetails('save')" />
+                                        <Button text="{i18n>btnSubmit}" type="Emphasized" visible="{= ${appModel>/isFieldEditable} &amp;&amp; ${roles>/canEditContract} }" icon="sap-icon://save" press="handleSaveandSubmitContractDetails('submit')" />
+                                        <Button text="{i18n>btnSaveDraft}" type="Accept" visible="{= ${appModel>/isFieldEditable} &amp;&amp; ${roles>/canEditContract} }" icon="sap-icon://notes" press="handleSaveandSubmitContractDetails('save')" />
                                         <Button class="sapUiTinyMarginBegin" text="{i18n>btnCancel}" icon="sap-icon://decline" type="Attention" press="onNavigation('Contracts')"/>
 
                                     </OverflowToolbar>

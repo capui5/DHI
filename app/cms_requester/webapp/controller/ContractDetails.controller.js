@@ -103,8 +103,9 @@ sap.ui.define([
             };
 
             this.getModel("contractModel").setData(data);
-            this.getModel("appModel").setProperty("/isFieldEditable", true)
-            this.getModel("appModel").setProperty("/attachmentsMode", "Delete")
+            var bCanEdit = this.getOwnerComponent().getModel("roles").getProperty("/canEditContract");
+            this.getModel("appModel").setProperty("/isFieldEditable", bCanEdit)
+            this.getModel("appModel").setProperty("/attachmentsMode", bCanEdit ? "Delete" : "None")
         },
         _getContractDetails: async function () {
             let oModel = this.getModel();
@@ -117,11 +118,12 @@ sap.ui.define([
             this.contractData = oDetail;
             this.getModel("contractModel").setData(oDetail);
             this.getModel("appModel").setProperty("/status", oDetail.status);
-            if (oDetail.status === "Draft") {
+            var bCanEdit = this.getOwnerComponent().getModel("roles").getProperty("/canEditContract");
+            if (oDetail.status === "Draft" && bCanEdit) {
                 this.getModel("appModel").setProperty("/isFieldEditable", true)
                 this.getModel("appModel").setProperty("/attachmentsMode", "Delete")
             }
-            else if (oDetail.status === "Submitted") {
+            else {
                 this.getModel("appModel").setProperty("/isFieldEditable", false)
                 this.getModel("appModel").setProperty("/attachmentsMode", "None")
             }

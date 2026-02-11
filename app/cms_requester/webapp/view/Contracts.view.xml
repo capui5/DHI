@@ -144,9 +144,9 @@
                         <Label text="Actions" />
                         <table:template>
                             <HBox gap="5px" alignItems="Center" justifyContent="Center">
-                                <Button icon="sap-icon://show" type="Emphasized" press=".onViewContract" tooltip="View" visible="{= %{status}.toLowerCase() === 'draft' ? false : true }" />
+                                <Button icon="sap-icon://show" type="Emphasized" press=".onViewContract" tooltip="View" visible="{= %{status}.toLowerCase() !== 'draft' || !${roles>/canEditContract} }" />
                                 <Button icon="sap-icon://edit" type="Success" press=".onEditContract" tooltip="Edit" visible="{= %{status}.toLowerCase()==='draft' &amp;&amp; ${roles>/canEditContract} }" />
-                                <Button icon="sap-icon://delete" type="Reject" press=".onDeleteContract" tooltip="Delete" visible="{roles>/canDeleteContract}"/>
+                                <Button icon="sap-icon://delete" type="Reject" press=".onDeleteContract" tooltip="Delete" visible="{= %{status}.toLowerCase()==='draft' &amp;&amp; ${roles>/canDeleteContract} }"/>
 
                             </HBox>
                         </table:template>

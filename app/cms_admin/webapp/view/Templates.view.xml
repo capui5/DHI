@@ -55,8 +55,8 @@
                         <Label text="{i18n>Templates_ColumnActions}" visible="false"/>
                         <table:template>
                             <HBox>
-                                <Button icon="sap-icon://edit" type="Emphasized" class="sapUiTinyMarginEnd" press=".onTemplateEdit" tooltip="{i18n>Templates_EditButton}" visible="{= ${Status} !== 'SUBMITTED' &amp;&amp; ${roles>/canEditTemplate} }" />
-                                <Button icon="sap-icon://delete" type="Reject" class="sapUiTinyMarginEnd" press=".onTemplateDelete" tooltip="{i18n>Templates_DeleteButton}" visible="{= ${Status} !== 'SUBMITTED' &amp;&amp; ${roles>/canDeleteTemplate} }"/>
+                                <Button icon="sap-icon://edit" type="Emphasized" class="sapUiTinyMarginEnd" press=".onTemplateEdit" tooltip="{i18n>Templates_EditButton}" visible="{roles>/canEditTemplate}" />
+                                <Button icon="sap-icon://delete" type="Reject" class="sapUiTinyMarginEnd" press=".onTemplateDelete" tooltip="{i18n>Templates_DeleteButton}" visible="{roles>/canDeleteTemplate}"/>
                             </HBox>
                         </table:template>
                     </table:Column>
