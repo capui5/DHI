@@ -123,10 +123,10 @@ module.exports = async function () {
   function mapContractToWorkflowPayload(contract) {
     return {
       definitionId:
-        'ap11.dhi-alm-cloud-mwwpt8sk.dhicontractapprovalform.contract_approval_process',
+        'ap11.dhi-alm-cloud-mwwpt8sk.dhitemplateapprovalform.template_approval_process',
       context: {
         contract_id: contract.contract_id ?? contract.ID,
-        name: contract.name ?? '',
+        _name: contract.name ?? '',
         description: contract.description ?? '',
         alias: contract.alias ?? '',
         start_date: contract.start_date ?? '',
