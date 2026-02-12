@@ -88,6 +88,7 @@ entity Companies {
     key CompanyCode : String(20);
     CompanyName     : String(200);
     AdminName       : String(200);
+    AdminId         : String(100);
     contracts       : Association to many Contracts
                           on contracts.company = $self;
 }

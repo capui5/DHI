@@ -175,7 +175,7 @@ async function runScheduledExpiryCheck() {
     const contracts = await SELECT.from(Contracts, c => {
       c('*'),
       c.templates(t => { t.name, t.AssignedTo }),
-      c.company(co => { co.CompanyCode, co.CompanyName, co.AdminName })
+      c.company(co => { co.CompanyCode, co.CompanyName, co.AdminName, co.AdminId })
     }).where({ end_date: { '!=': null } });
 
     console.log(`Scheduled check: Found ${contracts.length} contracts with expiry dates`);

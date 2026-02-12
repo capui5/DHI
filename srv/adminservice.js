@@ -132,11 +132,12 @@ module.exports = async function () {
         start_date: contract.start_date ?? '',
         end_date: contract.end_date ?? '',
         status: contract.status ?? '',
-        AssignedTo: contract.AssignedTo ?? '',
+        AssignedTo: contract.company?.AdminId ?? contract.AssignedTo ?? '',
         ID: contract.ID ?? '',
         company: {
           CompanyCode: contract.company?.CompanyCode ?? '',
-          CompanyName: contract.company?.CompanyName ?? ''
+          CompanyName: contract.company?.CompanyName ?? '',
+          AdminId: contract.company?.AdminId ?? ''
         },
         template_name: contract.templates?.name ?? '',
         submittedby: submittedBy ?? ''
@@ -160,7 +161,7 @@ module.exports = async function () {
         c.status,
         c.AssignedTo,
         c.templates(t => { t.name }),
-        c.company(co => { co.CompanyCode, co.CompanyName })
+        c.company(co => { co.CompanyCode, co.CompanyName, co.AdminId })
       });
 
     if (!contractDetails) {
@@ -325,7 +326,7 @@ DHI Contract Management System`,
     const contracts = await SELECT.from(Contracts, c => {
       c('*'),
       c.templates(t => { t.name, t.AssignedTo }),
-      c.company(co => { co.CompanyCode, co.CompanyName, co.AdminName })
+      c.company(co => { co.CompanyCode, co.CompanyName, co.AdminName, co.AdminId })
     }).where({ end_date: { '!=': null } });
 
     console.log(`Found ${contracts.length} contracts with expiry dates`);
@@ -392,7 +393,7 @@ DHI Contract Management System`,
     const contract = await SELECT.one.from(Contracts, c => {
       c('*'),
       c.templates(t => { t.name, t.AssignedTo }),
-      c.company(co => { co.CompanyCode, co.CompanyName, co.AdminName })
+      c.company(co => { co.CompanyCode, co.CompanyName, co.AdminName, co.AdminId })
     }).where({ ID: contractId });
 
     if (!contract) {
