@@ -101,8 +101,8 @@ sap.ui.define([
                                     that._getAttributeGrpList();
                                     oTable.setBusy(false);
                                 }).catch(function (oError) {
-                                    let sErrorMessage = oBundle.getText("attributeGroupDeleteErrorMessage", [attributeGroupName]);
-                                    MessageBox.error(sErrorMessage);
+                                    var sMsg = (oError && oError.message) ? oError.message : oBundle.getText("attributeGroupDeleteErrorMessage", [attributeGroupName]);
+                                    MessageBox.error(sMsg);
                                     oTable.setBusy(false);
                                 });
                             });

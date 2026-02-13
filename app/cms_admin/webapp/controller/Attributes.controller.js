@@ -42,8 +42,8 @@ sap.ui.define([
                             this._refreshTable();
                             oTable.setBusy(false);
                         }.bind(this), function (oError) {
-                            let sErrorMessage = oBundle.getText("attributeDeleteErrorMessage", [attributeName]);
-                            MessageBox.error(sErrorMessage);
+                            var sMsg = (oError && oError.message) ? oError.message : oBundle.getText("attributeDeleteErrorMessage", [attributeName]);
+                            MessageBox.error(sMsg);
                             oTable.setBusy(false);
                         });
                     }

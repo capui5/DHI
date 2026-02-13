@@ -82,6 +82,31 @@ module.exports = async function () {
     if (existing) return req.reject(400, 'Unique constraint violated: Template name must be unique.');
   });
 
+  this.before(['CREATE', 'UPDATE'], 'Contracts', async (req) => {
+    const { name, ID } = req.data;
+    if (!name) return;
+    const where = ID ? { name, ID: { '!=': ID } } : { name };
+    const existing = await SELECT.one.from('com.dhi.cms.Contracts').where(where);
+    if (existing) return req.reject(400, 'Duplicate entry: Contract name already exists.');
+  });
+
+  // Set status to 'Expired' for contracts whose end_date has passed
+  this.after('READ', 'Contracts', (each) => {
+    if (!each) return;
+    const items = Array.isArray(each) ? each : [each];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    for (const item of items) {
+      if (item.end_date && item.status !== 'Draft') {
+        const endDate = new Date(item.end_date);
+        endDate.setHours(0, 0, 0, 0);
+        if (endDate < today) {
+          item.status = 'Expired';
+        }
+      }
+    }
+  });
+
   // ═══════════════════════════════════════════════════════════════
   // ─── Contract Workflow Helpers ───
   // ═══════════════════════════════════════════════════════════════

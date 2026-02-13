@@ -62,7 +62,8 @@ sap.ui.define([
                                 this._refreshTable();
                                 oTable.setBusy(false);
                             }.bind(this), function (oError) {
-                                MessageBox.error(oBundle.getText("templateDeleteError", [templateName]));
+                                var sMsg = (oError && oError.message) ? oError.message : oBundle.getText("templateDeleteError", [templateName]);
+                                MessageBox.error(sMsg);
                                 oTable.setBusy(false);
                             });
                         }

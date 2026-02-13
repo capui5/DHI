@@ -115,30 +115,48 @@ sap.ui.define([
         },
         ODataPost: function (sPath, oNewData) {
             return new Promise((resolve, reject) => {
-                let oModel = this.getView().getModel();
-                let oDataBinding = oModel.bindList(sPath);
-                let oContext = oDataBinding.create(oNewData);
-
-                oContext.created().then(() => {
-                    try {
-                        let oData = oContext.getObject(); // entity from backend
-                        console.log("New entity created:", oData);
-
-                        if (oData && oData.ID) {
-                            console.log("New ID:", oData);
-                            resolve(oData.ID); // ✅ return ID
-                        } else {
-                            MessageBox.warning("No ID returned from backend");
-                            reject("No ID returned from backend");
-                        }
-                    } catch (err) {
-                        reject(err);
-                    }
-                }).catch((err) => {
-                    console.error("Create failed:", err);
-                    MessageBox.warning("Cannot");
-                    reject(err);
+                var oModel = this.getView().getModel();
+                var sGroupId = "batchCreate" + Date.now();
+                var oDataBinding = oModel.bindList(sPath, undefined, undefined, undefined, {
+                    $$updateGroupId: sGroupId
                 });
+
+                oDataBinding.attachCreateCompleted(function (oEvent) {
+                    var bSuccess = oEvent.getParameter("success");
+                    var oCtx = oEvent.getParameter("context");
+                    if (bSuccess) {
+                        try {
+                            var oData = oCtx.getObject();
+                            console.log("New entity created:", oData);
+                            if (oData && oData.ID) {
+                                resolve(oData.ID);
+                            } else {
+                                reject(new Error("No ID returned from backend"));
+                            }
+                        } catch (err) {
+                            reject(err);
+                        }
+                    } else {
+                        // Extract backend error message
+                        var sErrorMsg = "An unexpected error occurred.";
+                        try {
+                            var aMessages = sap.ui.getCore().getMessageManager().getMessageModel().getData();
+                            var oErrorMessage = aMessages.slice().reverse().find(function (msg) {
+                                return msg.type === "Error";
+                            });
+                            if (oErrorMessage && oErrorMessage.message) {
+                                sErrorMsg = oErrorMessage.message;
+                            }
+                        } catch (e) { /* use default */ }
+                        // Clean up the failed transient context
+                        try { oCtx.delete(); } catch (e) { /* ignore */ }
+                        try { oModel.resetChanges(sGroupId); } catch (e) { /* ignore */ }
+                        reject(new Error(sErrorMsg));
+                    }
+                });
+
+                oDataBinding.create(oNewData);
+                oModel.submitBatch(sGroupId);
             });
         },
         _getfiledata: async function (item) {

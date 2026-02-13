@@ -523,7 +523,8 @@ sap.ui.define([
                     if (sId) {
                         // Trigger SBPA workflow if submitting
                         if (sSaveType === "submit") {
-                            that._triggerContractWorkflow(sId);
+                            var sWorkflowMsg = await that._triggerContractWorkflow(sId);
+                            sMessage = contractMasterData.name + " - " + sWorkflowMsg;
                         }
                         MessageBox.success(sMessage, {
                             actions: [MessageBox.Action.OK],
@@ -540,7 +541,8 @@ sap.ui.define([
 
                 } catch (err) {
                     console.error("Create failed:", err);
-                    MessageToast.show("Contract creation failed");
+                    var sErrMsg = (err && err.message) ? err.message : "Contract creation failed";
+                    MessageBox.error(sErrMsg);
                 }
             }
             else {
@@ -550,11 +552,12 @@ sap.ui.define([
                     method: "PUT",
                     contentType: "application/json",
                     data: JSON.stringify(contractMasterData),
-                    success: function (data) {
+                    success: async function (data) {
                         console.log(data)
                         // Trigger SBPA workflow if submitting
                         if (sSaveType === "submit") {
-                            that._triggerContractWorkflow(that.contractId);
+                            var sWorkflowMsg = await that._triggerContractWorkflow(that.contractId);
+                            sMessage = contractMasterData.name + " - " + sWorkflowMsg;
                         }
                         MessageBox.success(sMessage, {
                             actions: [MessageBox.Action.OK],
@@ -565,8 +568,13 @@ sap.ui.define([
                             }
                         });
                     },
-                    error: function (error) {
-                        MessageToast.show("Error submitting data");
+                    error: function (jqXHR) {
+                        let backendMsg = "Error submitting data";
+                        try {
+                            var oResponse = JSON.parse(jqXHR.responseText);
+                            backendMsg = oResponse.error.message || backendMsg;
+                        } catch (e) { /* use default */ }
+                        MessageBox.error(backendMsg);
                     }
                 });
             }
@@ -575,10 +583,14 @@ sap.ui.define([
             var oModel = this.getModel();
             var oAction = oModel.bindContext("/submitContract(...)");
             oAction.setParameter("contractId", sContractId);
-            oAction.execute().then(function () {
-                console.log("Contract workflow submitted successfully");
+            return oAction.execute().then(function () {
+                var sResult = oAction.getBoundContext().getObject().value;
+                console.log("Contract workflow submitted successfully:", sResult);
+                return sResult || "Contract Workflow Submitted";
             }).catch(function (oError) {
                 console.error("Failed to trigger contract workflow:", oError.message);
+                MessageBox.error("Failed to trigger contract workflow: " + (oError.message || "Unknown error"));
+                return "Contract Submitted (Workflow trigger failed)";
             });
         },
         convertModelDataToAttributeValues: function () {
