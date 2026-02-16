@@ -125,6 +125,18 @@ entity Contracts : cuid, managed {
     AssignedTo      : String(200);
 }
 
+entity NotificationLogs : cuid, managed {
+    contract         : Association to Contracts;
+    notificationType : String(50);   // e.g. 'contract.expiring.30d', 'contract.expired'
+    recipientEmail   : String(200);
+    reminderWindow   : String(10);   // '30d', '14d', '7d', 'expired'
+    severity         : String(20);   // 'INFO', 'WARNING', 'ERROR'
+    status           : String(20);   // 'Sent', 'Failed'
+    errorMessage     : String(500);
+    retryCount       : Integer default 0;
+    sentAt           : Timestamp;
+}
+
 entity Attachments : cuid, managed {
     contracts     : Association to Contracts;
     file_url      : String;

@@ -10,6 +10,8 @@ modules:
       - name: dhi_cms-db
       - name: uaa_dhi_cms
       - name: dhi_cms-destination-service
+      # - name: dhi_cms-job-scheduler
+      - name: dhi_cms-audit-service
     provides:
       - name: srv-api
         properties:
@@ -135,6 +137,18 @@ resources:
       service: html5-apps-repo
       service-name: dhi_cms-html5-app-host-service
       service-plan: app-host
+  # - name: dhi_cms-job-scheduler
+  #   type: org.cloudfoundry.managed-service
+  #   parameters:
+  #     service: jobscheduler
+  #     service-name: dhi_cms-job-scheduler
+  #     service-plan: lite
+  #     config:
+  #       enable-xsuaa-support: true
+  - name: dhi_cms-audit-service
+    type: org.cloudfoundry.existing-service
+    parameters:
+      service-name: dhi-ndi-audit-service
   - name: uaa_dhi_cms
     type: org.cloudfoundry.managed-service
     parameters:

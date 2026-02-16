@@ -296,6 +296,17 @@ service ContractService @(path: '/contracts')@(requires: 'authenticated-user') {
     ])
     entity Companies                                   as projection on cms.Companies;
 
+    // ─── Notification Logs (Audit Trail) ───
+    @(restrict: [{
+        grant: ['READ'],
+        to   : [
+            'DHI_Admin',
+            'Company_Admin',
+            'Auditor'
+        ]
+    }])
+    entity NotificationLogs                              as projection on cms.NotificationLogs;
+
     // ─── Contract Workflow Actions ───
     @(requires: [
         'Company_Admin',

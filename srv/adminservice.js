@@ -1,7 +1,7 @@
 const cds = require('@sap/cds')
 
 module.exports = async function () {
-  const { Templates, Contracts } = this.entities;
+  const { Templates, Contracts, NotificationLogs } = this.entities;
   const { executeHttpRequest } = require('@sap-cloud-sdk/http-client');
 
   // ─── Configuration ───
@@ -251,10 +251,9 @@ module.exports = async function () {
   });
 
   // ═══════════════════════════════════════════════════════════════
-  // ─── Contract Expiry Notification (ANS + Email) ───
+  // ─── Contract Expiry Notification (ANS) ───
   // ═══════════════════════════════════════════════════════════════
 
-  // Helper: Calculate days until expiry
   function getDaysUntilExpiry(expiryDate) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -263,60 +262,113 @@ module.exports = async function () {
     return Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
   }
 
-  // Helper: Format date
   function formatDate(dateStr) {
     if (!dateStr) return 'N/A';
     const date = new Date(dateStr);
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
-  // Helper: Send alert via SAP ANS to the company admin
+  // Determine event type and reminder window based on days remaining
+  function getEventClassification(daysRemaining) {
+    if (daysRemaining <= 0) {
+      return { eventType: 'contract.expired', reminderWindow: 'expired', severity: 'ERROR' };
+    } else if (daysRemaining <= 7) {
+      return { eventType: 'contract.expiring.7d', reminderWindow: '7d', severity: 'ERROR' };
+    } else if (daysRemaining <= 14) {
+      return { eventType: 'contract.expiring.14d', reminderWindow: '14d', severity: 'WARNING' };
+    } else if (daysRemaining <= 30) {
+      return { eventType: 'contract.expiring.30d', reminderWindow: '30d', severity: 'INFO' };
+    }
+    return null;
+  }
+
+  // Check if notification was already sent (de-duplication)
+  async function isAlreadySent(contractID, notificationType) {
+    const existing = await SELECT.one.from(NotificationLogs).where({
+      contract_ID: contractID,
+      notificationType: notificationType,
+      status: 'Sent'
+    });
+    return !!existing;
+  }
+
+  // Log notification attempt to audit table
+  async function logNotification(contractID, notificationType, recipientEmail, reminderWindow, severity, status, errorMessage) {
+    await INSERT.into(NotificationLogs).entries({
+      contract_ID: contractID,
+      notificationType,
+      recipientEmail,
+      reminderWindow,
+      severity,
+      status,
+      errorMessage: errorMessage || null,
+      retryCount: 0,
+      sentAt: new Date().toISOString()
+    });
+  }
+
+  // Send alert via SAP ANS
   async function sendContractAlertNotification(contract, daysRemaining) {
     const recipientEmail = contract.company?.AdminName;
+    const contractId = contract.contract_id || contract.ID;
+    const classification = getEventClassification(daysRemaining);
+
+    if (!classification) return { sent: false, skipped: true, reason: 'outside-threshold' };
 
     if (!recipientEmail) {
-      console.warn(`No admin email found for contract ${contract.contract_id || contract.ID} (company: ${contract.company_CompanyCode}) - skipping notification`);
-      return false;
+      console.warn(`No admin email for contract ${contractId} (company: ${contract.company_CompanyCode}) - skipping`);
+      await logNotification(contract.ID, classification.eventType, 'N/A', classification.reminderWindow, classification.severity, 'Failed', 'No admin email found');
+      return { sent: false, skipped: false, reason: 'no-recipient' };
     }
 
+    // De-duplication: skip if already sent for this event type
+    const alreadySent = await isAlreadySent(contract.ID, classification.eventType);
+    if (alreadySent) {
+      console.log(`Notification ${classification.eventType} already sent for contract ${contractId} - skipping`);
+      return { sent: false, skipped: true, reason: 'duplicate' };
+    }
+
+    const subjectText = daysRemaining <= 0
+      ? `Contract "${contract.name}" has expired`
+      : `Contract "${contract.name}" expires in ${daysRemaining} days`;
+
     const alertPayload = {
-      eventType: "contractExpiryWarning",
+      eventType: classification.eventType,
       eventTimestamp: Math.floor(Date.now() / 1000),
-      severity: daysRemaining <= 7 ? "ERROR" : daysRemaining <= 15 ? "WARNING" : "INFO",
-      category: "ALERT",
-      subject: `Contract "${contract.name}" expires in ${daysRemaining} days`,
+      severity: classification.severity,
+      category: "NOTIFICATION",
+      subject: subjectText,
       body: `Dear User,
 
-This is an automated notification to inform you that the following contract is expiring soon:
+This is an automated notification regarding the following contract:
 
-Contract ID: ${contract.contract_id || contract.ID}
+Contract ID: ${contractId}
 Contract Name: ${contract.name}
 Description: ${contract.description || 'N/A'}
 Alias: ${contract.alias || 'N/A'}
 Start Date: ${formatDate(contract.start_date)}
 Expiry Date: ${formatDate(contract.end_date)}
-Days Remaining: ${daysRemaining}
+Days Remaining: ${daysRemaining <= 0 ? 'Expired' : daysRemaining}
 Status: ${contract.status || 'N/A'}
 Template: ${contract.templates?.name || 'N/A'}
 
-Please take necessary action before the expiry date.
+Please take necessary action.
 
 Best regards,
 DHI Contract Management System`,
       resource: {
-        resourceName: String(contract.contract_id || contract.ID),
+        resourceName: String(contractId),
         resourceType: "contract",
-        tags: {
-          recipientEmail: recipientEmail
-        }
+        tags: { recipientEmail }
       },
       tags: {
-        contractId: String(contract.contract_id || contract.ID),
+        contractId: String(contractId),
         contractName: String(contract.name),
         daysRemaining: String(daysRemaining),
         startDate: String(contract.start_date || ''),
         expiryDate: String(contract.end_date),
-        recipientEmail: recipientEmail
+        recipientEmail,
+        reminderWindow: classification.reminderWindow
       }
     };
 
@@ -329,24 +381,22 @@ DHI Contract Management System`,
           data: alertPayload,
           headers: { 'Content-Type': 'application/json' }
         },
-         {
-    fetchCsrfToken: false   // 👈 THIS LINE FIXES 403
-  }
+        { fetchCsrfToken: false }
       );
-      console.log(`Alert sent for contract ${contract.contract_id || contract.ID} to ${recipientEmail}:`, response.status);
-      return true;
+      console.log(`Alert ${classification.eventType} sent for contract ${contractId} to ${recipientEmail}: ${response.status}`);
+      await logNotification(contract.ID, classification.eventType, recipientEmail, classification.reminderWindow, classification.severity, 'Sent', null);
+      return { sent: true, skipped: false };
     } catch (err) {
-      console.error(`Failed to send alert to ${recipientEmail}:`, err.message);
-      if (err.response) {
-        console.error('Response data:', JSON.stringify(err.response.data));
-      }
-      return false;
+      const errMsg = err.response ? JSON.stringify(err.response.data) : err.message;
+      console.error(`Failed to send ${classification.eventType} for contract ${contractId}:`, errMsg);
+      await logNotification(contract.ID, classification.eventType, recipientEmail, classification.reminderWindow, classification.severity, 'Failed', errMsg);
+      return { sent: false, skipped: false, reason: 'send-error' };
     }
   }
 
   // Action: Check all contracts for expiry and send notifications
   this.on('checkExpiryNotifications', async (req) => {
-    console.log(`Starting contract expiry notification check (threshold: ${DAYS_THRESHOLD} days)`);
+    console.log(`[${new Date().toISOString()}] Starting contract expiry notification check (threshold: ${DAYS_THRESHOLD} days)`);
 
     const contracts = await SELECT.from(Contracts, c => {
       c('*'),
@@ -356,57 +406,40 @@ DHI Contract Management System`,
 
     console.log(`Found ${contracts.length} contracts with expiry dates`);
 
-    let notificationsSent = 0;
-    let notificationsFailed = 0;
+    let sent = 0, failed = 0, skipped = 0;
     const results = [];
 
     for (const contract of contracts) {
       const daysUntilExpiry = getDaysUntilExpiry(contract.end_date);
 
-      if (daysUntilExpiry > 0 && daysUntilExpiry <= DAYS_THRESHOLD) {
-        console.log(`Contract ${contract.contract_id || contract.ID} ("${contract.name}") expires in ${daysUntilExpiry} days - sending notification`);
-
-        const sent = await sendContractAlertNotification(contract, daysUntilExpiry);
-        if (sent) {
-          notificationsSent++;
-          results.push({
-            contractId: contract.contract_id || contract.ID,
-            contractName: contract.name,
-            startDate: contract.start_date,
-            expiryDate: contract.end_date,
-            daysRemaining: daysUntilExpiry,
-            status: 'sent'
-          });
+      if (daysUntilExpiry <= DAYS_THRESHOLD) {
+        const result = await sendContractAlertNotification(contract, daysUntilExpiry);
+        if (result.sent) {
+          sent++;
+          results.push({ contractId: contract.contract_id || contract.ID, contractName: contract.name, daysRemaining: daysUntilExpiry, status: 'sent' });
+        } else if (result.skipped) {
+          skipped++;
+          results.push({ contractId: contract.contract_id || contract.ID, contractName: contract.name, daysRemaining: daysUntilExpiry, status: 'skipped', reason: result.reason });
         } else {
-          notificationsFailed++;
-          results.push({
-            contractId: contract.contract_id || contract.ID,
-            contractName: contract.name,
-            startDate: contract.start_date,
-            expiryDate: contract.end_date,
-            daysRemaining: daysUntilExpiry,
-            status: 'failed'
-          });
+          failed++;
+          results.push({ contractId: contract.contract_id || contract.ID, contractName: contract.name, daysRemaining: daysUntilExpiry, status: 'failed', reason: result.reason });
         }
-      } else if (daysUntilExpiry <= 0) {
-        console.log(`Contract ${contract.contract_id || contract.ID} has already expired`);
       }
     }
 
-    const summary = `Contract expiry check completed. Sent: ${notificationsSent}, Failed: ${notificationsFailed}`;
-    console.log(summary);
+    const summary = `Expiry check done. Sent: ${sent}, Failed: ${failed}, Skipped (duplicate/other): ${skipped}`;
+    console.log(`[${new Date().toISOString()}] ${summary}`);
 
     return JSON.stringify({
       message: summary,
       threshold: DAYS_THRESHOLD,
       totalChecked: contracts.length,
-      notificationsSent,
-      notificationsFailed,
+      sent, failed, skipped,
       details: results
     });
   });
 
-  // Action: Send notification for a specific contract
+  // Action: Send notification for a specific contract (manual trigger)
   this.on('sendExpiryNotification', async (req) => {
     const { contractId } = req.data;
 
@@ -432,14 +465,9 @@ DHI Contract Management System`,
     }
 
     const daysUntilExpiry = getDaysUntilExpiry(contract.end_date);
-
-    if (daysUntilExpiry <= 0) {
-      req.error(400, 'Contract has already expired');
-      return false;
-    }
-
     console.log(`Manually sending expiry notification for contract ${contract.contract_id || contract.ID}`);
-    return await sendContractAlertNotification(contract, daysUntilExpiry);
+    const result = await sendContractAlertNotification(contract, daysUntilExpiry);
+    return result.sent;
   });
 
 }
