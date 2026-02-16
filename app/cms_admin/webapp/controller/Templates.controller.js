@@ -71,6 +71,14 @@ sap.ui.define([
                 });
             },
 
+            onTemplateView: function (event) {
+                let context = event.getSource().getBindingContext();
+                let { ID } = context.getObject();
+                this.getRouter().navTo("View Template", {
+                    templateId: ID
+                });
+            },
+
             onTemplateEdit: function (event) {
                 let context = event.getSource().getBindingContext();
                 let { ID } = context.getObject();

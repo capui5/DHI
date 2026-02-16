@@ -41,7 +41,8 @@ sap.ui.define([
                 var sTitle = isEditMode ? this.getResourceBundle().getText("Update_Template_Title") : this.getResourceBundle().getText("Create_Template_Title");
                 this.getView().byId("createTemplateTitle").setText(sTitle);
                 this.templateRankLogic();
-
+                this.getModel("appModel").setProperty("/selectedTemplateTab", "TemplateDetails");
+                this.byId("templateIconTabBar").setSelectedKey("TemplateDetails");
             },
 
             templateRankLogic: function () {
@@ -573,6 +574,49 @@ sap.ui.define([
                 // Re-apply TreeTable binding after model update
                 //this.templateRankLogic();
             },
+            onTabSelect: function (oEvent) {
+                var sKey = oEvent.getParameter("key");
+                this.getModel("appModel").setProperty("/selectedTemplateTab", sKey);
+                if (sKey === "TemplatePreview") {
+                    this._previewLayout();
+                }
+            },
+
+            onNextToPreview: function () {
+                var oIconTabBar = this.byId("templateIconTabBar");
+                oIconTabBar.setSelectedKey("TemplatePreview");
+                this.getModel("appModel").setProperty("/selectedTemplateTab", "TemplatePreview");
+                this._previewLayout();
+            },
+
+            _previewLayout: function () {
+                var oAppModel = this.getModel("appModel");
+                var aGroups = oAppModel.getProperty("/AttributeGroups") || [];
+                var oContainer = this.byId("previewAttrGroupsVBox");
+                oContainer.removeAllItems();
+
+                // Filter only ranked groups (Rank > 0) and sort by Rank
+                var aRankedGroups = aGroups.filter(function (g) { return g.Rank > 0; });
+                aRankedGroups.sort(function (a, b) { return a.Rank - b.Rank; });
+
+                oContainer.addItem(new sap.m.Title({
+                    text: "Attributes",
+                    titleStyle: "H5"
+                }).addStyleClass("sapUiSmallMarginTop sapUiSmallMarginBegin"));
+
+                var oList = new sap.m.List({
+                    showSeparators: "Inner"
+                }).addStyleClass("sapUiSmallMarginBottom");
+
+                aRankedGroups.forEach(function (group) {
+                    oList.addItem(new sap.m.StandardListItem({
+                        title: group.name || ""
+                    }));
+                });
+
+                oContainer.addItem(oList);
+            },
+
             onDeleteAttributeGroup: function (oEvent) {
                 debugger
                 // Get the button that triggered the event

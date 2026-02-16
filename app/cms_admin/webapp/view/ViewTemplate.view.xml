@@ -1,0 +1,38 @@
+<mvc:View xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.ui.layout.form"
+    xmlns:layout="sap.ui.layout" controllerName="com.dhi.cms.cmsadmin.controller.ViewTemplate">
+    <Page id="viewTemplatePage" showHeader="false">
+        <content>
+            <OverflowToolbar class="customToolbar" height="3rem" design="Transparent">
+                <Title class="sapUiSmallMarginBegin" titleStyle="H4" text="Template Preview" id="viewTemplateTitle"/>
+                <ToolbarSpacer/>
+                <Button class="sapUiSmallMarginEnd" text="Back" icon="sap-icon://nav-back" press=".onNavigation('Templates')"/>
+            </OverflowToolbar>
+
+            <ScrollContainer height="80vh" width="100%" vertical="true" horizontal="false">
+                <Panel headerText="Basic Information" width="98%" expandable="false" class="sapUiSmallMarginTop">
+                    <f:SimpleForm editable="true" layout="ColumnLayout">
+                        <Label text="Template ID"/>
+                        <Text text="{appModel>/ViewTemplate/ID}"/>
+
+                        <Label text="Template Name"/>
+                        <Text text="{appModel>/ViewTemplate/name}"/>
+
+                        <Label text="Description"/>
+                        <Text text="{appModel>/ViewTemplate/desc}"/>
+
+                        <Label text="Approver"/>
+                        <Text text="{appModel>/ViewTemplate/AssignedTo}"/>
+
+                        <Label text="Name of the Company"/>
+                        <Text text="{appModel>/ViewTemplate/AdminName}"/>
+                    </f:SimpleForm>
+                </Panel>
+
+                <VBox id="previewAttributeGroupsVBox" class="sapUiSmallMarginTop"/>
+            </ScrollContainer>
+        </content>
+    </Page>
+</mvc:View>

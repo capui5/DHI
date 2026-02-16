@@ -172,6 +172,13 @@
           "target": [
             "CreateTemplate"
           ]
+        },
+        {
+          "name": "View Template",
+          "pattern": "viewtemplate/{templateId}",
+          "target": [
+            "ViewTemplate"
+          ]
         }
       ],
       "targets": {
@@ -213,6 +220,13 @@
           "clearControlAggregation": false,
           "viewId": "createtemplate",
           "viewName": "CreateTemplate"
+        },
+        "ViewTemplate": {
+          "viewType": "XML",
+          "transition": "slide",
+          "clearControlAggregation": false,
+          "viewId": "viewtemplate",
+          "viewName": "ViewTemplate"
         }
       }
     },
