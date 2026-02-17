@@ -146,6 +146,10 @@ module.exports = async function () {
   }
 
   function mapContractToWorkflowPayload(contract, submittedBy) {
+    // Collect all admin IDs from company admins
+    const admins = contract.company?.admins || [];
+    const allAdminIds = admins.map(a => a.adminId).filter(Boolean).join(',');
+
     return {
       definitionId:
         'ap11.dhi-alm-cloud-mwwpt8sk.dhitemplateapprovalform.template_approval_process',
@@ -157,12 +161,11 @@ module.exports = async function () {
         start_date: contract.start_date ?? '',
         end_date: contract.end_date ?? '',
         status: contract.status ?? '',
-        AssignedTo: contract.company?.AdminId ?? '',
+        AssignedTo: allAdminIds,
         ID: contract.ID ?? '',
         company: {
           CompanyCode: contract.company?.CompanyCode ?? '',
-          CompanyName: contract.company?.CompanyName ?? '',
-          AdminId: contract.company?.AdminId ?? ''
+          CompanyName: contract.company?.CompanyName ?? ''
         },
         template_name: contract.templates?.name ?? '',
         submittedby: submittedBy ?? ''
@@ -185,12 +188,25 @@ module.exports = async function () {
         c.end_date,
         c.status,
         c.templates(t => { t.name }),
-        c.company(co => { co.CompanyCode, co.CompanyName, co.AdminId })
+        c.company(co => { co.CompanyCode, co.CompanyName })
       });
 
     if (!contractDetails) {
       req.error(404, 'Contract not found');
       return;
+    }
+
+    console.log("submitContract - contract company_CompanyCode:", contractDetails.company?.CompanyCode || '(EMPTY)');
+    console.log("submitContract - contract company object:", JSON.stringify(contractDetails.company));
+
+    // Fetch company admins separately
+    if (contractDetails.company?.CompanyCode) {
+      const admins = await SELECT.from('com.dhi.cms.CompanyAdmins')
+        .where({ company_CompanyCode: contractDetails.company.CompanyCode });
+      contractDetails.company.admins = admins || [];
+    } else {
+      contractDetails.company = contractDetails.company || {};
+      contractDetails.company.admins = [];
     }
 
     // Get submitter's email from JWT token
@@ -306,16 +322,17 @@ module.exports = async function () {
     });
   }
 
-  // Send alert via SAP ANS
+  // Send alert via SAP ANS - sends to all company admins
   async function sendContractAlertNotification(contract, daysRemaining) {
-    const recipientEmail = contract.company?.AdminName;
+    const admins = contract.company?.admins || [];
+    const recipientEmails = admins.map(a => a.adminName).filter(Boolean);
     const contractId = contract.contract_id || contract.ID;
     const classification = getEventClassification(daysRemaining);
 
     if (!classification) return { sent: false, skipped: true, reason: 'outside-threshold' };
 
-    if (!recipientEmail) {
-      console.warn(`No admin email for contract ${contractId} (company: ${contract.company_CompanyCode}) - skipping`);
+    if (recipientEmails.length === 0) {
+      console.warn(`No admin emails for contract ${contractId} (company: ${contract.company_CompanyCode}) - skipping`);
       await logNotification(contract.ID, classification.eventType, 'N/A', classification.reminderWindow, classification.severity, 'Failed', 'No admin email found');
       return { sent: false, skipped: false, reason: 'no-recipient' };
     }
@@ -331,13 +348,15 @@ module.exports = async function () {
       ? `Contract "${contract.name}" has expired`
       : `Contract "${contract.name}" expires in ${daysRemaining} days`;
 
-    const alertPayload = {
-      eventType: classification.eventType,
-      eventTimestamp: Math.floor(Date.now() / 1000),
-      severity: classification.severity,
-      category: "NOTIFICATION",
-      subject: subjectText,
-      body: `Dear User,
+    let anySent = false;
+    for (const recipientEmail of recipientEmails) {
+      const alertPayload = {
+        eventType: classification.eventType,
+        eventTimestamp: Math.floor(Date.now() / 1000),
+        severity: classification.severity,
+        category: "NOTIFICATION",
+        subject: subjectText,
+        body: `Dear User,
 
 This is an automated notification regarding the following contract:
 
@@ -355,42 +374,43 @@ Please take necessary action.
 
 Best regards,
 DHI Contract Management System`,
-      resource: {
-        resourceName: String(contractId),
-        resourceType: "contract",
-        tags: { recipientEmail }
-      },
-      tags: {
-        contractId: String(contractId),
-        contractName: String(contract.name),
-        daysRemaining: String(daysRemaining),
-        startDate: String(contract.start_date || ''),
-        expiryDate: String(contract.end_date),
-        recipientEmail,
-        reminderWindow: classification.reminderWindow
-      }
-    };
-
-    try {
-      const response = await executeHttpRequest(
-        { destinationName: 'ALERT_NOTIFICATION' },
-        {
-          method: 'post',
-          url: '/cf/producer/v1/resource-events',
-          data: alertPayload,
-          headers: { 'Content-Type': 'application/json' }
+        resource: {
+          resourceName: String(contractId),
+          resourceType: "contract",
+          tags: { recipientEmail }
         },
-        { fetchCsrfToken: false }
-      );
-      console.log(`Alert ${classification.eventType} sent for contract ${contractId} to ${recipientEmail}: ${response.status}`);
-      await logNotification(contract.ID, classification.eventType, recipientEmail, classification.reminderWindow, classification.severity, 'Sent', null);
-      return { sent: true, skipped: false };
-    } catch (err) {
-      const errMsg = err.response ? JSON.stringify(err.response.data) : err.message;
-      console.error(`Failed to send ${classification.eventType} for contract ${contractId}:`, errMsg);
-      await logNotification(contract.ID, classification.eventType, recipientEmail, classification.reminderWindow, classification.severity, 'Failed', errMsg);
-      return { sent: false, skipped: false, reason: 'send-error' };
+        tags: {
+          contractId: String(contractId),
+          contractName: String(contract.name),
+          daysRemaining: String(daysRemaining),
+          startDate: String(contract.start_date || ''),
+          expiryDate: String(contract.end_date),
+          recipientEmail,
+          reminderWindow: classification.reminderWindow
+        }
+      };
+
+      try {
+        const response = await executeHttpRequest(
+          { destinationName: 'ALERT_NOTIFICATION' },
+          {
+            method: 'post',
+            url: '/cf/producer/v1/resource-events',
+            data: alertPayload,
+            headers: { 'Content-Type': 'application/json' }
+          },
+          { fetchCsrfToken: false }
+        );
+        console.log(`Alert ${classification.eventType} sent for contract ${contractId} to ${recipientEmail}: ${response.status}`);
+        await logNotification(contract.ID, classification.eventType, recipientEmail, classification.reminderWindow, classification.severity, 'Sent', null);
+        anySent = true;
+      } catch (err) {
+        const errMsg = err.response ? JSON.stringify(err.response.data) : err.message;
+        console.error(`Failed to send ${classification.eventType} for contract ${contractId} to ${recipientEmail}:`, errMsg);
+        await logNotification(contract.ID, classification.eventType, recipientEmail, classification.reminderWindow, classification.severity, 'Failed', errMsg);
+      }
     }
+    return { sent: anySent, skipped: false };
   }
 
   // Action: Check all contracts for expiry and send notifications
@@ -400,10 +420,19 @@ DHI Contract Management System`,
     const contracts = await SELECT.from(Contracts, c => {
       c('*'),
       c.templates(t => { t.name }),
-      c.company(co => { co.CompanyCode, co.CompanyName, co.AdminName, co.AdminId })
+      c.company(co => { co.CompanyCode, co.CompanyName })
     }).where({ end_date: { '!=': null } });
 
     console.log(`Found ${contracts.length} contracts with expiry dates`);
+
+    // Fetch admins for each contract's company
+    for (const contract of contracts) {
+      if (contract.company?.CompanyCode) {
+        const admins = await SELECT.from('com.dhi.cms.CompanyAdmins')
+          .where({ company_CompanyCode: contract.company.CompanyCode });
+        contract.company.admins = admins || [];
+      }
+    }
 
     let sent = 0, failed = 0, skipped = 0;
     const results = [];
@@ -450,12 +479,19 @@ DHI Contract Management System`,
     const contract = await SELECT.one.from(Contracts, c => {
       c('*'),
       c.templates(t => { t.name }),
-      c.company(co => { co.CompanyCode, co.CompanyName, co.AdminName, co.AdminId })
+      c.company(co => { co.CompanyCode, co.CompanyName })
     }).where({ ID: contractId });
 
     if (!contract) {
       req.error(404, 'Contract not found');
       return false;
+    }
+
+    // Fetch company admins separately
+    if (contract.company?.CompanyCode) {
+      const admins = await SELECT.from('com.dhi.cms.CompanyAdmins')
+        .where({ company_CompanyCode: contract.company.CompanyCode });
+      contract.company.admins = admins || [];
     }
 
     if (!contract.end_date) {

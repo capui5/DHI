@@ -81,10 +81,16 @@ entity Templates : cuid, managed {
 entity Companies {
     key CompanyCode : String(20);
     CompanyName     : String(200);
-    AdminName       : String(200);
-    AdminId         : String(100);
     contracts       : Association to many Contracts
                           on contracts.company = $self;
+    admins          : Composition of many CompanyAdmins
+                          on admins.company = $self;
+}
+
+entity CompanyAdmins : cuid {
+    company   : Association to Companies;
+    adminId   : String(100);
+    adminName : String(200);
 }
 
 entity ContractsAttributes : cuid, managed {

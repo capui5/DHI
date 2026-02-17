@@ -498,8 +498,11 @@ sap.ui.define([
             // Set company from logged-in user's company
             var oRolesModel = this.getOwnerComponent().getModel("roles");
             var sCompanyCode = oRolesModel.getProperty("/companyCode");
+            console.log("=== Contract Save - Company Code from roles model:", sCompanyCode, "===");
             if (sCompanyCode) {
                 contractMasterData.company_CompanyCode = sCompanyCode;
+            } else {
+                console.warn("WARNING: No companyCode in roles model - contract will have no company linked!");
             }
 
             if (sSaveType === "submit") {

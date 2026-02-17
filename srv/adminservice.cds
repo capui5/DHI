@@ -282,6 +282,29 @@ service ContractService @(path: '/contracts')@(requires: 'authenticated-user') {
     ])
     entity Companies                                   as projection on cms.Companies;
 
+    @(restrict: [
+        {
+            grant: ['READ'],
+            to   : [
+                'DHI_Admin',
+                'DHI_PowerUser',
+                'Company_Admin',
+                'Company_Editor',
+                'Company_Viewer',
+                'Auditor'
+            ]
+        },
+        {
+            grant: [
+                'CREATE',
+                'UPDATE',
+                'DELETE'
+            ],
+            to   : ['DHI_Admin']
+        }
+    ])
+    entity CompanyAdmins                               as projection on cms.CompanyAdmins;
+
     // ─── Notification Logs (Audit Trail) ───
     @(restrict: [{
         grant: ['READ'],
