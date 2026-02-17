@@ -75,13 +75,7 @@ entity Templates : cuid, managed {
         RejectionReason : String(255);
         RejectedBy      : String(100);
         RejectedAt      : Timestamp;
-        AssignedTo      : String(200) @mandatory;
         AdminName       : String(200);
-}
-
-entity LISTAPPROVER {
-    key MAILID : String(200);
-    NAME       : String(200);
 }
 
 entity Companies {
@@ -122,7 +116,6 @@ entity Contracts : cuid, managed {
     RejectionReason : String(255);
     RejectedBy      : String(100);
     RejectedAt      : Timestamp;
-    AssignedTo      : String(200);
 }
 
 entity NotificationLogs : cuid, managed {

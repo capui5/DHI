@@ -39,12 +39,6 @@
                                         <TextArea growing="true" growingMaxLines="10" id="templateDescInput" maxLength="100" placeholder="{i18n>Create_Template_DescriptionPlaceholder}" width="100%" value="{appModel>/Template/desc}"/>
                                     </VBox>
                                     <VBox class="sapUiLargeMarginBeginEnd" width="100%">
-                                        <Label class="sapUiTinyMarginBottom" text="Approver" required="true" labelFor="templateApproverList"/>
-                                        <ComboBox id="templateApproverList" width="100%" items="{ path: '/LISTAPPROVER'}" selectedKey="{appModel>/Template/AssignedTo}" showSecondaryValues="true">
-                                            <core:ListItem key="{MAILID}" text="{NAME}" />
-                                        </ComboBox>
-                                    </VBox>
-                                    <VBox class="sapUiLargeMarginBeginEnd" width="100%">
                                         <Label class="sapUiTinyMarginBottom" text="Name of the Company" labelFor="templateAdminList"/>
                                         <ComboBox id="templateAdminList" width="100%" items="{ path: '/Companies'}" selectedKey="{appModel>/Template/AdminName}" showSecondaryValues="true">
                                             <core:ListItem key="{CompanyName}" text="{CompanyName}" additionalText="{CompanyCode}" />
@@ -103,9 +97,6 @@
 
                                     <Label text="Description"/>
                                     <Text text="{appModel>/Template/desc}"/>
-
-                                    <Label text="Approver"/>
-                                    <Text text="{appModel>/Template/AssignedTo}"/>
 
                                     <Label text="Name of the Company"/>
                                     <Text text="{appModel>/Template/AdminName}"/>

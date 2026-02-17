@@ -32,9 +32,6 @@
               <Label text="Status"/>
               <Text text="{contractModel>/status}" />
 
-              <Label text="Approver"/>
-              <Text text="{contractModel>/AssignedTo}" />
-
               <Label text="{i18n>lblContractType}"/>
               <Text id="prevTemplate" text="" />
 

@@ -28,7 +28,6 @@ sap.ui.define([
                     this.getModel("appModel").setProperty("/Template", {
                         name: "",
                         desc: "",
-                        AssignedTo: "",
                         AdminName: ""
                     });
                     this.getModel("appModel").setProperty("/AttributeGroups", []);
@@ -308,29 +307,20 @@ sap.ui.define([
                 var bValid = true;
                 var oNameInput = this.byId("templateNameInput");
                 var oDescInput = this.byId("templateDescInput");
-                var oApproverCombobox = this.byId("templateApproverList");
                 var templateName = oNameInput.getValue();
                 var templateDesc = oDescInput.getValue();
-                var templateApprover = oApproverCombobox.getSelectedKey();
                 // Template Name: required, max from XML
                 const nameMaxLen = oNameInput.getMaxLength ? oNameInput.getMaxLength() : 50;
                 if (!templateName || templateName.trim() === "") {
                     oNameInput.setValueState("Error");
                     oNameInput.setValueStateText("This field is required.");
                     bValid = false;
-                }else if (!templateApprover || templateApprover.trim() === ""){
-                    oApproverCombobox.setValueState("Error");
-                    oApproverCombobox.setValueStateText("This field is required.");
-                    bValid = false;
-                }
-                  else if (templateName.length > nameMaxLen) {
+                } else if (templateName.length > nameMaxLen) {
                     oNameInput.setValueState("Error");
                     oNameInput.setValueStateText(`Name must be less than ${nameMaxLen} characters.`);
                     bValid = false;
                 } else {
                     oNameInput.setValueState("None");
-                    oApproverCombobox.setValueState("None");
-
                 }
 
                 // Description: max from XML
@@ -374,7 +364,6 @@ sap.ui.define([
                 var payload = {
                     "name": oModel.name,
                     "desc": oModel.desc,
-                    "AssignedTo":oModel.AssignedTo,
                     "AdminName":oModel.AdminName,
                     "attribute_groups": []
                 };

@@ -23,9 +23,6 @@
                         <Label text="Description"/>
                         <Text text="{appModel>/ViewTemplate/desc}"/>
 
-                        <Label text="Approver"/>
-                        <Text text="{appModel>/ViewTemplate/AssignedTo}"/>
-
                         <Label text="Name of the Company"/>
                         <Text text="{appModel>/ViewTemplate/AdminName}"/>
                     </f:SimpleForm>

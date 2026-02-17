@@ -17,7 +17,7 @@ sap.ui.define([
         },
         _onObjectMatched: function (oEvent) {
             BusyIndicator.show(0);
-            this.basicVaditionIds = ["contractTitleInput", "contractTypeSelect", "contractaliasInput", "contractdescriptionInput", "contractApproverSelect"];
+            this.basicVaditionIds = ["contractTitleInput", "contractTypeSelect", "contractaliasInput", "contractdescriptionInput"];
             this.clearValidationStates(this.basicVaditionIds);
             if (this.getModel("Details").getProperty("/dynamicControlIds")) {
                 this.clearValidationStates(this.getModel("Details").getProperty("/dynamicControlIds"));
@@ -97,7 +97,6 @@ sap.ui.define([
                 "start_date": null,
                 "templates_ID": null,
                 "company_CompanyCode": null,
-                "AssignedTo": null,
                 "attribute_values": [],
                 "attachments": [],
                 "status": "New"

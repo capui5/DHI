@@ -157,7 +157,7 @@ module.exports = async function () {
         start_date: contract.start_date ?? '',
         end_date: contract.end_date ?? '',
         status: contract.status ?? '',
-        AssignedTo: contract.company?.AdminId ?? contract.AssignedTo ?? '',
+        AssignedTo: contract.company?.AdminId ?? '',
         ID: contract.ID ?? '',
         company: {
           CompanyCode: contract.company?.CompanyCode ?? '',
@@ -184,7 +184,6 @@ module.exports = async function () {
         c.start_date,
         c.end_date,
         c.status,
-        c.AssignedTo,
         c.templates(t => { t.name }),
         c.company(co => { co.CompanyCode, co.CompanyName, co.AdminId })
       });
@@ -400,7 +399,7 @@ DHI Contract Management System`,
 
     const contracts = await SELECT.from(Contracts, c => {
       c('*'),
-      c.templates(t => { t.name, t.AssignedTo }),
+      c.templates(t => { t.name }),
       c.company(co => { co.CompanyCode, co.CompanyName, co.AdminName, co.AdminId })
     }).where({ end_date: { '!=': null } });
 
@@ -450,7 +449,7 @@ DHI Contract Management System`,
 
     const contract = await SELECT.one.from(Contracts, c => {
       c('*'),
-      c.templates(t => { t.name, t.AssignedTo }),
+      c.templates(t => { t.name }),
       c.company(co => { co.CompanyCode, co.CompanyName, co.AdminName, co.AdminId })
     }).where({ ID: contractId });
 

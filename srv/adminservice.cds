@@ -259,20 +259,6 @@ service ContractService @(path: '/contracts')@(requires: 'authenticated-user') {
     }])
     function getGroupAssociatedTemplates()            returns array of String
 
-    @(restrict: [{
-        grant: ['READ'],
-        to   : [
-            'DHI_Admin',
-            'DHI_PowerUser',
-            'Company_Admin',
-            'Company_Editor',
-            'Company_Viewer',
-            'Auditor'
-        ]
-    }])
-
-    entity LISTAPPROVER                                as projection on cms.LISTAPPROVER;
-
     @(restrict: [
         {
             grant: ['READ'],
