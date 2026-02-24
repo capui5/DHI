@@ -269,6 +269,7 @@ module.exports = async function () {
   // ─── Contract Expiry Notification (ANS) ───
   // ═══════════════════════════════════════════════════════════════
 
+
   function getDaysUntilExpiry(expiryDate) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -293,6 +294,18 @@ module.exports = async function () {
       return { eventType: 'contract.expiring.14d', reminderWindow: '14d', severity: 'WARNING' };
     } else if (daysRemaining <= 30) {
       return { eventType: 'contract.expiring.30d', reminderWindow: '30d', severity: 'INFO' };
+    }
+    return null;
+  }
+
+  // Determine renewal event classification based on contract status
+  function getRenewalClassification(status) {
+    if (status === 'Renewal Due') {
+      return { eventType: 'contract.renewal.due', reminderWindow: 'renewal-due', severity: 'WARNING' };
+    } else if (status === 'Renewal Pending') {
+      return { eventType: 'contract.renewal.pending', reminderWindow: 'renewal-pending', severity: 'INFO' };
+    } else if (status === 'Renewal Completed') {
+      return { eventType: 'contract.renewal.completed', reminderWindow: 'renewal-completed', severity: 'INFO' };
     }
     return null;
   }
@@ -323,11 +336,11 @@ module.exports = async function () {
   }
 
   // Send alert via SAP ANS - sends to all company admins
-  async function sendContractAlertNotification(contract, daysRemaining) {
+  async function sendContractAlertNotification(contract, daysRemaining, overrideClassification) {
     const admins = contract.company?.admins || [];
     const recipientEmails = admins.map(a => a.adminName).filter(Boolean);
     const contractId = contract.contract_id || contract.ID;
-    const classification = getEventClassification(daysRemaining);
+    const classification = overrideClassification || getEventClassification(daysRemaining);
 
     if (!classification) return { sent: false, skipped: true, reason: 'outside-threshold' };
 
@@ -344,14 +357,24 @@ module.exports = async function () {
       return { sent: false, skipped: true, reason: 'duplicate' };
     }
 
-    const subjectText = daysRemaining <= 0
-      ? `Contract "${contract.name}" has expired`
-      : `Contract "${contract.name}" expires in ${daysRemaining} days`;
+    let subjectText;
+    if (classification.eventType.startsWith('contract.renewal')) {
+      const renewalLabels = {
+        'contract.renewal.due': `Contract "${contract.name}" - Renewal Due`,
+        'contract.renewal.pending': `Contract "${contract.name}" - Renewal Pending`,
+        'contract.renewal.completed': `Contract "${contract.name}" - Renewal Completed`
+      };
+      subjectText = renewalLabels[classification.eventType] || `Contract "${contract.name}" - Renewal Update`;
+    } else {
+      subjectText = daysRemaining <= 0
+        ? `Contract "${contract.name}" has expired`
+        : `Contract "${contract.name}" expires in ${daysRemaining} days`;
+    }
 
     let anySent = false;
     for (const recipientEmail of recipientEmails) {
       const alertPayload = {
-        eventType: classification.eventType,
+        eventType: 'contractExpiryWarning',
         eventTimestamp: Math.floor(Date.now() / 1000),
         severity: classification.severity,
         category: "NOTIFICATION",
@@ -370,7 +393,13 @@ Days Remaining: ${daysRemaining <= 0 ? 'Expired' : daysRemaining}
 Status: ${contract.status || 'N/A'}
 Template: ${contract.templates?.name || 'N/A'}
 
-Please take necessary action.
+${classification.eventType === 'contract.renewal.due'
+  ? 'ACTION REQUIRED: This contract is due for renewal. Please initiate the renewal process.'
+  : classification.eventType === 'contract.renewal.pending'
+  ? 'REMINDER: Renewal for this contract is in progress. Please ensure timely completion.'
+  : classification.eventType === 'contract.renewal.completed'
+  ? 'CONFIRMATION: This contract has been successfully renewed.'
+  : 'Please take necessary action.'}
 
 Best regards,
 DHI Contract Management System`,
@@ -413,9 +442,9 @@ DHI Contract Management System`,
     return { sent: anySent, skipped: false };
   }
 
-  // Action: Check all contracts for expiry and send notifications
+  // Action: Check all contracts for expiry and renewal, send notifications
   this.on('checkExpiryNotifications', async (req) => {
-    console.log(`[${new Date().toISOString()}] Starting contract expiry notification check (threshold: ${DAYS_THRESHOLD} days)`);
+    console.log(`[${new Date().toISOString()}] Starting contract expiry & renewal notification check (threshold: ${DAYS_THRESHOLD} days)`);
 
     const contracts = await SELECT.from(Contracts, c => {
       c('*'),
@@ -437,25 +466,62 @@ DHI Contract Management System`,
     let sent = 0, failed = 0, skipped = 0;
     const results = [];
 
+    // Helper to process a notification result
+    function trackResult(contract, daysUntilExpiry, result, eventLabel) {
+      const cid = contract.contract_id || contract.ID;
+      if (result.sent) {
+        sent++;
+        results.push({ contractId: cid, contractName: contract.name, daysRemaining: daysUntilExpiry, event: eventLabel, status: 'sent' });
+      } else if (result.skipped) {
+        skipped++;
+        results.push({ contractId: cid, contractName: contract.name, daysRemaining: daysUntilExpiry, event: eventLabel, status: 'skipped', reason: result.reason });
+      } else {
+        failed++;
+        results.push({ contractId: cid, contractName: contract.name, daysRemaining: daysUntilExpiry, event: eventLabel, status: 'failed', reason: result.reason });
+      }
+    }
+
     for (const contract of contracts) {
       const daysUntilExpiry = getDaysUntilExpiry(contract.end_date);
+      const renewalStates = ['Renewal Due', 'Renewal Pending', 'Renewal Completed'];
 
+      // ─── 1. Expiry Notifications (30d, 14d, 7d, expired) ───
       if (daysUntilExpiry <= DAYS_THRESHOLD) {
         const result = await sendContractAlertNotification(contract, daysUntilExpiry);
-        if (result.sent) {
-          sent++;
-          results.push({ contractId: contract.contract_id || contract.ID, contractName: contract.name, daysRemaining: daysUntilExpiry, status: 'sent' });
-        } else if (result.skipped) {
-          skipped++;
-          results.push({ contractId: contract.contract_id || contract.ID, contractName: contract.name, daysRemaining: daysUntilExpiry, status: 'skipped', reason: result.reason });
-        } else {
-          failed++;
-          results.push({ contractId: contract.contract_id || contract.ID, contractName: contract.name, daysRemaining: daysUntilExpiry, status: 'failed', reason: result.reason });
+        trackResult(contract, daysUntilExpiry, result, 'expiry');
+      }
+
+      // ─── 2. Renewal Due: auto-set when contract is within threshold and still Approved ───
+      if (daysUntilExpiry <= DAYS_THRESHOLD && daysUntilExpiry > 0 && contract.status === 'Approved') {
+        await UPDATE(Contracts).set({ status: 'Renewal Due' }).where({ ID: contract.ID });
+        contract.status = 'Renewal Due';
+        console.log(`Contract "${contract.name}" status updated to Renewal Due`);
+      }
+
+      // ─── 3. Renewal lifecycle notifications ───
+      if (renewalStates.includes(contract.status)) {
+        const renewalClass = getRenewalClassification(contract.status);
+        if (renewalClass) {
+          const alreadySent = await isAlreadySent(contract.ID, renewalClass.eventType);
+          if (!alreadySent) {
+            const result = await sendContractAlertNotification(contract, daysUntilExpiry, renewalClass);
+            trackResult(contract, daysUntilExpiry, result, contract.status);
+          } else {
+            skipped++;
+            results.push({
+              contractId: contract.contract_id || contract.ID,
+              contractName: contract.name,
+              daysRemaining: daysUntilExpiry,
+              event: contract.status,
+              status: 'skipped',
+              reason: 'duplicate'
+            });
+          }
         }
       }
     }
 
-    const summary = `Expiry check done. Sent: ${sent}, Failed: ${failed}, Skipped (duplicate/other): ${skipped}`;
+    const summary = `Expiry & renewal check done. Sent: ${sent}, Failed: ${failed}, Skipped: ${skipped}`;
     console.log(`[${new Date().toISOString()}] ${summary}`);
 
     return JSON.stringify({

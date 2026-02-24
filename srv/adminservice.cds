@@ -1,5 +1,20 @@
 using {com.dhi.cms as cms} from '../db/schema';
 
+annotate cms.Contracts with @changelog: [name] {
+    name        @changelog;
+    status      @changelog;
+    start_date  @changelog;
+    end_date    @changelog;
+    description @changelog;
+    ApprovedBy  @changelog;
+    RejectedBy  @changelog;
+}
+
+annotate cms.Templates with @changelog: [name] {
+    name   @changelog;
+    Status @changelog;
+}
+
 service ContractService @(path: '/contracts')@(requires: 'authenticated-user') {
     // ─── Attributes & Attribute Groups ───
     @(restrict: [

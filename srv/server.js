@@ -9,7 +9,16 @@ cds.on('bootstrap', (app) => {
   app.use('/contracts/ansWebhook', express.json());
 
   app.post('/contracts/ansWebhook', async (req, res) => {
-    const { recipientEmail, subject, body, contractId, contractName, daysRemaining, startDate, expiryDate } = req.body;
+    // ANS delivers the full event object - extract fields from tags and body
+    const tags = req.body.tags || {};
+    const recipientEmail = tags.recipientEmail || req.body.recipientEmail;
+    const contractId = tags.contractId || req.body.contractId;
+    const contractName = tags.contractName || req.body.contractName;
+    const daysRemaining = tags.daysRemaining || req.body.daysRemaining;
+    const startDate = tags.startDate || req.body.startDate;
+    const expiryDate = tags.expiryDate || req.body.expiryDate;
+    const subject = req.body.subject;
+    const body = req.body.body;
 
     console.log(`ANS Webhook triggered - sending email to: ${recipientEmail}`);
 
@@ -87,12 +96,13 @@ DHI Contract Management System`;
   app.put('/scheduler/expiryCheck', async (req, res) => {
     console.log(`[${new Date().toISOString()}] Job Scheduler triggered: contract expiry check`);
     try {
+      const tx = cds.tx({ user: new cds.User.Privileged() });
       const srv = await cds.connect.to('ContractService');
-      const result = await srv.send('checkExpiryNotifications');
+      const result = await srv.tx(tx).send('checkExpiryNotifications');
       console.log(`[${new Date().toISOString()}] Job Scheduler expiry check completed`);
       res.status(200).json({ success: true, result });
     } catch (err) {
-      console.error(`[${new Date().toISOString()}] Job Scheduler expiry check failed:`, err.message);
+      console.error(`[${new Date().toISOString()}] Job Scheduler expiry check failed:`, err.message, err.stack);
       res.status(500).json({ error: err.message });
     }
   });
