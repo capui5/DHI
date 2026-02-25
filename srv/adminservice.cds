@@ -1,5 +1,6 @@
 using {com.dhi.cms as cms} from '../db/schema';
 
+// ─── Change Tracking (app UI) ───
 annotate cms.Contracts with @changelog: [name] {
     name        @changelog;
     status      @changelog;
@@ -13,6 +14,24 @@ annotate cms.Contracts with @changelog: [name] {
 annotate cms.Templates with @changelog: [name] {
     name   @changelog;
     Status @changelog;
+}
+
+// ─── Audit Logging (SAP Audit Log Service) ───
+annotate cms.Contracts with @PersonalData.EntitySemantics: 'DataSubject' {
+    ID          @PersonalData.FieldSemantics: 'DataSubjectID';
+    name        @PersonalData.IsPotentiallyPersonal;
+    status      @PersonalData.IsPotentiallyPersonal;
+    start_date  @PersonalData.IsPotentiallyPersonal;
+    end_date    @PersonalData.IsPotentiallyPersonal;
+    description @PersonalData.IsPotentiallyPersonal;
+    ApprovedBy  @PersonalData.IsPotentiallyPersonal;
+    RejectedBy  @PersonalData.IsPotentiallyPersonal;
+}
+
+annotate cms.Templates with @PersonalData.EntitySemantics: 'DataSubject' {
+    ID     @PersonalData.FieldSemantics: 'DataSubjectID';
+    name   @PersonalData.IsPotentiallyPersonal;
+    Status @PersonalData.IsPotentiallyPersonal;
 }
 
 service ContractService @(path: '/contracts')@(requires: 'authenticated-user') {

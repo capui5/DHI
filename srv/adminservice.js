@@ -7,6 +7,20 @@ module.exports = async function () {
   // ─── Configuration ───
   const DAYS_THRESHOLD = 30;
 
+  // ─── Audit Log Helper ───
+  async function logAuditEvent(req, action, details) {
+    try {
+      const audit = await cds.connect.to('audit-log');
+      await audit.log('SecurityEvent', {
+        user: req.user?.id ?? 'system',
+        tenant: req.tenant,
+        data: JSON.stringify({ action, timestamp: new Date().toISOString(), ...details })
+      });
+    } catch (e) {
+      console.warn('[AuditLog] Failed to write audit event:', e.message);
+    }
+  }
+
   // ─── User Info endpoint ───
   this.on('getUserInfo', async (req) => {
     const allRoles = ['DHI_Admin', 'DHI_PowerUser', 'Company_Admin', 'Company_Editor', 'Company_Viewer', 'Auditor'];
@@ -239,6 +253,11 @@ module.exports = async function () {
         }
       );
       console.log('SBPA contract workflow triggered successfully:', JSON.stringify(response.data));
+      await logAuditEvent(req, 'CONTRACT_SUBMITTED', {
+        contractId: contractDetails.contract_id || contractId,
+        contractName: contractDetails.name,
+        submittedBy: submittedBy
+      });
     } catch (err) {
       const details = err.response ? JSON.stringify(err.response.data) : err.message;
       console.error('Failed to trigger SBPA contract workflow:', details);
@@ -254,6 +273,7 @@ module.exports = async function () {
     await UPDATE(Contracts)
       .set({ status: 'Approved', ApprovedBy: approvedBy, ApprovedAt: new Date() })
       .where({ ID });
+    await logAuditEvent(req, 'CONTRACT_APPROVED', { contractId: ID, approvedBy });
   });
 
   this.on('rejectContract', async (req) => {
@@ -263,6 +283,143 @@ module.exports = async function () {
     await UPDATE(Contracts)
       .set({ status: 'Rejected', RejectionReason, RejectedBy: rejectedBy, RejectedAt: new Date() })
       .where({ ID });
+    await logAuditEvent(req, 'CONTRACT_REJECTED', { contractId: ID, rejectedBy, reason: RejectionReason });
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // ─── Document Audit Events (Attachments) ───
+  // ═══════════════════════════════════════════════════════════════
+
+  this.after('CREATE', 'Attachments', async (data, req) => {
+    const items = Array.isArray(data) ? data : [data];
+    for (const item of items) {
+      await logAuditEvent(req, 'DOCUMENT_UPLOADED', {
+        attachmentId: item.ID,
+        fileName: item.file_name,
+        contractId: item.contracts_ID
+      });
+    }
+  });
+
+  this.before('DELETE', 'Attachments', async (req) => {
+    try {
+      const key = req.params?.[req.params.length - 1];
+      if (!key?.ID) return;
+      const attachment = await SELECT.one.from('com.dhi.cms.Attachments').where({ ID: key.ID });
+      if (!attachment) return;
+      await logAuditEvent(req, 'DOCUMENT_DELETED', {
+        attachmentId: attachment.ID,
+        fileName: attachment.file_name,
+        contractId: attachment.contracts_ID
+      });
+    } catch (e) {
+      console.warn('[AuditLog] Could not log DOCUMENT_DELETED:', e.message);
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // ─── Assignment Audit Events (CompanyAdmins) ───
+  // ═══════════════════════════════════════════════════════════════
+
+  this.after('CREATE', 'CompanyAdmins', async (data, req) => {
+    const items = Array.isArray(data) ? data : [data];
+    for (const item of items) {
+      await logAuditEvent(req, 'ADMIN_ASSIGNED', {
+        adminId: item.adminId,
+        adminName: item.adminName,
+        companyCode: item.company_CompanyCode
+      });
+    }
+  });
+
+  this.before('DELETE', 'CompanyAdmins', async (req) => {
+    try {
+      const key = req.params?.[req.params.length - 1];
+      if (!key?.ID) return;
+      const admin = await SELECT.one.from('com.dhi.cms.CompanyAdmins').where({ ID: key.ID });
+      if (!admin) return;
+      await logAuditEvent(req, 'ADMIN_REMOVED', {
+        adminId: admin.adminId,
+        adminName: admin.adminName,
+        companyCode: admin.company_CompanyCode
+      });
+    } catch (e) {
+      console.warn('[AuditLog] Could not log ADMIN_REMOVED:', e.message);
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // ─── Template CRUD Audit Events ───
+  // ═══════════════════════════════════════════════════════════════
+
+  this.after('CREATE', 'Templates', async (data, req) => {
+    const items = Array.isArray(data) ? data : [data];
+    for (const item of items) {
+      await logAuditEvent(req, 'TEMPLATE_CREATED', {
+        templateId: item.ID,
+        templateName: item.name
+      });
+    }
+  });
+
+  this.after('UPDATE', 'Templates', async (data, req) => {
+    await logAuditEvent(req, 'TEMPLATE_UPDATED', {
+      templateId: req.params?.[req.params.length - 1]?.ID ?? req.data?.ID,
+      templateName: req.data?.name,
+      changedFields: Object.keys(req.data || {}).join(', ')
+    });
+  });
+
+  this.before('DELETE', 'Templates', async (req) => {
+    try {
+      const key = req.params?.[req.params.length - 1];
+      if (!key?.ID) return;
+      const template = await SELECT.one.from('com.dhi.cms.Templates').where({ ID: key.ID });
+      if (!template) return;
+      await logAuditEvent(req, 'TEMPLATE_DELETED', {
+        templateId: template.ID,
+        templateName: template.name
+      });
+    } catch (e) {
+      console.warn('[AuditLog] Could not log TEMPLATE_DELETED:', e.message);
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // ─── Contract CRUD Audit Events ───
+  // ═══════════════════════════════════════════════════════════════
+
+  this.after('CREATE', 'Contracts', async (data, req) => {
+    const items = Array.isArray(data) ? data : [data];
+    for (const item of items) {
+      await logAuditEvent(req, 'CONTRACT_CREATED', {
+        contractId: item.contract_id || item.ID,
+        contractName: item.name
+      });
+    }
+  });
+
+  this.after('UPDATE', 'Contracts', async (data, req) => {
+    await logAuditEvent(req, 'CONTRACT_UPDATED', {
+      contractId: req.params?.[req.params.length - 1]?.ID ?? req.data?.ID,
+      contractName: req.data?.name,
+      changedFields: Object.keys(req.data || {}).join(', ')
+    });
+  });
+
+  this.before('DELETE', 'Contracts', async (req) => {
+    try {
+      const key = req.params?.[req.params.length - 1];
+      if (!key?.ID) return;
+      const contract = await SELECT.one.from('com.dhi.cms.Contracts').where({ ID: key.ID });
+      if (!contract) return;
+      await logAuditEvent(req, 'CONTRACT_DELETED', {
+        contractId: contract.contract_id || contract.ID,
+        contractName: contract.name
+      });
+    } catch (e) {
+      console.warn('[AuditLog] Could not log CONTRACT_DELETED:', e.message);
+    }
   });
 
   // ═══════════════════════════════════════════════════════════════

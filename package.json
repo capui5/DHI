@@ -5,6 +5,7 @@
  "dependencies": {
   "@cap-js-community/odata-v2-adapter": "^1.15.7",
   "@cap-js/audit-logging": "^0.9.0",
+  "@cap-js/change-tracking": "^1.1.4",
   "@cap-js/hana": "^2",
   "@sap-cloud-sdk/http-client": "^4.4.0",
   "@sap/cds": "^9",
