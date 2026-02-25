@@ -11,7 +11,6 @@ modules:
       - name: uaa_dhi_cms
       - name: dhi_cms-destination-service
       - name: dhi-job-scheduler
-      - name: dhi_cms-audit-service
     provides:
       - name: srv-api
         properties:
@@ -141,10 +140,6 @@ resources:
     type: org.cloudfoundry.existing-service
     parameters:
       service-name: dhi-job-scheduler
-  - name: dhi_cms-audit-service
-    type: org.cloudfoundry.existing-service
-    parameters:
-      service-name: dhi-ndi-audit-service
   - name: uaa_dhi_cms
     type: org.cloudfoundry.managed-service
     parameters:

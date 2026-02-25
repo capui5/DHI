@@ -10,24 +10,29 @@ module.exports = async function () {
   // ─── Audit Log Helper ───
   async function logAuditEvent(req, action, details) {
     try {
-      const audit = await cds.connect.to('audit-log');
-      let username = req.user?.id ?? 'system';
+      let username = req?.user?.id ?? 'system';
       try {
-        const authInfo = req.user?.authInfo?.token ?? req.user?.tokenInfo;
+        const authInfo = req?.user?.authInfo?.token ?? req?.user?.tokenInfo;
         if (authInfo) {
           const payload = authInfo.getPayload();
           username = payload.email || payload.mail || payload.user_name || username;
-        } else if (req.user?.attr?.email) {
+        } else if (req?.user?.attr?.email) {
           username = req.user.attr.email;
         }
       } catch (_) { /* fall back to req.user.id */ }
-      await audit.log('SecurityEvent', {
+      const { message, ...rest } = details;
+      const rawId = req?.user?.id ?? '';
+      const logMessage = (message || `${action} performed by ${username}`)
+        .replace(rawId, username);
+      await INSERT.into('com.dhi.cms.AuditLogs').entries({
+        timestamp: new Date().toISOString(),
         user: username,
-        tenant: req.tenant,
-        data: JSON.stringify({ action, performedBy: username, timestamp: new Date().toISOString(), ...details })
+        action,
+        message: logMessage,
+        details: JSON.stringify(rest)
       });
     } catch (e) {
-      console.warn('[AuditLog] Failed to write audit event:', e.message);
+      console.error('[AuditLog] Failed to write audit event:', e.message);
     }
   }
 
@@ -263,10 +268,12 @@ module.exports = async function () {
         }
       );
       console.log('SBPA contract workflow triggered successfully:', JSON.stringify(response.data));
-      await logAuditEvent(req, 'CONTRACT_SUBMITTED', {
+      await logAuditEvent(req, 'CONTRACT_ASSIGNED', {
+        message: `Contract '${contractDetails.name}' (Template: '${contractDetails.templates?.name ?? 'N/A'}') assigned for approval by ${submittedBy}`,
         contractId: contractDetails.contract_id || contractId,
         contractName: contractDetails.name,
-        submittedBy: submittedBy
+        templateName: contractDetails.templates?.name,
+        assignedBy: submittedBy
       });
     } catch (err) {
       const details = err.response ? JSON.stringify(err.response.data) : err.message;
@@ -280,20 +287,39 @@ module.exports = async function () {
     const { ID } = req.data;
     const processor = await getContractTaskProcessor(ID);
     const approvedBy = processor || req.data.ApprovedBy || 'unknown';
+    const contractForApprove = await SELECT.one.from('com.dhi.cms.Contracts', c => {
+      c.contract_id, c.name, c.templates(t => { t.name })
+    }).where({ ID });
     await UPDATE(Contracts)
       .set({ status: 'Approved', ApprovedBy: approvedBy, ApprovedAt: new Date() })
       .where({ ID });
-    await logAuditEvent(req, 'CONTRACT_APPROVED', { contractId: ID, approvedBy });
+    await logAuditEvent(req, 'CONTRACT_APPROVED', {
+      message: `Contract '${contractForApprove?.name ?? ID}' (Template: '${contractForApprove?.templates?.name ?? 'N/A'}') approved by ${approvedBy}`,
+      contractId: contractForApprove?.contract_id || ID,
+      contractName: contractForApprove?.name,
+      templateName: contractForApprove?.templates?.name,
+      approvedBy
+    });
   });
 
   this.on('rejectContract', async (req) => {
     const { ID, RejectionReason } = req.data;
     const processor = await getContractTaskProcessor(ID);
     const rejectedBy = processor || req.data.RejectedBy || 'unknown';
+    const contractForReject = await SELECT.one.from('com.dhi.cms.Contracts', c => {
+      c.contract_id, c.name, c.templates(t => { t.name })
+    }).where({ ID });
     await UPDATE(Contracts)
       .set({ status: 'Rejected', RejectionReason, RejectedBy: rejectedBy, RejectedAt: new Date() })
       .where({ ID });
-    await logAuditEvent(req, 'CONTRACT_REJECTED', { contractId: ID, rejectedBy, reason: RejectionReason });
+    await logAuditEvent(req, 'CONTRACT_REJECTED', {
+      message: `Contract '${contractForReject?.name ?? ID}' (Template: '${contractForReject?.templates?.name ?? 'N/A'}') rejected by ${rejectedBy}${RejectionReason ? ' - Reason: ' + RejectionReason : ''}`,
+      contractId: contractForReject?.contract_id || ID,
+      contractName: contractForReject?.name,
+      templateName: contractForReject?.templates?.name,
+      rejectedBy,
+      reason: RejectionReason ?? ''
+    });
   });
 
   // ═══════════════════════════════════════════════════════════════
@@ -304,6 +330,7 @@ module.exports = async function () {
     const items = Array.isArray(data) ? data : [data];
     for (const item of items) {
       await logAuditEvent(req, 'DOCUMENT_UPLOADED', {
+        message: `Document '${item.file_name}' uploaded to contract '${item.contracts_ID}' by ${req.user?.id ?? 'unknown'}`,
         attachmentId: item.ID,
         fileName: item.file_name,
         contractId: item.contracts_ID
@@ -318,6 +345,7 @@ module.exports = async function () {
       const attachment = await SELECT.one.from('com.dhi.cms.Attachments').where({ ID: key.ID });
       if (!attachment) return;
       await logAuditEvent(req, 'DOCUMENT_DELETED', {
+        message: `Document '${attachment.file_name}' removed from contract '${attachment.contracts_ID}' by ${req.user?.id ?? 'unknown'}`,
         attachmentId: attachment.ID,
         fileName: attachment.file_name,
         contractId: attachment.contracts_ID
@@ -335,6 +363,7 @@ module.exports = async function () {
     const items = Array.isArray(data) ? data : [data];
     for (const item of items) {
       await logAuditEvent(req, 'ADMIN_ASSIGNED', {
+        message: `Admin '${item.adminName}' assigned to company '${item.company_CompanyCode}' by ${req.user?.id ?? 'unknown'}`,
         adminId: item.adminId,
         adminName: item.adminName,
         companyCode: item.company_CompanyCode
@@ -349,6 +378,7 @@ module.exports = async function () {
       const admin = await SELECT.one.from('com.dhi.cms.CompanyAdmins').where({ ID: key.ID });
       if (!admin) return;
       await logAuditEvent(req, 'ADMIN_REMOVED', {
+        message: `Admin '${admin.adminName}' removed from company '${admin.company_CompanyCode}' by ${req.user?.id ?? 'unknown'}`,
         adminId: admin.adminId,
         adminName: admin.adminName,
         companyCode: admin.company_CompanyCode
@@ -366,18 +396,48 @@ module.exports = async function () {
     const items = Array.isArray(data) ? data : [data];
     for (const item of items) {
       await logAuditEvent(req, 'TEMPLATE_CREATED', {
+        message: `Template '${item.name}' created by ${req.user?.id ?? 'unknown'}`,
         templateId: item.ID,
         templateName: item.name
       });
     }
   });
 
-  this.after('UPDATE', 'Templates', async (data, req) => {
-    await logAuditEvent(req, 'TEMPLATE_UPDATED', {
-      templateId: req.params?.[req.params.length - 1]?.ID ?? req.data?.ID,
-      templateName: req.data?.name,
-      changedFields: Object.keys(req.data || {}).join(', ')
-    });
+  this.before('UPDATE', 'Templates', async (req) => {
+    try {
+      const key = req.params?.[req.params.length - 1];
+      if (!key?.ID) return;
+      const current = await SELECT.one.from('com.dhi.cms.Templates').where({ ID: key.ID });
+      if (!current) return;
+      const skip = new Set(['ID', 'modifiedAt', 'modifiedBy']);
+      const fieldDetails = {};
+      const actuallyChanged = [];
+      for (const [field, newVal] of Object.entries(req.data)) {
+        if (skip.has(field)) continue;
+        if (Array.isArray(newVal)) {
+          fieldDetails[field] = { from: '(previous)', to: '(updated)' };
+          actuallyChanged.push(field);
+          continue;
+        }
+        const oldVal = current[field];
+        if (String(oldVal ?? '') !== String(newVal ?? '')) {
+          fieldDetails[field] = { from: oldVal ?? '', to: newVal ?? '' };
+          actuallyChanged.push(field);
+        } else {
+          fieldDetails[field] = 'not changed';
+        }
+      }
+      if (actuallyChanged.length === 0) return;
+      await logAuditEvent(req, 'TEMPLATE_UPDATED', {
+        message: `Template '${current.name}' updated by ${req.user?.id ?? 'unknown'} - changed fields: ${actuallyChanged.join(', ')}`,
+        templateId: key.ID,
+        templateName: current.name,
+        changedFields: actuallyChanged.join(', '),
+        changes: fieldDetails
+      });
+    } catch (e) {
+      console.warn('[AuditLog] Could not log TEMPLATE_UPDATED:', e.message);
+    }
   });
 
   this.before('DELETE', 'Templates', async (req) => {
@@ -387,6 +447,7 @@ module.exports = async function () {
       const template = await SELECT.one.from('com.dhi.cms.Templates').where({ ID: key.ID });
       if (!template) return;
       await logAuditEvent(req, 'TEMPLATE_DELETED', {
+        message: `Template '${template.name}' deleted by ${req.user?.id ?? 'unknown'}`,
         templateId: template.ID,
         templateName: template.name
       });
@@ -403,18 +464,48 @@ module.exports = async function () {
     const items = Array.isArray(data) ? data : [data];
     for (const item of items) {
       await logAuditEvent(req, 'CONTRACT_CREATED', {
+        message: `Contract '${item.name}' (${item.contract_id || item.ID}) created by ${req.user?.id ?? 'unknown'}`,
         contractId: item.contract_id || item.ID,
         contractName: item.name
       });
     }
   });
 
-  this.after('UPDATE', 'Contracts', async (data, req) => {
-    await logAuditEvent(req, 'CONTRACT_UPDATED', {
-      contractId: req.params?.[req.params.length - 1]?.ID ?? req.data?.ID,
-      contractName: req.data?.name,
-      changedFields: Object.keys(req.data || {}).join(', ')
-    });
+  this.before('UPDATE', 'Contracts', async (req) => {
+    try {
+      const key = req.params?.[req.params.length - 1];
+      if (!key?.ID) return;
+      const current = await SELECT.one.from('com.dhi.cms.Contracts').where({ ID: key.ID });
+      if (!current) return;
+      const skip = new Set(['ID', 'modifiedAt', 'modifiedBy']);
+      const fieldDetails = {};
+      const actuallyChanged = [];
+      for (const [field, newVal] of Object.entries(req.data)) {
+        if (skip.has(field)) continue;
+        if (Array.isArray(newVal)) {
+          fieldDetails[field] = { from: '(previous)', to: '(updated)' };
+          actuallyChanged.push(field);
+          continue;
+        }
+        const oldVal = current[field];
+        if (String(oldVal ?? '') !== String(newVal ?? '')) {
+          fieldDetails[field] = { from: oldVal ?? '', to: newVal ?? '' };
+          actuallyChanged.push(field);
+        } else {
+          fieldDetails[field] = 'not changed';
+        }
+      }
+      if (actuallyChanged.length === 0) return;
+      await logAuditEvent(req, 'CONTRACT_UPDATED', {
+        message: `Contract '${current.name}' updated by ${req.user?.id ?? 'unknown'} - changed fields: ${actuallyChanged.join(', ')}`,
+        contractId: current.contract_id || key.ID,
+        contractName: current.name,
+        changedFields: actuallyChanged.join(', '),
+        changes: fieldDetails
+      });
+    } catch (e) {
+      console.warn('[AuditLog] Could not log CONTRACT_UPDATED:', e.message);
+    }
   });
 
   this.before('DELETE', 'Contracts', async (req) => {
@@ -424,6 +515,7 @@ module.exports = async function () {
       const contract = await SELECT.one.from('com.dhi.cms.Contracts').where({ ID: key.ID });
       if (!contract) return;
       await logAuditEvent(req, 'CONTRACT_DELETED', {
+        message: `Contract '${contract.name}' (${contract.contract_id || contract.ID}) deleted by ${req.user?.id ?? 'unknown'}`,
         contractId: contract.contract_id || contract.ID,
         contractName: contract.name
       });
@@ -489,6 +581,7 @@ module.exports = async function () {
 
   // Log notification attempt to audit table
   async function logNotification(contractID, notificationType, recipientEmail, reminderWindow, severity, status, errorMessage) {
+    const timestamp = new Date().toISOString();
     await INSERT.into(NotificationLogs).entries({
       contract_ID: contractID,
       notificationType,
@@ -498,7 +591,17 @@ module.exports = async function () {
       status,
       errorMessage: errorMessage || null,
       retryCount: 0,
-      sentAt: new Date().toISOString()
+      sentAt: timestamp
+    });
+    await logAuditEvent(null, 'NOTIFICATION_SENT', {
+      message: `Notification '${notificationType}' (${reminderWindow}) sent to '${recipientEmail}' for contract '${contractID}' - Status: ${status}${errorMessage ? ' | Error: ' + errorMessage : ''}`,
+      contractId: contractID,
+      notificationType,
+      recipientEmail,
+      reminderWindow,
+      severity,
+      status,
+      errorMessage: errorMessage || null
     });
   }
 

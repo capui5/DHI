@@ -339,6 +339,13 @@ service ContractService @(path: '/contracts')@(requires: 'authenticated-user') {
     ])
     entity CompanyAdmins                               as projection on cms.CompanyAdmins;
 
+    // ─── Audit Logs (HANA Table) ───
+    @(restrict: [{
+        grant: ['READ'],
+        to   : ['DHI_Admin', 'Auditor']
+    }])
+    entity AuditLogs                                     as projection on cms.AuditLogs;
+
     // ─── Notification Logs (Audit Trail) ───
     @(restrict: [{
         grant: ['READ'],

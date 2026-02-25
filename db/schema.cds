@@ -124,6 +124,14 @@ entity Contracts : cuid, managed {
     RejectedAt      : Timestamp;
 }
 
+entity AuditLogs : cuid {
+    timestamp  : Timestamp;
+    user       : String(200);
+    action     : String(100);
+    message    : String(1000);
+    details    : LargeString;
+}
+
 entity NotificationLogs : cuid, managed {
     contract         : Association to Contracts;
     notificationType : String(50);   // e.g. 'contract.expiring.30d', 'contract.expired'
