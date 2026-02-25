@@ -11,10 +11,20 @@ module.exports = async function () {
   async function logAuditEvent(req, action, details) {
     try {
       const audit = await cds.connect.to('audit-log');
+      let username = req.user?.id ?? 'system';
+      try {
+        const authInfo = req.user?.authInfo?.token ?? req.user?.tokenInfo;
+        if (authInfo) {
+          const payload = authInfo.getPayload();
+          username = payload.email || payload.mail || payload.user_name || username;
+        } else if (req.user?.attr?.email) {
+          username = req.user.attr.email;
+        }
+      } catch (_) { /* fall back to req.user.id */ }
       await audit.log('SecurityEvent', {
-        user: req.user?.id ?? 'system',
+        user: username,
         tenant: req.tenant,
-        data: JSON.stringify({ action, timestamp: new Date().toISOString(), ...details })
+        data: JSON.stringify({ action, performedBy: username, timestamp: new Date().toISOString(), ...details })
       });
     } catch (e) {
       console.warn('[AuditLog] Failed to write audit event:', e.message);
@@ -32,7 +42,7 @@ module.exports = async function () {
     let userEmail = req.user.id;
     try {
       // Try to get email from token info (XSUAA JWT payload)
-      const tokenInfo = req.user.tokenInfo;
+      const tokenInfo = req.user.authInfo?.token ?? req.user.tokenInfo;
       if (tokenInfo) {
         const payload = tokenInfo.getPayload();
         userEmail = payload.email || payload.mail || payload.user_name || req.user.id;
