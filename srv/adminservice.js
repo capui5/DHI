@@ -389,6 +389,142 @@ module.exports = async function () {
   });
 
   // ═══════════════════════════════════════════════════════════════
+  // ─── Attribute CRUD Audit Events ───
+  // ═══════════════════════════════════════════════════════════════
+
+  this.after('CREATE', 'Attributes', async (data, req) => {
+    const items = Array.isArray(data) ? data : [data];
+    for (const item of items) {
+      await logAuditEvent(req, 'ATTRIBUTE_CREATED', {
+        message: `Attribute '${item.name}' created by ${req.user?.id ?? 'unknown'}`,
+        attributeId: item.ID,
+        attributeName: item.name
+      });
+    }
+  });
+
+  this.before('UPDATE', 'Attributes', async (req) => {
+    try {
+      const key = req.params?.[req.params.length - 1];
+      if (!key?.ID) return;
+      const current = await SELECT.one.from('com.dhi.cms.Attributes').where({ ID: key.ID });
+      if (!current) return;
+      const skip = new Set(['ID', 'modifiedAt', 'modifiedBy']);
+      const fieldDetails = {};
+      const actuallyChanged = [];
+      for (const [field, newVal] of Object.entries(req.data)) {
+        if (skip.has(field)) continue;
+        if (Array.isArray(newVal)) {
+          fieldDetails[field] = { from: '(previous)', to: '(updated)' };
+          actuallyChanged.push(field);
+          continue;
+        }
+        const oldVal = current[field];
+        if (String(oldVal ?? '') !== String(newVal ?? '')) {
+          fieldDetails[field] = { from: oldVal ?? '', to: newVal ?? '' };
+          actuallyChanged.push(field);
+        } else {
+          fieldDetails[field] = 'not changed';
+        }
+      }
+      if (actuallyChanged.length === 0) return;
+      await logAuditEvent(req, 'ATTRIBUTE_UPDATED', {
+        message: `Attribute '${current.name}' updated by ${req.user?.id ?? 'unknown'} - changed fields: ${actuallyChanged.join(', ')}`,
+        attributeId: key.ID,
+        attributeName: current.name,
+        changedFields: actuallyChanged.join(', '),
+        changes: fieldDetails
+      });
+    } catch (e) {
+      console.warn('[AuditLog] Could not log ATTRIBUTE_UPDATED:', e.message);
+    }
+  });
+
+  this.before('DELETE', 'Attributes', async (req) => {
+    try {
+      const key = req.params?.[req.params.length - 1];
+      if (!key?.ID) return;
+      const attribute = await SELECT.one.from('com.dhi.cms.Attributes').where({ ID: key.ID });
+      if (!attribute) return;
+      await logAuditEvent(req, 'ATTRIBUTE_DELETED', {
+        message: `Attribute '${attribute.name}' deleted by ${req.user?.id ?? 'unknown'}`,
+        attributeId: attribute.ID,
+        attributeName: attribute.name
+      });
+    } catch (e) {
+      console.warn('[AuditLog] Could not log ATTRIBUTE_DELETED:', e.message);
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // ─── Attribute Group CRUD Audit Events ───
+  // ═══════════════════════════════════════════════════════════════
+
+  this.after('CREATE', 'Attribute_Groups', async (data, req) => {
+    const items = Array.isArray(data) ? data : [data];
+    for (const item of items) {
+      await logAuditEvent(req, 'ATTRIBUTE_GROUP_CREATED', {
+        message: `Attribute Group '${item.name}' created by ${req.user?.id ?? 'unknown'}`,
+        groupId: item.ID,
+        groupName: item.name
+      });
+    }
+  });
+
+  this.before('UPDATE', 'Attribute_Groups', async (req) => {
+    try {
+      const key = req.params?.[req.params.length - 1];
+      if (!key?.ID) return;
+      const current = await SELECT.one.from('com.dhi.cms.Attribute_Groups').where({ ID: key.ID });
+      if (!current) return;
+      const skip = new Set(['ID', 'modifiedAt', 'modifiedBy']);
+      const fieldDetails = {};
+      const actuallyChanged = [];
+      for (const [field, newVal] of Object.entries(req.data)) {
+        if (skip.has(field)) continue;
+        if (Array.isArray(newVal)) {
+          fieldDetails[field] = { from: '(previous)', to: '(updated)' };
+          actuallyChanged.push(field);
+          continue;
+        }
+        const oldVal = current[field];
+        if (String(oldVal ?? '') !== String(newVal ?? '')) {
+          fieldDetails[field] = { from: oldVal ?? '', to: newVal ?? '' };
+          actuallyChanged.push(field);
+        } else {
+          fieldDetails[field] = 'not changed';
+        }
+      }
+      if (actuallyChanged.length === 0) return;
+      await logAuditEvent(req, 'ATTRIBUTE_GROUP_UPDATED', {
+        message: `Attribute Group '${current.name}' updated by ${req.user?.id ?? 'unknown'} - changed fields: ${actuallyChanged.join(', ')}`,
+        groupId: key.ID,
+        groupName: current.name,
+        changedFields: actuallyChanged.join(', '),
+        changes: fieldDetails
+      });
+    } catch (e) {
+      console.warn('[AuditLog] Could not log ATTRIBUTE_GROUP_UPDATED:', e.message);
+    }
+  });
+
+  this.before('DELETE', 'Attribute_Groups', async (req) => {
+    try {
+      const key = req.params?.[req.params.length - 1];
+      if (!key?.ID) return;
+      const group = await SELECT.one.from('com.dhi.cms.Attribute_Groups').where({ ID: key.ID });
+      if (!group) return;
+      await logAuditEvent(req, 'ATTRIBUTE_GROUP_DELETED', {
+        message: `Attribute Group '${group.name}' deleted by ${req.user?.id ?? 'unknown'}`,
+        groupId: group.ID,
+        groupName: group.name
+      });
+    } catch (e) {
+      console.warn('[AuditLog] Could not log ATTRIBUTE_GROUP_DELETED:', e.message);
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════════════
   // ─── Template CRUD Audit Events ───
   // ═══════════════════════════════════════════════════════════════
 
