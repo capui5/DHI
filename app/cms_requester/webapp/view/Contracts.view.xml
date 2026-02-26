@@ -132,10 +132,13 @@
                         </table:template>
                     </table:Column>
 
-                    <table:Column id="col_status" sortProperty="status" filterProperty="status" width="7rem">
+                    <table:Column id="col_status" sortProperty="status" filterProperty="status" width="12rem">
                         <Label text="Status"/>
                         <table:template>
-                            <Text text="{status}" />
+                            <ObjectStatus
+                                text="{status}"
+                                state="{path: 'status', formatter: '.formatter.statusState'}"
+                                inverted="true" />
                         </table:template>
                     </table:Column>
 

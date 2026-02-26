@@ -11,11 +11,13 @@ sap.ui.define([
     "sap/ui/core/Fragment",
     'sap/ui/export/Spreadsheet',
     'sap/ui/export/library',
-    "sap/ui/core/BusyIndicator"
-], (BaseController, Controller, MessageBox, MessageToast, TablePersoController, Filter, FilterOperator, FilterType, Fragment, Spreadsheet, exportLibrary, BusyIndicator) => {
+    "sap/ui/core/BusyIndicator",
+    "com/dhi/cms/cmsrequester/model/formatter"
+], (BaseController, Controller, MessageBox, MessageToast, TablePersoController, Filter, FilterOperator, FilterType, Fragment, Spreadsheet, exportLibrary, BusyIndicator, formatter) => {
     "use strict";
     var EdmType = exportLibrary.EdmType;
     return BaseController.extend("com.dhi.cms.cmsrequester.controller.Contracts", {
+        formatter: formatter,
         onInit() {
             this.getRouter().getRoute("Contracts").attachPatternMatched(this._onObjectMatched, this);
 
