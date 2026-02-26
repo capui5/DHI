@@ -679,16 +679,15 @@ module.exports = async function () {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
-  // Determine event type and reminder window based on days remaining
+  // Determine event type and reminder window based on days remaining.
+  // Notifications are sent ONLY on exactly 30, 14, or 7 days before expiry.
   function getEventClassification(daysRemaining) {
-    if (daysRemaining <= 0) {
-      return { eventType: 'contract.expired', reminderWindow: 'expired', severity: 'ERROR' };
-    } else if (daysRemaining <= 7) {
-      return { eventType: 'contract.expiring.7d', reminderWindow: '7d', severity: 'ERROR' };
-    } else if (daysRemaining <= 14) {
-      return { eventType: 'contract.expiring.14d', reminderWindow: '14d', severity: 'WARNING' };
-    } else if (daysRemaining <= 30) {
+    if (daysRemaining === 30) {
       return { eventType: 'contract.expiring.30d', reminderWindow: '30d', severity: 'INFO' };
+    } else if (daysRemaining === 14) {
+      return { eventType: 'contract.expiring.14d', reminderWindow: '14d', severity: 'WARNING' };
+    } else if (daysRemaining === 7) {
+      return { eventType: 'contract.expiring.7d', reminderWindow: '7d', severity: 'ERROR' };
     }
     return null;
   }
@@ -891,8 +890,8 @@ DHI Contract Management System`,
       const daysUntilExpiry = getDaysUntilExpiry(contract.end_date);
       const renewalStates = ['Renewal Due', 'Renewal Pending', 'Renewal Completed'];
 
-      // ─── 1. Expiry Notifications (30d, 14d, 7d, expired) ───
-      if (daysUntilExpiry <= DAYS_THRESHOLD) {
+      // ─── 1. Expiry Notifications (exactly 30d, 14d, or 7d before expiry only) ───
+      if ([30, 14, 7].includes(daysUntilExpiry)) {
         const result = await sendContractAlertNotification(contract, daysUntilExpiry);
         trackResult(contract, daysUntilExpiry, result, 'expiry');
       }
