@@ -20,6 +20,10 @@ module.exports = async function () {
           username = req.user.attr.email;
         }
       } catch (_) { /* fall back to req.user.id */ }
+      // Allow callers to override the resolved username (e.g. approve/reject via SBPA workflow)
+      if (details.performedBy) {
+        username = details.performedBy;
+      }
       const { message, ...rest } = details;
       const rawId = req?.user?.id ?? '';
       const logMessage = (message || `${action} performed by ${username}`)
@@ -298,7 +302,8 @@ module.exports = async function () {
       contractId: contractForApprove?.contract_id || ID,
       contractName: contractForApprove?.name,
       templateName: contractForApprove?.templates?.name,
-      approvedBy
+      approvedBy,
+      performedBy: approvedBy
     });
   });
 
@@ -318,7 +323,8 @@ module.exports = async function () {
       contractName: contractForReject?.name,
       templateName: contractForReject?.templates?.name,
       rejectedBy,
-      reason: RejectionReason ?? ''
+      reason: RejectionReason ?? '',
+      performedBy: rejectedBy
     });
   });
 

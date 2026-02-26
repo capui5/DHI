@@ -248,7 +248,7 @@ sap.ui.define([
 
                     let attributeValue = row.Attribute_Value || "";
                     // AUTO CONVERT DATE STRINGS INTO JS DATE OBJECT FOR DATEPICKER
-                    if (row.AttributeType.toLowerCase() === "date") {
+                    if (row.AttributeType && row.AttributeType.toLowerCase() === "date") {
                         attributeValue = that._formateDateToDateValueFormat(attributeValue, row.AttributeType);
                     }
                     if (row.AttributeType === "select") {
