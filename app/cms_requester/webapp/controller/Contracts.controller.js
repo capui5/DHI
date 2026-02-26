@@ -464,19 +464,17 @@ sap.ui.define([
             let context = event.getSource().getBindingContext();
             let { ID } = context.getObject();
             this.getRouter().navTo("ContractDetails", {
-                contractId: ID
+                contractId: ID,
+                "?query": { mode: "edit" }
             });
-
-
-
         },
         onViewContract: function (event) {
             let context = event.getSource().getBindingContext();
             let { ID } = context.getObject();
             this.getRouter().navTo("ContractDetails", {
-                contractId: ID
+                contractId: ID,
+                "?query": { mode: "view" }
             });
-
         },
 
     });

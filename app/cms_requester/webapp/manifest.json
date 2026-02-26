@@ -129,7 +129,7 @@
         },
         {
           "name": "ContractDetails",
-          "pattern": "ContractDetails/:contractId:",
+          "pattern": "ContractDetails/:contractId:/:?query:",
           "target": [
             "TargetContractDetails"
           ]

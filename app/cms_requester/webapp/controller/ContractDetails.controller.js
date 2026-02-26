@@ -26,6 +26,8 @@ sap.ui.define([
             this._SelectedContractType = null;
             const oArgs = oEvent.getParameter("arguments");
             this.contractId = oArgs.contractId;
+            const oQuery = oArgs["?query"] || {};
+            this._bEditMode = oQuery.mode === "edit";
             const sRouteName = oEvent.getParameter("name");
             const isEditMode = !!this.contractId;
             this._oIconTabBar = this.byId("iconTabBar");
@@ -119,14 +121,9 @@ sap.ui.define([
             this.getModel("contractModel").setData(oDetail);
             this.getModel("appModel").setProperty("/status", oDetail.status);
             var bCanEdit = this.getOwnerComponent().getModel("roles").getProperty("/canEditContract");
-            if (oDetail.status === "Draft" && bCanEdit) {
-                this.getModel("appModel").setProperty("/isFieldEditable", true)
-                this.getModel("appModel").setProperty("/attachmentsMode", "Delete")
-            }
-            else {
-                this.getModel("appModel").setProperty("/isFieldEditable", false)
-                this.getModel("appModel").setProperty("/attachmentsMode", "None")
-            }
+            var bEditable = this._bEditMode && bCanEdit && oDetail.status !== "Approved";
+            this.getModel("appModel").setProperty("/isFieldEditable", bEditable);
+            this.getModel("appModel").setProperty("/attachmentsMode", bEditable ? "Delete" : "None");
 
         },
 
