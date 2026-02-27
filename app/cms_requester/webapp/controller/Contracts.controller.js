@@ -20,7 +20,6 @@ sap.ui.define([
         formatter: formatter,
         onInit() {
             this.getRouter().getRoute("Contracts").attachPatternMatched(this._onObjectMatched, this);
-
         },
         _onObjectMatched: function (oEvent) {
             this._refreshTable();
@@ -54,14 +53,6 @@ sap.ui.define([
                     oBinding.filter(oCompanyFilter);
                 }
 
-                // Filter Templates MultiComboBox in filter bar by company name
-                var oTemplateCombo = that.byId("contractTypeFilter");
-                if (oTemplateCombo) {
-                    var oTemplateBinding = oTemplateCombo.getBinding("items");
-                    if (oTemplateBinding) {
-                        oTemplateBinding.filter(new Filter("AdminName", FilterOperator.EQ, sCompanyName));
-                    }
-                }
             };
 
             if (oRolesModel.getProperty("/companyLoaded")) {
@@ -77,67 +68,53 @@ sap.ui.define([
                 oRolesModel.attachPropertyChange(fnHandler);
             }
         },
+
         onGoBtnPress: function (oEvent) {
-            let oFilterbar = this.byId("idFilterBar")
-            let aFilterItems = oFilterbar.getAllFilterItems();
-            let aFilters = []
+            var that = this;
+            var oFilterbar = this.byId("idFilterBar");
+            var aFilterItems = oFilterbar.getAllFilterItems();
+            var aAndFilters = [];
 
-            aFilterItems.forEach((aFilterItem) => {
-                let sPropertyName = aFilterItem.getName();
-                let aSelectedKeys;
+            aFilterItems.forEach(function (oFilterItem) {
+                var sPropertyName = oFilterItem.getName();
+
                 if (sPropertyName === "ID") {
-                    let sValue = aFilterItem.getControl().getValue();
+                    var sValue = oFilterItem.getControl().getValue();
                     if (sValue) {
-                        aFilters.push(new Filter(sPropertyName, "Contains", sValue));
+                        aAndFilters.push(new Filter(sPropertyName, "Contains", sValue));
                     }
-
-                }
-                else if (sPropertyName === "start_date" || sPropertyName === "end_date") {
-                    // let sValue = aFilterItem.getControl().getValue();
-                    //  var aDateParts = sValue.split(' - ');
-                    //         var sStartDateString = aDateParts[0];
-                    //         var sEndDateString = aDateParts[1];
-                    //         var oStartDate = new Date(sStartDateString);
-                    //         var oEndDate = new Date(sEndDateString);
-                    //         var sFormattedStartDate = this.formatDate(oStartDate);
-                    //         var sFormattedEndDate = this.formatDate(oEndDate);
-                    let sValue = aFilterItem.getControl().getValue();
-                    if (!sValue) {
-                        return;
-                    }
-
-                    const aDateParts = sValue.split(" - ");
-                    if (aDateParts.length !== 2) {
-                        return;
-                    }
-
-                    const oStartDate = new Date(aDateParts[0]);
-                    const oEndDate = new Date(aDateParts[1]);
-                    var oDateFilter = new sap.ui.model.Filter(sPropertyName, "BT", this.toEdmDateLocal(oStartDate), this.toEdmDateLocal(oEndDate));
-                    aFilters.push(oDateFilter);
-
-                }
-                else {
-                    aSelectedKeys = aFilterItem.getControl().getSelectedKeys();
-                    if (aSelectedKeys) {
-                        aSelectedKeys.forEach(sValue => {
-                            aFilters.push(new Filter(sPropertyName, "EQ", sValue));
-                        }
-                        )
+                } else if (sPropertyName === "start_date" || sPropertyName === "end_date") {
+                    var sDateValue = oFilterItem.getControl().getValue();
+                    if (!sDateValue) return;
+                    var aDateParts = sDateValue.split(" - ");
+                    if (aDateParts.length !== 2) return;
+                    var oStartDate = new Date(aDateParts[0]);
+                    var oEndDate = new Date(aDateParts[1]);
+                    aAndFilters.push(new Filter(sPropertyName, "BT", that.toEdmDateLocal(oStartDate), that.toEdmDateLocal(oEndDate)));
+                } else {
+                    // MultiComboBox: OR selected keys within the same property
+                    var aSelectedKeys = oFilterItem.getControl().getSelectedKeys();
+                    if (aSelectedKeys && aSelectedKeys.length > 0) {
+                        var aOrFilters = aSelectedKeys.map(function (sKey) {
+                            return new Filter(sPropertyName, "EQ", sKey);
+                        });
+                        aAndFilters.push(aOrFilters.length === 1
+                            ? aOrFilters[0]
+                            : new Filter({ filters: aOrFilters, and: false }));
                     }
                 }
-
             });
-            // Always include the company filter
-            if (this._companyFilter) {
-                aFilters.push(this._companyFilter);
-            }
-            let oTable = this.byId("tblContracts");
-            let oBinding = oTable.getBinding("rows");
-            oBinding.filter(aFilters);
-            this.byId("clearFilters").setEnabled(true);
-            MessageToast.show("Filters Applied Sucessfully.")
 
+            // Always AND the company filter
+            if (this._companyFilter) {
+                aAndFilters.push(this._companyFilter);
+            }
+
+            var oBinding = this.byId("tblContracts").getBinding("rows");
+            oBinding.filter(aAndFilters.length > 0
+                ? new Filter({ filters: aAndFilters, and: true })
+                : []);
+            MessageToast.show("Filters Applied Successfully.");
         },
         toEdmDateLocal(oDate) {
             const year = oDate.getFullYear();
@@ -245,52 +222,25 @@ sap.ui.define([
 
 
         onClearFilters: function () {
-            this.byId("clearFilters").setEnabled(false);
             this.clearAllFilters();
         },
 
         clearAllFilters: function () {
             var oTable = this.byId("tblContracts");
-            var aColumns = oTable.getColumns();
-            for (var i = 0; i < aColumns.length; i++) {
-                oTable.filter(aColumns[i], null);
-            }
-            // Re-apply company filter after clearing
+            // Clear column-level filters
+            oTable.getColumns().forEach(function (oCol) { oTable.filter(oCol, null); });
+            // Re-apply only the company filter
             var aFilters = this._companyFilter ? [this._companyFilter] : [];
-            this.byId("tblContracts").getBinding("rows").filter(aFilters, "Application");
-            this.byId("tblContracts").getBinding("rows").filter(aFilters);
-            const oFilterBar = this.byId("idFilterBar");
+            oTable.getBinding("rows").filter(aFilters);
 
-            if (!oFilterBar) {
-                console.warn("FilterBar not found");
-                return;
-            }
-            const aFilterItems = oFilterBar.getFilterGroupItems();
-
-            aFilterItems.forEach(item => {
-                const oControl = item.getControl();
-
+            var oFilterBar = this.byId("idFilterBar");
+            if (!oFilterBar) return;
+            oFilterBar.getFilterGroupItems().forEach(function (oItem) {
+                var oControl = oItem.getControl();
                 if (!oControl) return;
-
-                // Reset Input
-                if (oControl.setValue) {
-                    oControl.setValue("");
-                }
-
-                // Reset MultiComboBox
-                if (oControl.setSelectedKeys) {
-                    oControl.setSelectedKeys([]);
-                }
-
-                // Reset DatePicker (if you add one later)
-                if (oControl.setDateValue) {
-                    oControl.setDateValue(null);
-                }
-
-                // Reset Checkboxes (if added later)
-                if (oControl.setSelected) {
-                    oControl.setSelected(false);
-                }
+                if (oControl.setSelectedKeys) oControl.setSelectedKeys([]);
+                if (oControl.setValue) oControl.setValue("");
+                if (oControl.setDateValue) oControl.setDateValue(null);
             });
         },
         aGlobalFilters: [],

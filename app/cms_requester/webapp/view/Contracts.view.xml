@@ -16,13 +16,8 @@
         </f:title>
         <f:header>
             <f:DynamicPageHeader>
-                <filterbar:FilterBar id="idFilterBar" useToolbar="false" search=".onGoBtnPress">
+                <filterbar:FilterBar id="idFilterBar" useToolbar="false" showClearOnFB="true" search=".onGoBtnPress" clear="onClearFilters">
                     <filterbar:filterGroupItems>
-                        <!-- <filterbar:FilterGroupItem label="Contract ID" name="ID" groupName="group1" visibleInFilterBar="true">
-                            <filterbar:control>
-                                <Input placeholder="Please Enter contract ID"></Input>
-                            </filterbar:control>
-                        </filterbar:FilterGroupItem> -->
                         <filterbar:FilterGroupItem label="Contract Type" name="templates/name" groupName="group1" visibleInFilterBar="true">
                             <filterbar:control>
                                 <MultiComboBox id="contractTypeFilter" items="{/Templates}">
@@ -32,20 +27,26 @@
                         </filterbar:FilterGroupItem>
                         <filterbar:FilterGroupItem label="Status" name="status" groupName="group1" visibleInFilterBar="true">
                             <filterbar:control>
-                                <MultiComboBox >
+                                <MultiComboBox id="statusFilter">
                                     <core:Item key="Draft" text="Draft" />
-                                    <core:Item key="Submitted" text="Submitted" />
+                                    <core:Item key="Submitted" text="Waiting for Approval" />
+                                    <core:Item key="Approved" text="Approved" />
+                                    <core:Item key="Rejected" text="Rejected" />
+                                    <core:Item key="Expired" text="Expired" />
+                                    <core:Item key="Renewal Due" text="Renewal Due" />
+                                    <core:Item key="Renewal Pending" text="Renewal Pending" />
+                                    <core:Item key="Renewal Completed" text="Renewal Completed" />
                                 </MultiComboBox>
                             </filterbar:control>
                         </filterbar:FilterGroupItem>
-                          <filterbar:FilterGroupItem label="Start Date Range" name="start_date" groupName="group1" visibleInFilterBar="false">
+                        <filterbar:FilterGroupItem label="Start Date Range" name="start_date" groupName="group1" visibleInFilterBar="false">
                             <filterbar:control>
-                               <DateRangeSelection ></DateRangeSelection>
+                                <DateRangeSelection></DateRangeSelection>
                             </filterbar:control>
                         </filterbar:FilterGroupItem>
-                           <filterbar:FilterGroupItem label="End Date Range" name="end_date" groupName="group1" visibleInFilterBar="false">
+                        <filterbar:FilterGroupItem label="End Date Range" name="end_date" groupName="group1" visibleInFilterBar="false">
                             <filterbar:control>
-                               <DateRangeSelection ></DateRangeSelection>
+                                <DateRangeSelection></DateRangeSelection>
                             </filterbar:control>
                         </filterbar:FilterGroupItem>
                     </filterbar:filterGroupItems>
@@ -53,7 +54,7 @@
             </f:DynamicPageHeader>
         </f:header>
         <f:content>
-            <table:Table id="tblContracts" alternateRowColors="true" selectionMode="None" rows="{ path: '/Contracts',
+            <table:Table id="tblContracts" alternateRowColors="true" selectionMode="None" visibleRowCountMode="Auto" minAutoRowCount="5" rows="{ path: '/Contracts',
             parameters: { operationMode: 'Server', $select: 'ID,name,alias,contract_id,description,start_date,end_date,status,templates_ID,company_CompanyCode', $expand: 'templates,company' },
             sorter: { path: 'modifiedAt', descending: true } }"  enableColumnFreeze="true" enableCellFilter="true" filter="onAttributeFilter" rowsUpdated="onRowsUpdated" enableBusyIndicator="true">
 
@@ -62,7 +63,6 @@
                         <Title text="Contracts({appModel>/ContractCount})"/>
                         <ToolbarSpacer/>
                         <Button id="createContract" text="Create Document" icon="sap-icon://add-document" press="onCreateContract('ContractDetails')" type="Emphasized" visible="{roles>/canCreateContract}"/>
-                        <Button id="clearFilters" visible="true" text="Clear Filters" icon="sap-icon://clear-filter" press="onClearFilters"/>
                         <Button icon="sap-icon://action-settings" press="onPersonalization" />
                         <Button id="exportContracts" press=".onExportData" icon="sap-icon://excel-attachment" />
                     </OverflowToolbar>
