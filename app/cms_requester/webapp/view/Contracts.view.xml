@@ -144,7 +144,7 @@
                         <Label text="Status"/>
                         <table:template>
                             <ObjectStatus
-                                text="{status}"
+                                text="{path: 'status', formatter: '.formatter.statusText'}"
                                 state="{path: 'status', formatter: '.formatter.statusState'}"
                                 inverted="true" />
                         </table:template>
@@ -156,8 +156,8 @@
                         <table:template>
                             <HBox gap="5px" alignItems="Center" justifyContent="Center">
                                 <Button icon="sap-icon://show" type="Emphasized" press=".onViewContract" tooltip="View" visible="true" />
-                                <Button icon="sap-icon://edit" type="Success" press=".onEditContract" tooltip="Edit" visible="{= %{status}.toLowerCase() !== 'approved' &amp;&amp; ${roles>/canEditContract} }" />
-                                <Button icon="sap-icon://delete" type="Reject" press=".onDeleteContract" tooltip="Delete" visible="{= (%{status}.toLowerCase() === 'draft' || %{status}.toLowerCase() === 'submitted') &amp;&amp; ${roles>/canDeleteContract} }"/>
+                                <Button icon="sap-icon://edit" type="Success" press=".onEditContract" tooltip="Edit" visible="{= %{status}.toLowerCase() !== 'approved' &amp;&amp; %{status}.toLowerCase() !== 'submitted' &amp;&amp; ${roles>/canEditContract} }" />
+                                <Button icon="sap-icon://delete" type="Reject" press=".onDeleteContract" tooltip="Delete" visible="{= %{status}.toLowerCase() === 'draft' &amp;&amp; ${roles>/canDeleteContract} }"/>
 
                             </HBox>
                         </table:template>

@@ -1,6 +1,11 @@
 sap.ui.define([], function () {
     "use strict";
     return {
+        statusText: function (status) {
+            if (!status) return "";
+            if (status.toLowerCase() === "submitted") return "Waiting for Approval";
+            return status;
+        },
         statusState: function (status) {
             if (!status) return "None";
             var s = status.toLowerCase();

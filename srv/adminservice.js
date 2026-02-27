@@ -40,6 +40,39 @@ module.exports = async function () {
     }
   }
 
+  // ─── Audit Diff Helpers ───
+  function diffAttachments(current, incoming) {
+    const currentNames = new Set(current.map(a => a.file_name).filter(Boolean));
+    const incomingNames = new Set(incoming.map(a => a.file_name).filter(Boolean));
+    const added = [...incomingNames].filter(n => !currentNames.has(n));
+    const removed = [...currentNames].filter(n => !incomingNames.has(n));
+    if (added.length === 0 && removed.length === 0) return { changed: false };
+    const detail = {};
+    if (added.length) detail.added = added;
+    if (removed.length) detail.removed = removed;
+    return { changed: true, detail };
+  }
+
+  function diffAttributeValues(current, incoming) {
+    const currentMap = {};
+    for (const av of current) {
+      const k = `${av.attribute_groups_ID}::${av.attributes_ID}`;
+      currentMap[k] = av.valueJson ?? '';
+    }
+    const changes = [];
+    for (const av of incoming) {
+      if (!av.attributes_ID) continue;
+      const k = `${av.attribute_groups_ID}::${av.attributes_ID}`;
+      const oldVal = currentMap[k] ?? '';
+      const newVal = av.valueJson ?? '';
+      if (String(oldVal) !== String(newVal)) {
+        changes.push({ attributes_ID: av.attributes_ID, from: oldVal, to: newVal });
+      }
+    }
+    if (changes.length === 0) return { changed: false };
+    return { changed: true, detail: { changes } };
+  }
+
   // ─── User Info endpoint ───
   this.on('getUserInfo', async (req) => {
     const allRoles = ['DHI_Admin', 'DHI_PowerUser', 'Company_Admin', 'Company_Editor', 'Company_Viewer', 'Auditor'];
@@ -619,11 +652,27 @@ module.exports = async function () {
       if (!key?.ID) return;
       const current = await SELECT.one.from('com.dhi.cms.Contracts').where({ ID: key.ID });
       if (!current) return;
+      const [currentAttachments, currentAttrValues] = await Promise.all([
+        SELECT.from('com.dhi.cms.Attachments').where({ contracts_ID: key.ID }),
+        SELECT.from('com.dhi.cms.ContractsAttributes').where({ contracts_ID: key.ID })
+      ]);
       const skip = new Set(['ID', 'modifiedAt', 'modifiedBy']);
       const fieldDetails = {};
       const actuallyChanged = [];
       for (const [field, newVal] of Object.entries(req.data)) {
         if (skip.has(field)) continue;
+        if (field === 'attachments' && Array.isArray(newVal)) {
+          const diff = diffAttachments(currentAttachments, newVal);
+          if (diff.changed) { fieldDetails[field] = diff.detail; actuallyChanged.push(field); }
+          else { fieldDetails[field] = 'not changed'; }
+          continue;
+        }
+        if (field === 'attribute_values' && Array.isArray(newVal)) {
+          const diff = diffAttributeValues(currentAttrValues, newVal);
+          if (diff.changed) { fieldDetails[field] = diff.detail; actuallyChanged.push(field); }
+          else { fieldDetails[field] = 'not changed'; }
+          continue;
+        }
         if (Array.isArray(newVal)) {
           fieldDetails[field] = { from: '(previous)', to: '(updated)' };
           actuallyChanged.push(field);
