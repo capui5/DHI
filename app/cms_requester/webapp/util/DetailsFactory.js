@@ -23,7 +23,6 @@ sap.ui.define([
             context.getModel("Details").setProperty("/dynamicControlIds",[]);
             dynamicControlIds=[];
         }
-        debugger
         // defensive defaults
         data = data || {};
         data.AttributeType = data.AttributeType || "String";
@@ -46,8 +45,7 @@ sap.ui.define([
             case "string":
                 control = new Input(controlId, {
                     type: "Text",
-                    editable: "{appModel>/isFieldEditable}",
-                    change:"onControlValueChange"
+                    editable: "{appModel>/isFieldEditable}"
                 });
                 control.bindProperty("value", { path: 'Value', model: 'Details' });
                 break;
@@ -56,8 +54,7 @@ sap.ui.define([
             case "integer":
                 control = new Input(controlId, {
                     type: "Number",
-                    editable: "{appModel>/isFieldEditable}",
-                    change:"onControlValueChange"
+                    editable: "{appModel>/isFieldEditable}"
                 });
                 control.bindProperty("value", { path: 'Value', model: 'Details' });
                 break;
@@ -68,8 +65,7 @@ sap.ui.define([
                 }
                 control = new DatePicker(controlId, {
                     width: controlWidth,
-                    editable: "{appModel>/isFieldEditable}",
-                    change:"onControlValueChange"
+                    editable: "{appModel>/isFieldEditable}"
                 });
                 control.bindProperty("dateValue", { path: 'Value', model: 'Details' });
                 break;
@@ -85,8 +81,7 @@ sap.ui.define([
                     data.Value=null;
                 }
                 control = new CheckBox(controlId, {text:"If Yes Tick Here.",
-                    editable: "{appModel>/isFieldEditable}",
-                    change:"onControlValueChange"
+                    editable: "{appModel>/isFieldEditable}"
                 });
                 control.bindProperty("selected", { path: 'Value', model: 'Details' });
                 break;
@@ -100,8 +95,7 @@ sap.ui.define([
                     width: controlWidth,
                     showSecondaryValues: true,
                     selectedKey: "{Details>Value}",
-                    editable: "{appModel>/isFieldEditable}",
-                    change:"onControlValueChange"
+                    editable: "{appModel>/isFieldEditable}"
                 });
                 var oAssociationItems = new ListItem({
                     key: "{Details>ID}",
@@ -118,8 +112,7 @@ sap.ui.define([
                 // fallback to text input
                 control = new Input(controlId, {
                     type: "Text",
-                    editable: "{appModel>/isFieldEditable}",
-                    change:"onControlValueChange"
+                    editable: "{appModel>/isFieldEditable}"
                 });
                 control.bindProperty("value", { path: 'Value', model: 'Details' });
                 break;

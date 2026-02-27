@@ -266,7 +266,7 @@ sap.ui.define([
                             if (matchingAttrValue) {
                                 attributeValue = matchingAttrValue.valueJson || "";
                             }
-                            if (row.AttributeType.toLowerCase() === "date") {
+                            if (row.AttributeType && row.AttributeType.toLowerCase() === "date") {
                                 attributeValue = that._formateDateToDateValueFormat(attributeValue, row.AttributeType);
                             }
                         }
@@ -599,6 +599,7 @@ sap.ui.define([
             modelData.AttributeGroups.forEach(group => {
                 const groupId = group.Attribute_Groups_ID;
                 (group.Attributes || []).forEach(attr => {
+                    if (!attr.Attribute_ID) return; // skip orphaned entries
                     let rawValue = (typeof attr.Value !== "undefined" && attr.Value !== null) ? attr.Value : "";
                     if (attr.AttributeType === "boolean") {
                         rawValue = String(rawValue);
