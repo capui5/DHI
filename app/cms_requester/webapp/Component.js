@@ -38,7 +38,6 @@ sap.ui.define([
         _loadUserRoles: function () {
             var oModel = this.getModel();
             var oRolesModel = this.getModel("roles");
-            var that = this;
             var oContext = oModel.bindContext("/getUserInfo()");
             oContext.requestObject().then(function (oData) {
                 var aRoles = (oData.roles || [])
@@ -52,41 +51,13 @@ sap.ui.define([
                     userEmail: oData.user,
                     canCreateContract: bCompanyAdmin || bCompanyEditor,
                     canEditContract: bCompanyAdmin || bCompanyEditor,
-                    canDeleteContract: bCompanyAdmin
+                    canDeleteContract: bCompanyAdmin,
+                    companyCode: oData.companyCode || null,
+                    companyName: oData.companyName || null,
+                    companyLoaded: true
                 });
-
-                // Load user's company info based on their email
-                that._loadUserCompany(oData.user);
             }).catch(function (oErr) {
                 console.error("Failed to load user roles:", oErr);
-            });
-        },
-
-        _loadUserCompany: function (sUserEmail) {
-            var oModel = this.getModel();
-            var oRolesModel = this.getModel("roles");
-            console.log("=== Loading User Company ===");
-            console.log("Filtering CompanyAdmins by adminName:", sUserEmail);
-            // Query CompanyAdmins to find which company this user belongs to
-            var oListBinding = oModel.bindList("/CompanyAdmins", undefined, undefined, [
-                new sap.ui.model.Filter("adminName", sap.ui.model.FilterOperator.EQ, sUserEmail)
-            ], {
-                $expand: "company"
-            });
-            oListBinding.requestContexts().then(function (aContexts) {
-                console.log("CompanyAdmins found:", aContexts.length);
-                if (aContexts.length > 0) {
-                    var oAdminEntry = aContexts[0].getObject();
-                    var oCompany = oAdminEntry.company;
-                    console.log("Company data:", JSON.stringify(oCompany));
-                    oRolesModel.setProperty("/companyCode", oCompany.CompanyCode);
-                    oRolesModel.setProperty("/companyName", oCompany.CompanyName);
-                } else {
-                    console.log("No company found for this user email!");
-                }
-                oRolesModel.setProperty("/companyLoaded", true);
-            }).catch(function (oErr) {
-                console.error("Failed to load user company:", oErr);
                 oRolesModel.setProperty("/companyLoaded", true);
             });
         }

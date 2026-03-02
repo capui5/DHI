@@ -54,7 +54,7 @@
             </f:DynamicPageHeader>
         </f:header>
         <f:content>
-            <table:Table id="tblContracts" alternateRowColors="true" selectionMode="None" visibleRowCountMode="Auto" minAutoRowCount="5" rows="{ path: '/Contracts',
+            <table:Table id="tblContracts" alternateRowColors="true" selectionMode="None" visibleRowCountMode="Fixed" visibleRowCount="5" rows="{ path: '/Contracts',
             parameters: { operationMode: 'Server', $select: 'ID,name,alias,contract_id,description,start_date,end_date,status,templates_ID,company_CompanyCode', $expand: 'templates,company' },
             sorter: { path: 'modifiedAt', descending: true } }"  enableColumnFreeze="true" enableCellFilter="true" filter="onAttributeFilter" rowsUpdated="onRowsUpdated" enableBusyIndicator="true">
 

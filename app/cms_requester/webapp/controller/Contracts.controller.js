@@ -35,30 +35,32 @@ sap.ui.define([
         _applyCompanyFilter: function () {
             var that = this;
             var oRolesModel = this.getOwnerComponent().getModel("roles");
+            var oTable = this.byId("tblContracts");
+            var oBinding = oTable.getBinding("rows");
 
-            // Wait for company data to be loaded
             var fnApply = function () {
                 var sCompanyCode = oRolesModel.getProperty("/companyCode");
-                var sCompanyName = oRolesModel.getProperty("/companyName");
-                if (!sCompanyCode) {
-                    return;
-                }
+                var oBinding2 = that.byId("tblContracts").getBinding("rows");
+                if (!oBinding2) return;
 
-                // Filter Contracts table: only show contracts belonging to the user's company
-                var oTable = that.byId("tblContracts");
-                var oBinding = oTable.getBinding("rows");
-                if (oBinding) {
+                if (sCompanyCode) {
                     var oCompanyFilter = new Filter("company_CompanyCode", FilterOperator.EQ, sCompanyCode);
                     that._companyFilter = oCompanyFilter;
-                    oBinding.filter(oCompanyFilter);
+                    oBinding2.filter([oCompanyFilter]);
+                } else {
+                    // No company found for this user — show nothing
+                    that._companyFilter = null;
+                    oBinding2.filter([new Filter("company_CompanyCode", FilterOperator.EQ, "__NO_ACCESS__")]);
                 }
-
             };
 
             if (oRolesModel.getProperty("/companyLoaded")) {
                 fnApply();
             } else {
-                // Wait for company data to load
+                // Immediately block all data while company is loading
+                if (oBinding) {
+                    oBinding.filter([new Filter("company_CompanyCode", FilterOperator.EQ, "__LOADING__")]);
+                }
                 var fnHandler = function () {
                     if (oRolesModel.getProperty("/companyLoaded")) {
                         oRolesModel.detachPropertyChange(fnHandler);
@@ -105,9 +107,18 @@ sap.ui.define([
                 }
             });
 
-            // Always AND the company filter
-            if (this._companyFilter) {
-                aAndFilters.push(this._companyFilter);
+            // Always AND the company filter — enforce even when _companyFilter is not set
+            var oRolesModel = this.getOwnerComponent().getModel("roles");
+            var sCompanyCode = oRolesModel.getProperty("/companyCode");
+            var oActiveCompanyFilter = this._companyFilter;
+            if (!oActiveCompanyFilter && sCompanyCode) {
+                oActiveCompanyFilter = new Filter("company_CompanyCode", FilterOperator.EQ, sCompanyCode);
+                this._companyFilter = oActiveCompanyFilter;
+            }
+            if (oActiveCompanyFilter) {
+                aAndFilters.push(oActiveCompanyFilter);
+            } else {
+                aAndFilters.push(new Filter("company_CompanyCode", FilterOperator.EQ, "__NO_ACCESS__"));
             }
 
             var oBinding = this.byId("tblContracts").getBinding("rows");
@@ -229,8 +240,18 @@ sap.ui.define([
             var oTable = this.byId("tblContracts");
             // Clear column-level filters
             oTable.getColumns().forEach(function (oCol) { oTable.filter(oCol, null); });
-            // Re-apply only the company filter
-            var aFilters = this._companyFilter ? [this._companyFilter] : [];
+            // Re-apply only the company filter (always enforce it)
+            var oRolesModel = this.getOwnerComponent().getModel("roles");
+            var sCompanyCode = oRolesModel.getProperty("/companyCode");
+            var aFilters;
+            if (this._companyFilter) {
+                aFilters = [this._companyFilter];
+            } else if (sCompanyCode) {
+                this._companyFilter = new Filter("company_CompanyCode", FilterOperator.EQ, sCompanyCode);
+                aFilters = [this._companyFilter];
+            } else {
+                aFilters = [new Filter("company_CompanyCode", FilterOperator.EQ, "__NO_ACCESS__")];
+            }
             oTable.getBinding("rows").filter(aFilters);
 
             var oFilterBar = this.byId("idFilterBar");
@@ -368,7 +389,9 @@ sap.ui.define([
 
         onRowsUpdated: function () {
             var oTable = this.byId("tblContracts");
-            this.getModel("appModel").setProperty("/ContractCount", oTable.getBinding("rows").getLength());
+            var nCount = oTable.getBinding("rows").getLength();
+            this.getModel("appModel").setProperty("/ContractCount", nCount);
+            oTable.setVisibleRowCount(Math.max(1, nCount));
         },
         onCreateContract: function (sNavigationTarget) {
             var sNavigationTarget;

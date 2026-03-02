@@ -96,9 +96,33 @@ module.exports = async function () {
       console.log("getUserInfo - error reading token:", e.message);
     }
     console.log("getUserInfo - user.id:", req.user.id, "resolved email:", userEmail);
+
+    // Look up the user's company using elevated (service-level) privileges
+    let companyCode = null;
+    let companyName = null;
+    try {
+      const adminEntry = await SELECT.one.from('com.dhi.cms.CompanyAdmins')
+        .columns('company_CompanyCode')
+        .where({ adminName: userEmail });
+      if (adminEntry && adminEntry.company_CompanyCode) {
+        const company = await SELECT.one.from('com.dhi.cms.Companies')
+          .columns('CompanyCode', 'CompanyName')
+          .where({ CompanyCode: adminEntry.company_CompanyCode });
+        if (company) {
+          companyCode = company.CompanyCode;
+          companyName = company.CompanyName;
+        }
+      }
+      console.log("getUserInfo - companyCode:", companyCode, "companyName:", companyName);
+    } catch (e) {
+      console.log("getUserInfo - error looking up company:", e.message);
+    }
+
     return {
       user: userEmail,
-      roles: roles
+      roles: roles,
+      companyCode: companyCode,
+      companyName: companyName
     };
   });
 

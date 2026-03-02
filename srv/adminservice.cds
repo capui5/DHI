@@ -402,8 +402,10 @@ service ContractService @(path: '/contracts')@(requires: 'authenticated-user') {
     }
 
     type UserInfo {
-        user  : String;
-        roles : array of UserRole;
+        user        : String;
+        roles       : array of UserRole;
+        companyCode : String;
+        companyName : String;
     }
 
     function getUserInfo()                            returns UserInfo;
