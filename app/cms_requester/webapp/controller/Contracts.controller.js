@@ -61,13 +61,7 @@ sap.ui.define([
                 if (oBinding) {
                     oBinding.filter([new Filter("company_CompanyCode", FilterOperator.EQ, "__LOADING__")]);
                 }
-                var fnHandler = function () {
-                    if (oRolesModel.getProperty("/companyLoaded")) {
-                        oRolesModel.detachPropertyChange(fnHandler);
-                        fnApply();
-                    }
-                };
-                oRolesModel.attachPropertyChange(fnHandler);
+                oRolesModel.attachEventOnce("change", fnApply);
             }
         },
 
