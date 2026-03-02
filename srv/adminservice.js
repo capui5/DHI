@@ -347,7 +347,7 @@ module.exports = async function () {
   this.on('approveContract', async (req) => {
     const { ID } = req.data;
     const processor = await getContractTaskProcessor(ID);
-    const approvedBy = processor || req.data.ApprovedBy || 'unknown';
+    const approvedBy = processor || req.data.ApprovedBy || req.user?.id || 'unknown';
     const contractForApprove = await SELECT.one.from('com.dhi.cms.Contracts', c => {
       c.contract_id, c.name, c.templates(t => { t.name })
     }).where({ ID });
@@ -367,7 +367,7 @@ module.exports = async function () {
   this.on('rejectContract', async (req) => {
     const { ID, RejectionReason } = req.data;
     const processor = await getContractTaskProcessor(ID);
-    const rejectedBy = processor || req.data.RejectedBy || 'unknown';
+    const rejectedBy = processor || req.data.RejectedBy || req.user?.id || 'unknown';
     const contractForReject = await SELECT.one.from('com.dhi.cms.Contracts', c => {
       c.contract_id, c.name, c.templates(t => { t.name })
     }).where({ ID });

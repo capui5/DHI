@@ -136,7 +136,7 @@ entity NotificationLogs : cuid, managed {
     contract         : Association to Contracts;
     notificationType : String(50);   // e.g. 'contract.expiring.30d', 'contract.expired'
     recipientEmail   : String(200);
-    reminderWindow   : String(10);   // '30d', '14d', '7d', 'expired'
+    reminderWindow   : String(20);   // '30d', '14d', '7d', 'renewal-due', 'renewal-pending', 'renewal-completed'
     severity         : String(20);   // 'INFO', 'WARNING', 'ERROR'
     status           : String(20);   // 'Sent', 'Failed'
     errorMessage     : String(500);
