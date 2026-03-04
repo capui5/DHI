@@ -472,6 +472,31 @@ sap.ui.define([
                 }
             }
         },
+        openPreview: function (oEvent) {
+            var oLink = oEvent.getSource();
+            var oContext = oLink.getBindingContext("contractModel");
+            if (!oContext) return;
+
+            var oAttachment = oContext.getObject();
+            var sMediaType = oAttachment.media_type || "application/octet-stream";
+
+            if (oAttachment.ID) {
+                // Saved attachment: open OData media stream URL
+                var sUrl = this.getAppModulePathBaseURL() + "/contracts/Attachments('" + oAttachment.ID + "')/file_content";
+                window.open(sUrl, "_blank");
+            } else if (oAttachment.file_content) {
+                // Newly uploaded (not yet saved): base64 in model
+                var sBinary = atob(oAttachment.file_content);
+                var aBytes = new Uint8Array(sBinary.length);
+                for (var i = 0; i < sBinary.length; i++) {
+                    aBytes[i] = sBinary.charCodeAt(i);
+                }
+                var oBlob = new Blob([aBytes], { type: sMediaType });
+                var sBlobUrl = URL.createObjectURL(oBlob);
+                window.open(sBlobUrl, "_blank");
+            }
+        },
+
         // handleSaveContractBasicInfo: async function () {
         //     const contractMasterData = this.getModel("contractModel").getData();
         //     contractMasterData.attachments = [];
