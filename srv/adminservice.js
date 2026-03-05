@@ -187,7 +187,7 @@ module.exports = async function () {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     for (const item of items) {
-      if (item.end_date && item.status !== 'Draft') {
+      if (item.end_date && !['Draft', 'Submitted', 'Rejected', 'Renewal Pending', 'Renewal Completed'].includes(item.status)) {
         const endDate = new Date(item.end_date);
         endDate.setHours(0, 0, 0, 0);
         if (endDate < today) {
@@ -345,6 +345,7 @@ module.exports = async function () {
         }
       );
       console.log('SBPA contract workflow triggered successfully:', JSON.stringify(response.data));
+      await UPDATE(Contracts).set({ status: 'Submitted' }).where({ ID: contractId });
       await logAuditEvent(req, 'CONTRACT_ASSIGNED', {
         message: `Contract '${contractDetails.name}' (Template: '${contractDetails.templates?.name ?? 'N/A'}') assigned for approval by ${submittedBy}`,
         contractId: contractDetails.contract_id || contractId,
