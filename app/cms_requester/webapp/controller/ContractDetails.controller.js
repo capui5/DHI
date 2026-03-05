@@ -607,6 +607,7 @@ sap.ui.define([
             var oModel = this.getModel();
             var oAction = oModel.bindContext("/submitContract(...)");
             oAction.setParameter("contractId", sContractId);
+            oAction.setParameter("appBaseUrl", window.location.origin + this.getAppModulePathBaseURL());
             return oAction.execute().then(function () {
                 var sResult = oAction.getBoundContext().getObject().value;
                 console.log("Contract workflow submitted successfully:", sResult);
@@ -642,6 +643,8 @@ sap.ui.define([
         },
         validateControls: function (idList) {
             let isValid = true;
+
+            if (!idList || !Array.isArray(idList)) return true;
 
             idList.forEach(id => {
                 let control = this.byId(id);

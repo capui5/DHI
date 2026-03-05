@@ -235,7 +235,7 @@ module.exports = async function () {
     return null;
   }
 
-  function mapContractToWorkflowPayload(contract, submittedBy) {
+  function mapContractToWorkflowPayload(contract, submittedBy, baseUrl = '') {
     // Collect all admin IDs from company admins
     const admins = contract.company?.admins || [];
     const allAdminIds = admins.map(a => a.adminId).filter(Boolean).join(',');
@@ -258,7 +258,14 @@ module.exports = async function () {
           CompanyName: contract.company?.CompanyName ?? ''
         },
         template_name: contract.templates?.name ?? '',
-        submittedby: submittedBy ?? ''
+        submittedby: submittedBy ?? '',
+        attachments: (contract.attachments || [])
+          .filter(a => a.file_name && a.ID)
+          .map(a => ({
+            fileName: a.file_name,
+            url: `${baseUrl}/contracts/Attachments('${a.ID}')/file_content`
+          })),
+        attachments_url: `${baseUrl}/cms_requester/index.html#/ContractDetails/${contract.ID}`
       }
     };
   }
@@ -278,7 +285,8 @@ module.exports = async function () {
         c.end_date,
         c.status,
         c.templates(t => { t.name }),
-        c.company(co => { co.CompanyCode, co.CompanyName })
+        c.company(co => { co.CompanyCode, co.CompanyName }),
+        c.attachments(a => { a.ID, a.file_name, a.media_type, a.file_url })
       });
 
     if (!contractDetails) {
@@ -315,7 +323,15 @@ module.exports = async function () {
 
     console.log("Contract Details", JSON.stringify(contractDetails, null, 2));
     console.log("Submitted By:", submittedBy);
-    const workflowPayload = mapContractToWorkflowPayload(contractDetails, submittedBy);
+
+    const baseUrl = req.data.appBaseUrl || (() => {
+      const host = req.headers['x-forwarded-host'] || req.headers['host'] || '';
+      const protocol = req.headers['x-forwarded-proto'] || 'https';
+      return host ? `${protocol}://${host}` : '';
+    })();
+    console.log("Base URL for attachments:", baseUrl);
+
+    const workflowPayload = mapContractToWorkflowPayload(contractDetails, submittedBy, baseUrl);
     console.log("Workflow Payload", JSON.stringify(workflowPayload, null, 2));
 
     try {
@@ -383,6 +399,19 @@ module.exports = async function () {
       reason: RejectionReason ?? '',
       performedBy: rejectedBy
     });
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // ─── Attachment Media Stream (inline preview) ───
+  // ═══════════════════════════════════════════════════════════════
+
+  this.on('READ', 'Attachments', async (req, next) => {
+    const result = await next();
+    const res = req._.res;
+    if (res && req._.req?.path?.includes('/file_content')) {
+      res.setHeader('Content-Disposition', 'inline');
+    }
+    return result;
   });
 
   // ═══════════════════════════════════════════════════════════════
@@ -659,15 +688,37 @@ module.exports = async function () {
   // ─── Contract CRUD Audit Events ───
   // ═══════════════════════════════════════════════════════════════
 
+  async function backfillAttachmentFileUrls(contractId, req) {
+    try {
+      const host = req.headers?.['x-forwarded-host'] || req.headers?.['host'] || '';
+      const protocol = req.headers?.['x-forwarded-proto'] || 'https';
+      const baseUrl = host ? `${protocol}://${host}` : '';
+      const attachments = await SELECT.from('com.dhi.cms.Attachments')
+        .where({ contracts_ID: contractId, file_url: null });
+      for (const att of attachments) {
+        const fileUrl = `${baseUrl}/cms_requester/contracts/Attachments('${att.ID}')/file_content`;
+        await UPDATE('com.dhi.cms.Attachments').set({ file_url: fileUrl }).where({ ID: att.ID });
+      }
+    } catch (e) {
+      console.warn('[fileUrl] Could not backfill file_url for contract', contractId, e.message);
+    }
+  }
+
   this.after('CREATE', 'Contracts', async (data, req) => {
     const items = Array.isArray(data) ? data : [data];
     for (const item of items) {
+      await backfillAttachmentFileUrls(item.ID, req);
       await logAuditEvent(req, 'CONTRACT_CREATED', {
         message: `Contract '${item.name}' (${item.contract_id || item.ID}) created by ${req.user?.id ?? 'unknown'}`,
         contractId: item.contract_id || item.ID,
         contractName: item.name
       });
     }
+  });
+
+  this.after('UPDATE', 'Contracts', async (data, req) => {
+    const contractId = req.data?.ID || req.params?.[req.params?.length - 1]?.ID;
+    if (contractId) await backfillAttachmentFileUrls(contractId, req);
   });
 
   this.before('UPDATE', 'Contracts', async (req) => {

@@ -362,7 +362,7 @@ service ContractService @(path: '/contracts')@(requires: 'authenticated-user') {
         'Company_Admin',
         'Company_Editor'
     ])
-    action   submitContract(contractId: UUID)          returns String;
+    action   submitContract(contractId: UUID, appBaseUrl: String)  returns String;
 
     @(requires: 'authenticated-user')
     action   approveContract(ID: UUID,
