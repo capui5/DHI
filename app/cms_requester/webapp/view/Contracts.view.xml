@@ -150,6 +150,25 @@
                         </table:template>
                     </table:Column>
 
+                    <!-- Approval/Rejection Info -->
+                    <!-- <table:Column id="col_approver" width="12rem">
+                        <Label text="Actioned By"/>
+                        <table:template>
+                            <VBox>
+                                <Text text="{= %{status} === 'Approved' ? %{ApprovedBy} : (%{status} === 'Rejected' ? %{RejectedBy} : '') }" wrapping="true"/>
+                                <Text text="{= %{status} === 'Approved' ? %{ApprovedAt} : (%{status} === 'Rejected' ? %{RejectedAt} : '') }"
+                                    class="sapUiTinyMarginTop" />
+                            </VBox>
+                        </table:template>
+                    </table:Column> -->
+
+                    <!-- Comments -->
+                    <table:Column id="col_comments" width="14rem">
+                        <Label text="Comments"/>
+                        <table:template>
+                            <Text text="{= %{status} === 'Approved' ? (%{ApprovalComment} || '') : (%{status} === 'Rejected' ? (%{RejectionReason} || '') : '') }" wrapping="true"/>
+                        </table:template>
+                    </table:Column>
 
                     <!-- Actions -->
                     <table:Column id="col_actions" width="7rem">
