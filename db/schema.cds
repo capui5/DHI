@@ -119,7 +119,8 @@ entity Contracts : cuid, managed {
     status          : String default 'Draft';
     ApprovedBy      : String(100);
     ApprovedAt      : Timestamp;
-    RejectionReason : String(255);
+    ApprovalComment : String(500);
+    RejectionReason : String(500);
     RejectedBy      : String(100);
     RejectedAt      : Timestamp;
 }

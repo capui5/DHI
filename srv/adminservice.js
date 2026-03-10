@@ -201,7 +201,7 @@ module.exports = async function () {
   // ─── Contract Workflow Helpers ───
   // ═══════════════════════════════════════════════════════════════
 
-  async function getContractTaskProcessor(contractId) {
+  async function getContractTaskInfo(contractId) {
     try {
       const instancesRes = await executeHttpRequest(
         { destinationName: 'SBPA_API' },
@@ -215,24 +215,55 @@ module.exports = async function () {
 
       if (instancesRes.data && instancesRes.data.length > 0) {
         const workflowInstanceId = instancesRes.data[0].id;
-        const tasksRes = await executeHttpRequest(
-          { destinationName: 'SBPA_API' },
-          {
-            method: 'GET',
-            url: `/public/workflow/rest/v1/task-instances?workflowInstanceId=${workflowInstanceId}&status=COMPLETED`,
-            headers: { 'Content-Type': 'application/json' }
-          }
-        );
+
+        const [tasksRes, contextRes] = await Promise.all([
+          executeHttpRequest(
+            { destinationName: 'SBPA_API' },
+            {
+              method: 'GET',
+              url: `/public/workflow/rest/v1/task-instances?workflowInstanceId=${workflowInstanceId}&status=COMPLETED`,
+              headers: { 'Content-Type': 'application/json' }
+            }
+          ),
+          executeHttpRequest(
+            { destinationName: 'SBPA_API' },
+            {
+              method: 'GET',
+              url: `/public/workflow/rest/v1/workflow-instances/${workflowInstanceId}/context`,
+              headers: { 'Content-Type': 'application/json' }
+            }
+          ).catch(() => ({ data: {} }))
+        ]);
 
         if (tasksRes.data && tasksRes.data.length > 0) {
           const latestTask = tasksRes.data[tasksRes.data.length - 1];
-          return latestTask.processor || latestTask.completedBy || latestTask.createdBy;
+          const processor = latestTask.processor || latestTask.completedBy || latestTask.createdBy;
+          const completedAt = latestTask.completedAt || latestTask.lastChangedAt || null;
+
+          const wfContext = contextRes.data || {};
+          const taskContext = latestTask.context || {};
+          console.log('[getContractTaskInfo] wfContext:', JSON.stringify(wfContext));
+          console.log('[getContractTaskInfo] taskContext:', JSON.stringify(taskContext));
+          const comment =
+            wfContext?.form_templateApprovalForm_1?.reasonForRejection_1 ||
+            wfContext.comment ||
+            wfContext.Decision_Reason ||
+            wfContext.approvalComment ||
+            wfContext.remarks ||
+            taskContext?.form_templateApprovalForm_1?.reasonForRejection_1 ||
+            taskContext.comment ||
+            taskContext.Decision_Reason ||
+            taskContext.approvalComment ||
+            taskContext.remarks ||
+            null;
+
+          return { processor, comment, completedAt };
         }
       }
     } catch (err) {
-      console.error('Failed to get contract task processor:', err.message);
+      console.error('Failed to get contract task info:', err.message);
     }
-    return null;
+    return { processor: null, comment: null, completedAt: null };
   }
 
   function mapContractToWorkflowPayload(contract, submittedBy, baseUrl = '') {
@@ -363,41 +394,45 @@ module.exports = async function () {
 
   this.on('approveContract', async (req) => {
     const { ID } = req.data;
-    const processor = await getContractTaskProcessor(ID);
+    const { processor, comment, completedAt } = await getContractTaskInfo(ID);
     const approvedBy = processor || req.data.ApprovedBy || req.user?.id || 'unknown';
+    const approvedAt = completedAt ? new Date(completedAt) : new Date();
     const contractForApprove = await SELECT.one.from('com.dhi.cms.Contracts', c => {
       c.contract_id, c.name, c.templates(t => { t.name })
     }).where({ ID });
     await UPDATE(Contracts)
-      .set({ status: 'Approved', ApprovedBy: approvedBy, ApprovedAt: new Date() })
+      .set({ status: 'Approved', ApprovedBy: approvedBy, ApprovedAt: approvedAt, ApprovalComment: comment })
       .where({ ID });
     await logAuditEvent(req, 'CONTRACT_APPROVED', {
-      message: `Contract '${contractForApprove?.name ?? ID}' (Template: '${contractForApprove?.templates?.name ?? 'N/A'}') approved by ${approvedBy}`,
+      message: `Contract '${contractForApprove?.name ?? ID}' (Template: '${contractForApprove?.templates?.name ?? 'N/A'}') approved by ${approvedBy}${comment ? ' - Comment: ' + comment : ''}`,
       contractId: contractForApprove?.contract_id || ID,
       contractName: contractForApprove?.name,
       templateName: contractForApprove?.templates?.name,
       approvedBy,
+      comment: comment ?? '',
       performedBy: approvedBy
     });
   });
 
   this.on('rejectContract', async (req) => {
     const { ID, RejectionReason } = req.data;
-    const processor = await getContractTaskProcessor(ID);
+    const { processor, comment, completedAt } = await getContractTaskInfo(ID);
     const rejectedBy = processor || req.data.RejectedBy || req.user?.id || 'unknown';
+    const rejectedAt = completedAt ? new Date(completedAt) : new Date();
+    const reason = RejectionReason || comment || '';
     const contractForReject = await SELECT.one.from('com.dhi.cms.Contracts', c => {
       c.contract_id, c.name, c.templates(t => { t.name })
     }).where({ ID });
     await UPDATE(Contracts)
-      .set({ status: 'Rejected', RejectionReason, RejectedBy: rejectedBy, RejectedAt: new Date() })
+      .set({ status: 'Rejected', RejectionReason: reason, RejectedBy: rejectedBy, RejectedAt: rejectedAt })
       .where({ ID });
     await logAuditEvent(req, 'CONTRACT_REJECTED', {
-      message: `Contract '${contractForReject?.name ?? ID}' (Template: '${contractForReject?.templates?.name ?? 'N/A'}') rejected by ${rejectedBy}${RejectionReason ? ' - Reason: ' + RejectionReason : ''}`,
+      message: `Contract '${contractForReject?.name ?? ID}' (Template: '${contractForReject?.templates?.name ?? 'N/A'}') rejected by ${rejectedBy}${reason ? ' - Reason: ' + reason : ''}`,
       contractId: contractForReject?.contract_id || ID,
       contractName: contractForReject?.name,
       templateName: contractForReject?.templates?.name,
       rejectedBy,
-      reason: RejectionReason ?? '',
+      reason,
       performedBy: rejectedBy
     });
   });

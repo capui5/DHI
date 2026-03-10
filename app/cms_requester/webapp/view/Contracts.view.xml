@@ -55,7 +55,7 @@
         </f:header>
         <f:content>
             <table:Table id="tblContracts" alternateRowColors="true" selectionMode="None" visibleRowCountMode="Fixed" visibleRowCount="5" rows="{ path: '/Contracts',
-            parameters: { operationMode: 'Server', $select: 'ID,name,alias,contract_id,description,start_date,end_date,status,templates_ID,company_CompanyCode', $expand: 'templates,company' },
+            parameters: { operationMode: 'Server', $select: 'ID,name,alias,contract_id,description,start_date,end_date,status,templates_ID,company_CompanyCode,ApprovedBy,ApprovedAt,ApprovalComment,RejectedBy,RejectedAt,RejectionReason', $expand: 'templates,company' },
             sorter: { path: 'modifiedAt', descending: true } }"  enableColumnFreeze="true" enableCellFilter="true" filter="onAttributeFilter" rowsUpdated="onRowsUpdated" enableBusyIndicator="true">
 
                 <table:extension>
@@ -147,6 +147,26 @@
                                 text="{path: 'status', formatter: '.formatter.statusText'}"
                                 state="{path: 'status', formatter: '.formatter.statusState'}"
                                 inverted="true" />
+                        </table:template>
+                    </table:Column>
+
+                    <!-- Approval/Rejection Info -->
+                    <!-- <table:Column id="col_approver" width="12rem">
+                        <Label text="Actioned By"/>
+                        <table:template>
+                            <VBox>
+                                <Text text="{= %{status} === 'Approved' ? %{ApprovedBy} : (%{status} === 'Rejected' ? %{RejectedBy} : '') }" wrapping="true"/>
+                                <Text text="{= %{status} === 'Approved' ? %{ApprovedAt} : (%{status} === 'Rejected' ? %{RejectedAt} : '') }"
+                                    class="sapUiTinyMarginTop" />
+                            </VBox>
+                        </table:template>
+                    </table:Column> -->
+
+                    <!-- Comments -->
+                    <table:Column id="col_comments" width="14rem">
+                        <Label text="Comments"/>
+                        <table:template>
+                            <Text text="{= %{status} === 'Approved' ? (%{ApprovalComment} || '') : (%{status} === 'Rejected' ? (%{RejectionReason} || '') : '') }" wrapping="true"/>
                         </table:template>
                     </table:Column>
 

@@ -39,6 +39,7 @@ sap.ui.define([
                 that._setPersonalization();
                 that.clearAllFilters();
                 that._applyCompanyFilter();
+                that._refreshTable();
             };
 
             if (oRolesModel.getProperty("/companyLoaded")) {
