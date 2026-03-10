@@ -37,36 +37,6 @@
 
             </f:SimpleForm>
           </Panel>
-
-          <!-- Approval / Rejection Info (shown only when Approved or Rejected) -->
-          <Panel headerText="Approval Information" width="98%" expandable="false"
-            visible="{= ${contractModel>/status} === 'Approved' || ${contractModel>/status} === 'Rejected' }">
-            <f:SimpleForm editable="false" layout="ColumnLayout">
-
-              <!-- Approved -->
-              <Label text="Approved By" visible="{= ${contractModel>/status} === 'Approved' }"/>
-              <Text text="{contractModel>/ApprovedBy}" visible="{= ${contractModel>/status} === 'Approved' }"/>
-
-              <Label text="Approved At" visible="{= ${contractModel>/status} === 'Approved' }"/>
-              <Text text="{parts: [{path: 'contractModel>/ApprovedAt'}], formatter: '.formatDate'}"
-                visible="{= ${contractModel>/status} === 'Approved' }"/>
-
-              <Label text="Comments" visible="{= ${contractModel>/status} === 'Approved' }"/>
-              <Text text="{contractModel>/ApprovalComment}" visible="{= ${contractModel>/status} === 'Approved' }"/>
-
-              <!-- Rejected -->
-              <Label text="Rejected By" visible="{= ${contractModel>/status} === 'Rejected' }"/>
-              <Text text="{contractModel>/RejectedBy}" visible="{= ${contractModel>/status} === 'Rejected' }"/>
-
-              <Label text="Rejected At" visible="{= ${contractModel>/status} === 'Rejected' }"/>
-              <Text text="{parts: [{path: 'contractModel>/RejectedAt'}], formatter: '.formatDate'}"
-                visible="{= ${contractModel>/status} === 'Rejected' }"/>
-
-              <Label text="Reason / Comments" visible="{= ${contractModel>/status} === 'Rejected' }"/>
-              <Text text="{contractModel>/RejectionReason}" visible="{= ${contractModel>/status} === 'Rejected' }"/>
-
-            </f:SimpleForm>
-          </Panel>
         <VBox id="previewDialogVBox" alignContent="Center" justifyContent="Center" >
 
           <!-- <List
