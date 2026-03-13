@@ -2,6 +2,17 @@ sap.ui.define([], () => {
 	"use strict";
 
 	return {
+		typeToLabel: function (sType) {
+			var mLabels = {
+				"string":  "Text",
+				"number":  "Number",
+				"integer": "Whole Number",
+				"boolean": "Yes/No",
+					"date":    "Date"
+			};
+			return mLabels[sType] || sType;
+		},
+
 		booleanToString: function (bValue) {
 			debugger
 		    return bValue=="Yes" ? "true" : "false";

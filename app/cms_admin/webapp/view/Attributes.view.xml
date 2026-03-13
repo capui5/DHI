@@ -58,7 +58,7 @@
                     <table:Column id="attributeType" filterProperty="type" sortProperty="type" resizable="true" autoResizable="true" headerMenu="menu">
                         <Label text="{i18n>Attributes_Type}" wrapping="true"/>
                         <table:template>
-                            <Text text="{type}" wrapping="false"/>
+                            <Text text="{path: 'type', formatter: '.formatter.typeToLabel'}" wrapping="false"/>
                         </table:template>
                     </table:Column>
                     <table:Column id="attributeMin" defaultFilterOperator="EQ" visible="false" filterProperty="minlength" sortProperty="minlength" resizable="true" autoResizable="true" headerMenu="menu">

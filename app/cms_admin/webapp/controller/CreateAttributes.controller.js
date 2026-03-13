@@ -394,7 +394,6 @@ sap.ui.define([
             // },
 
             attributeTypeChange: function (oEvent) {
-                debugger
                 var selectedKey = oEvent.getParameter("selectedItem").getKey();
                 var oComboBox = this.byId("associationsSelect");
                 var oComboInput = this.byId("attributeTypeInput");
@@ -407,7 +406,7 @@ sap.ui.define([
                     this.getModel("appModel").setProperty("/Attributes/maxlength", null);
                     this.getModel("appModel").setProperty("/Attributes/minlength", null);
                 }
-
+                this.getModel("appModel").setProperty("/Attributes/value", null);
             },
 
             resetValueStates: function (oEvent) {

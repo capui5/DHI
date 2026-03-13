@@ -1,20 +1,20 @@
 {
     "types": [
-         {
+        {
             "type": "string",
-            "value": "String"
+            "value": "Text"
         },
         {
             "type": "number",
             "value": "Number"
         },
         {
-            "type": "boolean",
-            "value": "Boolean"
+            "type": "integer",
+            "value": "Whole Number"
         },
         {
-            "type": "select",
-            "value": "Select"
+            "type": "boolean",
+            "value": "Yes/No"
         },
         {
             "type": "date",
