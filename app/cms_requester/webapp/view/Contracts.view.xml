@@ -18,10 +18,27 @@
             <f:DynamicPageHeader>
                 <filterbar:FilterBar id="idFilterBar" useToolbar="false" showClearOnFB="true" search=".onGoBtnPress" clear="onClearFilters">
                     <filterbar:filterGroupItems>
+                        <filterbar:FilterGroupItem label="Document Title" name="name" groupName="group1" visibleInFilterBar="true">
+                            <filterbar:control>
+                                <Input id="titleFilter" placeholder="Search by title..." />
+                            </filterbar:control>
+                        </filterbar:FilterGroupItem>
+                        <filterbar:FilterGroupItem label="Document Name" name="alias" groupName="group1" visibleInFilterBar="true">
+                            <filterbar:control>
+                                <Input id="aliasFilter" placeholder="Search by name..." />
+                            </filterbar:control>
+                        </filterbar:FilterGroupItem>
                         <filterbar:FilterGroupItem label="Contract Type" name="templates/name" groupName="group1" visibleInFilterBar="true">
                             <filterbar:control>
                                 <MultiComboBox id="contractTypeFilter" items="{/Templates}">
                                     <core:Item key="{name}" text="{name}" />
+                                </MultiComboBox>
+                            </filterbar:control>
+                        </filterbar:FilterGroupItem>
+                        <filterbar:FilterGroupItem label="Company" name="company_CompanyCode" groupName="group1" visibleInFilterBar="true">
+                            <filterbar:control>
+                                <MultiComboBox id="companyFilter" items="{/Companies}">
+                                    <core:Item key="{CompanyCode}" text="{CompanyName}" />
                                 </MultiComboBox>
                             </filterbar:control>
                         </filterbar:FilterGroupItem>
@@ -39,12 +56,12 @@
                                 </MultiComboBox>
                             </filterbar:control>
                         </filterbar:FilterGroupItem>
-                        <filterbar:FilterGroupItem label="Start Date Range" name="start_date" groupName="group1" visibleInFilterBar="false">
+                        <filterbar:FilterGroupItem label="Start Date Range" name="start_date" groupName="group1" visibleInFilterBar="true">
                             <filterbar:control>
                                 <DateRangeSelection></DateRangeSelection>
                             </filterbar:control>
                         </filterbar:FilterGroupItem>
-                        <filterbar:FilterGroupItem label="End Date Range" name="end_date" groupName="group1" visibleInFilterBar="false">
+                        <filterbar:FilterGroupItem label="End Date Range" name="end_date" groupName="group1" visibleInFilterBar="true">
                             <filterbar:control>
                                 <DateRangeSelection></DateRangeSelection>
                             </filterbar:control>

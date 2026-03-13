@@ -84,7 +84,7 @@ sap.ui.define([
             aFilterItems.forEach(function (oFilterItem) {
                 var sPropertyName = oFilterItem.getName();
 
-                if (sPropertyName === "ID") {
+                if (sPropertyName === "ID" || sPropertyName === "name" || sPropertyName === "alias") {
                     var sValue = oFilterItem.getControl().getValue();
                     if (sValue) {
                         aAndFilters.push(new Filter(sPropertyName, "Contains", sValue));
@@ -111,18 +111,23 @@ sap.ui.define([
                 }
             });
 
-            // Always AND the company filter — enforce even when _companyFilter is not set
-            var oRolesModel = this.getOwnerComponent().getModel("roles");
-            var sCompanyCode = oRolesModel.getProperty("/companyCode");
-            var oActiveCompanyFilter = this._companyFilter;
-            if (!oActiveCompanyFilter && sCompanyCode) {
-                oActiveCompanyFilter = new Filter("company_CompanyCode", FilterOperator.EQ, sCompanyCode);
-                this._companyFilter = oActiveCompanyFilter;
-            }
-            if (oActiveCompanyFilter) {
-                aAndFilters.push(oActiveCompanyFilter);
-            } else {
-                aAndFilters.push(new Filter("company_CompanyCode", FilterOperator.EQ, "__NO_ACCESS__"));
+            // Always AND the company filter — unless user explicitly filtered by company in FilterBar
+            var bCompanyFilteredByUser = aAndFilters.some(function (f) {
+                return f.sPath === "company_CompanyCode" || (f.aFilters && f.aFilters[0] && f.aFilters[0].sPath === "company_CompanyCode");
+            });
+            if (!bCompanyFilteredByUser) {
+                var oRolesModel = this.getOwnerComponent().getModel("roles");
+                var sCompanyCode = oRolesModel.getProperty("/companyCode");
+                var oActiveCompanyFilter = this._companyFilter;
+                if (!oActiveCompanyFilter && sCompanyCode) {
+                    oActiveCompanyFilter = new Filter("company_CompanyCode", FilterOperator.EQ, sCompanyCode);
+                    this._companyFilter = oActiveCompanyFilter;
+                }
+                if (oActiveCompanyFilter) {
+                    aAndFilters.push(oActiveCompanyFilter);
+                } else {
+                    aAndFilters.push(new Filter("company_CompanyCode", FilterOperator.EQ, "__NO_ACCESS__"));
+                }
             }
 
             var oBinding = this.byId("tblContracts").getBinding("rows");
