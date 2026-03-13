@@ -45,7 +45,7 @@
 
                                     <VBox class="sapUiLargeMarginBeginEnd" width="100%">
                                         <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Group_Description}" labelFor="attributeGrpDescInput" />
-                                        <TextArea growing="true" growingMaxLines="10" id="attributeGrpDescInput" maxLength="100" placeholder="{i18n>Create_Attribute_Group_EnterValue}" width="100%" value="{appModel>/AttributeGroup/desc}" />
+                                        <TextArea growing="true" growingMaxLines="10" rows="4" id="attributeGrpDescInput" maxLength="500" placeholder="{i18n>Create_Attribute_Group_EnterValue}" width="100%" value="{appModel>/AttributeGroup/desc}" />
                                     </VBox>
 
                                     <VBox class="sapUiLargeMarginBeginEnd" width="100%">

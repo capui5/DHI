@@ -36,7 +36,7 @@
                                     </VBox>
                                     <VBox class="sapUiLargeMarginBeginEnd" width="100%">
                                         <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Template_Description}" labelFor="templateDescInput"/>
-                                        <TextArea growing="true" growingMaxLines="10" id="templateDescInput" maxLength="100" placeholder="{i18n>Create_Template_DescriptionPlaceholder}" width="100%" value="{appModel>/Template/desc}"/>
+                                        <TextArea growing="true" growingMaxLines="10" rows="4" id="templateDescInput" maxLength="500" placeholder="{i18n>Create_Template_DescriptionPlaceholder}" width="100%" value="{appModel>/Template/desc}"/>
                                     </VBox>
                                     <VBox class="sapUiLargeMarginBeginEnd" width="100%">
                                         <Label class="sapUiTinyMarginBottom" text="Name of the Company" labelFor="templateAdminList"/>

@@ -65,15 +65,16 @@
 
             />
             <Label text="{i18n>lblDescription}" required="true"/>
-            <Input 
-                id="contractdescriptionInput" 
-                placeholder="{i18n>phDescription}" 
+            <TextArea
+                id="contractdescriptionInput"
+                placeholder="{i18n>phDescription}"
                 value="{contractModel>/description}"
-                width="500px" 
-                required="true"
+                width="500px"
+                rows="4"
+                growing="true"
+                growingMaxLines="10"
                 change="onControlValueChange"
-                                editable="{appModel>/isFieldEditable}"
-
+                editable="{appModel>/isFieldEditable}"
             />
             <Label text="{i18n>lblStartDate}"></Label>
             <DatePicker id="dpStartDate" value="{contractModel>/start_date}" displayFormat="yyyy-MM-dd" valueFormat="yyyy-MM-dd" width="500px" editable="{appModel>/isFieldEditable}" change=".onDateChange"

@@ -44,7 +44,7 @@ entity AttributeGroupAttribute : cuid, managed {
 entity Attribute_Groups : cuid, managed {
     attribute_group_id : String;
     name               : String(100) @mandatory;
-    desc               : String(100);
+    desc               : String(500);
     alias              : String(100);
     templates          : Association to many TemplatesAttributeGroups
                              on templates.attribute_groups = $self;
@@ -65,7 +65,7 @@ entity TemplatesAttributeGroups : cuid, managed {
 entity Templates : cuid, managed {
     template_id      : String;
     name             : String(100) @mandatory;
-    desc             : String(100);
+    desc             : String(500);
     contracts        : Composition of many Contracts
                            on contracts.templates = $self;
     attribute_groups : Composition of many TemplatesAttributeGroups

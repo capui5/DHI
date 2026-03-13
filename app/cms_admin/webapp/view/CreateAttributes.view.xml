@@ -144,7 +144,7 @@
 
                                     <VBox class="sapUiMediumMarginBottom">
                                         <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Description}" labelFor="descriptionTextArea"/>
-                                        <TextArea maxLength="100" growing="true" growingMaxLines="10" id="descriptionTextArea" class="customMultiInputHeight" placeholder="{i18n>Create_Attribute_Description_Placeholder}" width="100%" value="{appModel>/Attributes/desc}"/>
+                                        <TextArea maxLength="500" growing="true" growingMaxLines="10" rows="4" id="descriptionTextArea" placeholder="{i18n>Create_Attribute_Description_Placeholder}" width="100%" value="{appModel>/Attributes/desc}"/>
                                     </VBox>
                                 </VBox>
                             </f:GridListItem>
