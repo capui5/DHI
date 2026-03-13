@@ -263,11 +263,11 @@ sap.ui.define([
                     if (max !== undefined && val > max) {
                         bValid = false;
                         oValueInput.setValueState("Error");
-                        oValueInput.setValueStateText("Value must be less than or equal to Max Length.");
+                        oValueInput.setValueStateText(`Value (${val}) exceeds the Maximum (${max}). Enter a smaller value or increase the Maximum field.`);
                     } else if (min !== undefined && val < min) {
                         bValid = false;
                         oValueInput.setValueState("Error");
-                        oValueInput.setValueStateText("Value must be greater than or equal to Min Length.");
+                        oValueInput.setValueStateText(`Value (${val}) is less than the Minimum (${min}). Enter a larger value or reduce the Minimum field.`);
                     } else {
                         oValueInput.setValueState("None");
                         oValueInput.setValueStateText("");
@@ -280,11 +280,11 @@ sap.ui.define([
                     if (max !== undefined && attrData.value.length > max) {
                         bValid = false;
                         oValueInput.setValueState("Error");
-                        oValueInput.setValueStateText("String length must be less than or equal to Max Length.");
+                        oValueInput.setValueStateText(`Value length (${attrData.value.length}) exceeds Max Length (${max}). Shorten the value or increase the Max Length field.`);
                     } else if (min !== undefined && attrData.value.length < min) {
                         bValid = false;
                         oValueInput.setValueState("Error");
-                        oValueInput.setValueStateText("String length must be greater than or equal to Min Length.");
+                        oValueInput.setValueStateText(`Value length (${attrData.value.length}) is less than Min Length (${min}). Extend the value or reduce the Min Length field.`);
                     } else {
                         oValueInput.setValueState("None");
                         oValueInput.setValueStateText("");

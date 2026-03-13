@@ -89,6 +89,9 @@
                                     <VBox class="sapUiMediumMarginBottom" visible="{= ['boolean','select','date'].indexOf(${appModel>/Attributes/type}) === -1 }">
                                         <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Value}" labelFor="attributeTypeInput"/>
                                         <Input id="attributeTypeInput" placeholder="{i18n>Create_Attribute_Value_Placeholder}" value="{appModel>/Attributes/value}" />
+                                        <Text class="sapUiTinyMarginTop sapThemeNeutralText"
+                                            visible="{= !!(${appModel>/Attributes/minlength} || ${appModel>/Attributes/maxlength}) }"
+                                            text="{= 'Constraints — Min length: ' + (${appModel>/Attributes/minlength} !== null &amp;&amp; ${appModel>/Attributes/minlength} !== undefined &amp;&amp; ${appModel>/Attributes/minlength} !== '' ? ${appModel>/Attributes/minlength} : 'none') + '   |   Max length: ' + (${appModel>/Attributes/maxlength} !== null &amp;&amp; ${appModel>/Attributes/maxlength} !== undefined &amp;&amp; ${appModel>/Attributes/maxlength} !== '' ? ${appModel>/Attributes/maxlength} : 'none') }"/>
                                     </VBox>
                                     <VBox class="sapUiMediumMarginBottom" visible="{= ${appModel>/Attributes/type} === 'date'}">
 
@@ -124,10 +127,14 @@
                                         <VBox>
                                             <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Minimum_Length}" labelFor="attributeMinLength"/>
                                             <Input maxLength="3" id="attributeMinLength" placeholder="{i18n>Create_Attribute_Minimum_Length_Placeholder}" type="Number" value="{appModel>/Attributes/minlength}" editable="{= ['boolean','select','date'].indexOf(${appModel>/Attributes/type}) === -1 }"/>
+                                            <Text class="sapUiTinyMarginTop sapThemeNeutralText" visible="{= ${appModel>/Attributes/type} === 'string' }" text="Min characters the value must have"/>
+                                            <Text class="sapUiTinyMarginTop sapThemeNeutralText" visible="{= ${appModel>/Attributes/type} === 'number' || ${appModel>/Attributes/type} === 'integer' }" text="Minimum allowed numeric value"/>
                                         </VBox>
                                         <VBox>
                                             <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Maximum_Length}" labelFor="attributeMaxLength"/>
-                                            <Input maxLength="3"  id="attributeMaxLength" placeholder="{i18n>Create_Attribute_Maximum_Length_Placeholder}" type="Number" value="{appModel>/Attributes/maxlength}" editable="{= ['boolean','select','date'].indexOf(${appModel>/Attributes/type}) === -1 }"/>
+                                            <Input maxLength="3" id="attributeMaxLength" placeholder="{i18n>Create_Attribute_Maximum_Length_Placeholder}" type="Number" value="{appModel>/Attributes/maxlength}" editable="{= ['boolean','select','date'].indexOf(${appModel>/Attributes/type}) === -1 }"/>
+                                            <Text class="sapUiTinyMarginTop sapThemeNeutralText" visible="{= ${appModel>/Attributes/type} === 'string' }" text="Max characters the value can have"/>
+                                            <Text class="sapUiTinyMarginTop sapThemeNeutralText" visible="{= ${appModel>/Attributes/type} === 'number' || ${appModel>/Attributes/type} === 'integer' }" text="Maximum allowed numeric value"/>
                                         </VBox>
                                     </HBox>
                                 </VBox>
