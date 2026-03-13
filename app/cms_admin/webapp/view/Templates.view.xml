@@ -21,7 +21,7 @@
                     </OverflowToolbar>
                 </table:extension>
                 <table:columns>
-                    <table:Column id="templateId"  defaultFilterOperator="EQ"  filterProperty="ID" sortProperty="ID" resizable="true" autoResizable="true" headerMenu="menu">
+                    <table:Column id="templateId" visible="false" defaultFilterOperator="EQ" filterProperty="ID" sortProperty="ID" resizable="true" autoResizable="true" headerMenu="menu">
                         <Label text="{i18n>Templates_ColumnID}" wrapping="true"/>
                         <table:template>
                             <Text text="{ID}" wrapping="false" textAlign="Left" width="100%"/>

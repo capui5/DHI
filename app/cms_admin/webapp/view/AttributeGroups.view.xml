@@ -20,7 +20,7 @@
                     </OverflowToolbar>
                 </table:extension>
                 <table:columns>
-                    <table:Column width="125px" defaultFilterOperator="EQ" filterProperty="ID" sortProperty="ID" resizable="true" autoResizable="true" headerMenu="menu">
+                    <table:Column visible="false" width="125px" defaultFilterOperator="EQ" filterProperty="ID" sortProperty="ID" resizable="true" autoResizable="true" headerMenu="menu">
                         <Label text="{i18n>Attribute_Group_ID}" wrapping="true"/>
                         <table:template>
                             <Text text="{appModel>ID}" wrapping="false" textAlign="Left" width="100%"/>

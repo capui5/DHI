@@ -29,14 +29,14 @@
                 editable="{appModel>/isFieldEditable}"
             />
 
-            <Label text="{i18n>lblContractNumber}" visible="{= !!${contractModel>/ID} }"/>
-            <Input 
-                id="contractNumberInput" 
+            <Label text="{i18n>lblContractNumber}" visible="false"/>
+            <Input
+                id="contractNumberInput"
                 placeholder="{i18n>phContractNumber}"
-                value="{contractModel>/ID}" 
+                value="{contractModel>/ID}"
                 editable="false"
                 width="500px"
-                visible="{= !!${contractModel>/ID} }"
+                visible="false"
                 change="onControlValueChange"
             />
 

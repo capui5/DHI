@@ -612,6 +612,9 @@ sap.ui.define([
                             }
                         });
 
+                        // Sort by saved sortID so attributes display in their persisted sequence
+                        oData.attributes.sort((a, b) => (a.Rank || 0) - (b.Rank || 0));
+
                         // Update the model with the modified template and attribute groups
                         that.getModel("appModel").setProperty("/AttributeGroup", oData);
                         that.getModel("appModel").setProperty("/AssociatedAttributes", oData.attributes);

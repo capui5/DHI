@@ -140,6 +140,39 @@ sap.ui.define([
             this.getModel("appModel").setProperty("/AttributeCount", oTable.getBinding("rows").getLength());
         },
 
+        onDropRow: function (oEvent) {
+            var oTable = this.byId("tblAttributes");
+            var oBinding = oTable.getBinding("rows");
+            var iDraggedIndex = oTable.indexOfRow(oEvent.getParameter("draggedControl"));
+            var iDroppedIndex = oTable.indexOfRow(oEvent.getParameter("droppedControl"));
+            var sDropPosition = oEvent.getParameter("dropPosition");
+
+            if (sDropPosition === "After") {
+                iDroppedIndex++;
+            }
+            if (iDraggedIndex === iDroppedIndex) return;
+
+            var iTotalCount = oBinding.getLength();
+            var that = this;
+
+            oBinding.requestContexts(0, iTotalCount).then(function (aContexts) {
+                // Remove dragged item
+                var oDragged = aContexts.splice(iDraggedIndex, 1)[0];
+                // Insert at new position
+                var iInsert = iDroppedIndex > iDraggedIndex ? iDroppedIndex - 1 : iDroppedIndex;
+                aContexts.splice(iInsert, 0, oDragged);
+
+                // Assign sortID 1..N based on new order
+                aContexts.forEach(function (oCtx, idx) {
+                    oCtx.setProperty("sortID", idx + 1);
+                });
+
+                that.getModel().submitBatch("$auto").then(function () {
+                    oBinding.refresh();
+                });
+            });
+        },
+
         /**
          * Global array to hold filters
          */

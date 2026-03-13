@@ -25,6 +25,7 @@ entity Attributes : cuid, managed {
     maxlength    : Integer;
     minlength    : Integer;
     is_mandatory : Boolean;
+    sortID       : Integer;
     grpItems : Composition of many AttributeGroupAttribute
         on grpItems.attribute = $self;
     combovalues : Composition of many ComboValues on combovalues.attribute=$self

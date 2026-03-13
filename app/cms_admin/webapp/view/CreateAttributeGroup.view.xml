@@ -33,9 +33,9 @@
                                     <grid:ResponsiveColumnItemLayoutData columns="auto" />
                                 </f:layoutData>
                                 <HBox id="AttributeGroupData" class="sapUiLargeMarginTop sapUiSmallMarginBottom sapUiLargeMarginBegin" alignItems="Start" justifyContent="SpaceBetween">
-                                    <VBox class="sapUiLargeMarginEnd" visible="{appModel>/isEditMode}" width="100%">
-                                        <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Group_ID}" visible="{appModel>/isEditMode}" labelFor="attributeIdInput" />
-                                        <Input placeholder="{i18n>Create_Attribute_Group_EnterValue}" width="100%" visible="{appModel>/isEditMode}" editable="false" value="{appModel>/AttributeGroup/ID}" />
+                                    <VBox class="sapUiLargeMarginEnd" visible="false" width="100%">
+                                        <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Group_ID}" labelFor="attributeIdInput" />
+                                        <Input placeholder="{i18n>Create_Attribute_Group_EnterValue}" width="100%" editable="false" value="{appModel>/AttributeGroup/ID}" />
                                     </VBox>
 
                                     <VBox class="sapUiLargeMarginBeginEnd" width="100%">

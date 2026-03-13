@@ -26,9 +26,9 @@
                                     <grid:ResponsiveColumnItemLayoutData columns="auto" />
                                 </f:layoutData>
                                 <HBox id="templateData" class="sapUiLargeMarginTop sapUiSmallMarginBottom sapUiLargeMarginBegin" alignItems="Start" justifyContent="SpaceBetween">
-                                    <VBox class="sapUiLargeMarginEnd" visible="{appModel>/isEditMode}" width="100%">
-                                        <Label class="sapUiTinyMarginBottom" visible="{appModel>/isEditMode}" text="{i18n>Create_Template_TemplateID}" labelFor="templateIdInput"/>
-                                        <Input visible="{appModel>/isEditMode}" placeholder="{i18n>Create_Template_TemplateIDPlaceholder}" width="100%" editable="false" value="{appModel>/Template/ID}" />
+                                    <VBox class="sapUiLargeMarginEnd" visible="false" width="100%">
+                                        <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Template_TemplateID}" labelFor="templateIdInput"/>
+                                        <Input placeholder="{i18n>Create_Template_TemplateIDPlaceholder}" width="100%" editable="false" value="{appModel>/Template/ID}" />
                                     </VBox>
                                     <VBox class="sapUiLargeMarginBeginEnd" width="100%">
                                         <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Template_TemplateName}" labelFor="templateNameInput" required="true"/>
@@ -89,8 +89,8 @@
                         <ScrollContainer height="80vh" width="100%" vertical="true" horizontal="false">
                             <Panel headerText="Basic Information" width="98%" expandable="false" class="sapUiSmallMarginTop">
                                 <form:SimpleForm editable="true" layout="ColumnLayout">
-                                    <Label text="Template ID"/>
-                                    <Text text="{= ${appModel>/Template/ID} ? ${appModel>/Template/ID} : 'New' }"/>
+                                    <Label text="Template ID" visible="false"/>
+                                    <Text text="{= ${appModel>/Template/ID} ? ${appModel>/Template/ID} : 'New' }" visible="false"/>
 
                                     <Label text="Template Name"/>
                                     <Text text="{appModel>/Template/name}"/>

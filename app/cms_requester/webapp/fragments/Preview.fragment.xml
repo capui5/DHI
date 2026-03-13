@@ -14,8 +14,8 @@
               <Label text="{i18n>lblContractTitle}"/>
               <Text text="{contractModel>/name}" />
 
-              <Label text="{i18n>lblContractNumber}"/>
-<Text text="{= ${contractModel>/ID} ? ${contractModel>/ID} : 'New' }" />
+              <Label text="{i18n>lblContractNumber}" visible="false"/>
+<Text text="{= ${contractModel>/ID} ? ${contractModel>/ID} : 'New' }" visible="false"/>
 
                <Label text="{i18n>lblAlias}"/>
               <Text text="{contractModel>/alias}" />

@@ -14,8 +14,8 @@
             <ScrollContainer height="80vh" width="100%" vertical="true" horizontal="false">
                 <Panel headerText="Basic Information" width="98%" expandable="false" class="sapUiSmallMarginTop">
                     <f:SimpleForm editable="true" layout="ColumnLayout">
-                        <Label text="Template ID"/>
-                        <Text text="{appModel>/ViewTemplate/ID}"/>
+                        <Label text="Template ID" visible="false"/>
+                        <Text text="{appModel>/ViewTemplate/ID}" visible="false"/>
 
                         <Label text="Template Name"/>
                         <Text text="{appModel>/ViewTemplate/name}"/>

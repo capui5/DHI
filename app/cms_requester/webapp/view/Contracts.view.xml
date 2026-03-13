@@ -70,12 +70,12 @@
 
                 <table:columns >
                     <!-- ID -->
-                    <table:Column id="col_id" sortProperty="ID" resizable="true" autoResizable="true">
+                    <!-- <table:Column id="col_id" sortProperty="ID" resizable="true" autoResizable="true">
                         <Label text="Document ID" wrapping="true"/>
                         <table:template>
                             <Text text="{ID}"/>
                         </table:template>
-                    </table:Column>
+                    </table:Column> -->
 
                     <!-- name (Document Title) -->
                     <table:Column id="col_name" sortProperty="name" filterProperty="name" defaultFilterOperator="Contains" resizable="true" autoResizable="true">

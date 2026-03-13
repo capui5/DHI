@@ -6,10 +6,12 @@
     xmlns:table="sap.ui.table"
     xmlns:f="sap.f"
     xmlns:grid="sap.ui.layout.cssgrid"
-    xmlns:rowmodes="sap.ui.table.rowmodes">
+    xmlns:rowmodes="sap.ui.table.rowmodes"
+    xmlns:dnd="sap.ui.core.dnd">
+    
     <Page id="AttributesPage" showHeader="false">
         <content>
-            <table:Table id="tblAttributes" class="sapUiSmallMargin" filter=".onAttributeFilter" selectionMode="None" visibleRowCountMode="Auto" rows="{path: '/Attributes', sorter: { path: 'name', descending: false },  parameters: {
+            <table:Table id="tblAttributes" class="sapUiSmallMargin" filter=".onAttributeFilter" selectionMode="None" visibleRowCountMode="Auto" rows="{path: '/Attributes', sorter: { path: 'sortID', descending: false },  parameters: {
     $select: '*'
   }}" enableColumnFreeze="true" enableBusyIndicator="true" enableCellFilter="true"  core:require='{ handler : "com/dhi/cms/cmsadmin/util/AttributesTableHelper" }' rowsUpdated=".onRowsUpdated">
                 <table:extension>
@@ -23,11 +25,10 @@
                     </OverflowToolbar>
                 </table:extension>
                 <table:columns>
-                    <table:Column id="attibuteId" defaultFilterOperator="EQ" filterProperty="ID" sortProperty="ID" resizable="true" autoResizable="true" headerMenu="menu">
+                    <table:Column id="attibuteId" visible="false" defaultFilterOperator="EQ" filterProperty="ID" sortProperty="ID" resizable="true" autoResizable="true" headerMenu="menu">
                         <Label text="{i18n>Attributes_ID}" wrapping="true"/>
                         <table:template>
                             <Text text="{ID}" wrapping="false" textAlign="Left" width="100%"/>
-
                         </table:template>
                     </table:Column>
                     <table:Column id="attributeName" filterProperty="name" defaultFilterOperator="Contains" sortProperty="name" resizable="true" autoResizable="true" headerMenu="menu">
@@ -90,6 +91,9 @@
                         </table:template>
                     </table:Column>
                 </table:columns>
+                <table:dragDropConfig>
+                    <dnd:DragDropInfo sourceAggregation="rows" targetAggregation="rows" dropPosition="Between" drop=".onDropRow" />
+                </table:dragDropConfig>
             </table:Table>
         </content>
     </Page>

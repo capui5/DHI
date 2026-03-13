@@ -33,9 +33,9 @@
                                 </f:layoutData>
                                 <VBox class="sapUiLargeMargin">
 
-                                    <VBox class="sapUiMediumMarginBottom">
-                                        <Label class="sapUiTinyMarginBottom" visible="{appModel>/isEditMode}" text="{i18n>Create_Attribute_Attribute_ID}" labelFor="attributeIdInput"/>
-                                        <Input id="attributeIdInput" editable="false" visible="{appModel>/isEditMode}" placeholder="{i18n>Create_Attribute_Attribute_ID_Placeholder}" value="{appModel>/Attributes/ID}"/>
+                                    <VBox class="sapUiMediumMarginBottom" visible="false">
+                                        <Label class="sapUiTinyMarginBottom" text="{i18n>Create_Attribute_Attribute_ID}" labelFor="attributeIdInput"/>
+                                        <Input id="attributeIdInput" editable="false" placeholder="{i18n>Create_Attribute_Attribute_ID_Placeholder}" value="{appModel>/Attributes/ID}"/>
                                     </VBox>
 
                                     <VBox class="sapUiMediumMarginBottom">
